@@ -4,7 +4,7 @@ Live AlphaGenome 2 (`alphagenome==2.0.0`), real data (Pelka et al. 2021), seed 4
 pool 600, 8 iterations, 40-edit efficacy null, 10 ISM pre-screen windows.
 
 ```bash
-crispr-reflexion optimize --max-iterations 8 --null-n 40
+gene-edit-check optimize --max-iterations 8 --null-n 40
 ```
 
 **Outcome: not converged.** No candidate passed every check, and 7 of 8 were blocked by CpG methylation.

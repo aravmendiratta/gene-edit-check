@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from crispr_reflexion.crispr.constraints import enumerate_valid_base_edits
-from crispr_reflexion.models import BaseEditorType
+from gene_edit_check.crispr.constraints import enumerate_valid_base_edits
+from gene_edit_check.models import BaseEditorType
 
 
 def test_abe_clean_vs_bystander_detection() -> None:

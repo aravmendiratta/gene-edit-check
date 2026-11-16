@@ -12,9 +12,9 @@ from pathlib import Path
 import pytest
 from rich.console import Console
 
-from crispr_reflexion.models import OptimizationRunResult
-from crispr_reflexion.ui.plots import export_optimization_figure
-from crispr_reflexion.ui.terminal_hud import render_optimization_report
+from gene_edit_check.models import OptimizationRunResult
+from gene_edit_check.ui.plots import export_optimization_figure
+from gene_edit_check.ui.terminal_hud import render_optimization_report
 
 REPORT = Path(__file__).resolve().parents[1] / "outputs" / "report_crc-pd1-exhaustion.json"
 
@@ -22,7 +22,7 @@ REPORT = Path(__file__).resolve().parents[1] / "outputs" / "report_crc-pd1-exhau
 @pytest.fixture(scope="module")
 def saved_run() -> OptimizationRunResult:
     if not REPORT.exists():
-        pytest.skip(f"{REPORT.name} not present (run: crispr-reflexion optimize)")
+        pytest.skip(f"{REPORT.name} not present (run: gene-edit-check optimize)")
     return OptimizationRunResult.model_validate_json(REPORT.read_text(encoding="utf-8"))
 
 

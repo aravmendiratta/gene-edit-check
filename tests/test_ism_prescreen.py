@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import numpy as np
 
-from crispr_reflexion.ag_backend.protocol import GradientProfile, VariantMultiModalScore
-from crispr_reflexion.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
-from crispr_reflexion.budget import RunBudgetTracker
-from crispr_reflexion.models import BackendMode, GenomicInterval
-from crispr_reflexion.scenarios.registry import SCENARIOS, build_til_cohort_anndata
-from crispr_reflexion.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
+from gene_edit_check.ag_backend.protocol import GradientProfile, VariantMultiModalScore
+from gene_edit_check.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
+from gene_edit_check.budget import RunBudgetTracker
+from gene_edit_check.models import BackendMode, GenomicInterval
+from gene_edit_check.scenarios.registry import SCENARIOS, build_til_cohort_anndata
+from gene_edit_check.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
 
 RNG = np.random.default_rng(7)
 

@@ -1,10 +1,12 @@
-# CRISPR-Reflexion
+# gene-edit-check
 
-**Find out whether a single base edit can switch a gene down in one cell state and leave another alone,
-using Google DeepMind's AlphaGenome 2 as the judge.**
+**A computational-biology toolkit that checks whether a gene edit works only in the cells you want.**
 
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/crispr-reflexion)](https://pypi.org/project/crispr-reflexion/)
+Give it a gene and two cell states. It searches for single base edits that turn the gene down in one state and
+leave the other alone, and uses Google DeepMind's AlphaGenome 2 as the judge.
+
+[![CI](https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/gene-edit-check)](https://pypi.org/project/gene-edit-check/)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Use](https://img.shields.io/badge/use-research%20only-orange)
@@ -13,7 +15,7 @@ Worked example: turn **PD-1 (*PDCD1*)** down in the exhausted T cells inside rea
 leaving normal-colon T cells alone. The search finds no edit that passes every safety check, and the
 project reports exactly why.
 
-![Summary figure](https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/crispr-reflexion/main/outputs/figure_crc-pd1-exhaustion.png)
+![Summary figure](https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/gene-edit-check/main/outputs/figure_crc-pd1-exhaustion.png)
 
 > *Research use only. Everything here is a computational prediction from the AlphaGenome 2 API. It is not
 > validated in a lab and is not for clinical, diagnostic or therapeutic use.*
@@ -23,16 +25,16 @@ project reports exactly why.
 ## Install
 
 ```bash
-pip install crispr-reflexion                 # the command-line tool and Python library
-pipx install crispr-reflexion                # same, in its own isolated environment (recommended for the CLI)
-pip install "crispr-reflexion[mcp]"          # also adds the server for AI coding agents
+pip install gene-edit-check                 # the command-line tool and Python library
+pipx install gene-edit-check                # same, in its own isolated environment (recommended for the CLI)
+pip install "gene-edit-check[mcp]"          # also adds the server for AI coding agents
 ```
 
-Needs Python 3.11 or newer. From source: `pip install git+https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion`.
+Needs Python 3.11 or newer. From source: `pip install git+https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check`.
 
 ## What happens when you install it
 
-You get one command, `crispr-reflexion`, and an importable Python package. Installing does not download
+You get one command, `gene-edit-check`, and an importable Python package. Installing does not download
 data, call any API or create any files. Nothing happens until you run something.
 
 | You have | You can do | Needs |
@@ -44,8 +46,8 @@ data, call any API or create any files. Nothing happens until you run something.
 ### 30 seconds, no key
 
 ```bash
-crispr-reflexion doctor                                   # what is set up, and where files will go
-crispr-reflexion conditions "CD8-positive"                # which reference conditions are best evidenced
+gene-edit-check doctor                                   # what is set up, and where files will go
+gene-edit-check conditions "CD8-positive"                # which reference conditions are best evidenced
 ```
 
 ### A real run
@@ -53,7 +55,7 @@ crispr-reflexion conditions "CD8-positive"                # which reference cond
 ```bash
 export ALPHAGENOME_API_KEY=...               # free, non-commercial: https://deepmind.google.com/science/alphagenome
                                              # PowerShell: $env:ALPHAGENOME_API_KEY='...'   or put it in a .env file
-crispr-reflexion optimize                    # PD-1 in exhausted colorectal-cancer T cells
+gene-edit-check optimize                    # PD-1 in exhausted colorectal-cancer T cells
 ```
 
 The first run downloads the Pelka et al. 2021 atlas (396 MB, once) and takes a few minutes. It makes tens of
@@ -68,7 +70,7 @@ Without a key, a real-data run stops and tells you how to get one. It will not q
 ### Your own data
 
 ```bash
-crispr-reflexion run-h5ad \
+gene-edit-check run-h5ad \
   --h5ad my_atlas.h5ad --gene-id ENSG00000188389 --gene-symbol PDCD1 \
   --target-query "cell_type == 'CD8 T cell' and condition == 'tumour'" \
   --healthy-query "cell_type == 'CD8 T cell' and condition == 'normal'" \
@@ -84,7 +86,7 @@ Tier 2 reference condition is chosen automatically from your `--cell-type`.
 - **Someone designing a state-selective regulatory edit** who wants a cheap first pass before committing to
   wet-lab work: does the model think this edit moves the gene in the cells you care about and not in the ones
   you don't, and what does it break on the way?
-- **Anyone using AlphaGenome 2** who wants a better way to pick a reference condition. `crispr-reflexion
+- **Anyone using AlphaGenome 2** who wants a better way to pick a reference condition. `gene-edit-check
   conditions` ranks them by whether the model saw real training data or only imputed it. Only 185 of 2,799
   human conditions have observed methylation.
 - **Single-cell groups** who need to condition AlphaGenome on a population but are limited to 256 cells. The
@@ -96,21 +98,21 @@ It is not a guide-RNA design tool, it does not predict off-target cutting, and i
 ## Use it from Python
 
 ```python
-from crispr_reflexion.conditions import search_conditions, evidence_profile
+from gene_edit_check.conditions import search_conditions, evidence_profile
 
 hits = search_conditions("CD8-positive", modality="methylation")   # strongest evidence first
 print(hits[["condition", "biosample_name", "methylation"]].head())
 print(evidence_profile("UBERON:0000178_CL:0000625"))               # blood CD8 T cell: all four 'observed'
 ```
 
-The full pipeline is `crispr_reflexion.pipeline.run_scenario`. The scripted simulator in
-`crispr_reflexion.ag_backend.simulator` lets you test code offline; its output is not a prediction.
+The full pipeline is `gene_edit_check.pipeline.run_scenario`. The scripted simulator in
+`gene_edit_check.ag_backend.simulator` lets you test code offline; its output is not a prediction.
 
 ## Use it from an AI agent
 
 - **Skill.** `skills/alphagenome_v2_single_cell_crispr/SKILL.md` teaches an agent how to drive the CLI and how to
   report results honestly.
-- **MCP server.** `crispr-reflexion-mcp` exposes `run_optimization_tool`, `list_scenarios_tool` and
+- **MCP server.** `gene-edit-check-mcp` exposes `run_optimization_tool`, `list_scenarios_tool` and
   `search_conditions_tool` to any MCP-capable agent.
 
 ## What it found
@@ -129,10 +131,10 @@ How each stage works and why: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 | What | Where |
 |---|---|
 | Reports and figures | `./outputs/` in the folder you run from |
-| Downloaded atlases and cached AlphaGenome responses | a per-user cache folder (`%LOCALAPPDATA%\crispr-reflexion`, `~/Library/Caches/crispr-reflexion`, or `~/.cache/crispr-reflexion`) |
-| Override the cache location | set `CRISPR_REFLEXION_HOME` |
+| Downloaded atlases and cached AlphaGenome responses | a per-user cache folder (`%LOCALAPPDATA%\gene-edit-check`, `~/Library/Caches/gene-edit-check`, or `~/.cache/gene-edit-check`) |
+| Override the cache location | set `GENE_EDIT_CHECK_HOME` |
 
-`crispr-reflexion doctor` prints the exact paths on your machine.
+`gene-edit-check doctor` prints the exact paths on your machine.
 
 ## Limits and terms
 
@@ -145,7 +147,7 @@ How each stage works and why: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 ## Develop
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion && cd crispr-reflexion
+git clone https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check && cd gene-edit-check
 uv venv --python 3.12 .venv && uv pip install --python .venv/Scripts/python.exe -e ".[dev,mcp]"
 pytest                    # offline: no API key and no download needed
 ```

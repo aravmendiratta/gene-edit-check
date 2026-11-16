@@ -1,11 +1,11 @@
 cff-version: 1.2.0
-title: "CRISPR-Reflexion: verifier-guided search for cell-state-selective CRISPR base edits"
+title: "gene-edit-check: a computational-biology toolkit for cell-state-selective CRISPR base edits"
 message: "If you use this software, please cite it as below."
 type: software
 authors:
   - family-names: Mendiratta
     given-names: Arav
-repository-code: "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion"
+repository-code: "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check"
 license: MIT
 version: 0.3.0
 date-released: "2026-11-16"

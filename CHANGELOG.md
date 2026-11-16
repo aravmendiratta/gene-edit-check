@@ -16,14 +16,14 @@ First public release.
 - `run-h5ad` runs the pipeline on any single-cell `.h5ad` file.
 
 **Commands**: `optimize`, `run-h5ad`, `conditions`, `doctor`, `validate-fidelity`, `ablate-sketch`,
-`sweep-coupling`, `sweep-universality`, and `crispr-reflexion-mcp` for AI agents.
+`sweep-coupling`, `sweep-universality`, and `gene-edit-check-mcp` for AI agents.
 
 **Install behaviour**
 - Downloaded atlases and cached API responses go to a per-user cache folder, never the Python install
-  directory. Override with `CRISPR_REFLEXION_HOME`.
+  directory. Override with `GENE_EDIT_CHECK_HOME`.
 - A real-data run without an API key stops with instructions instead of falling back to the simulator.
 - `.env` is found in the folder you run from.
-- `crispr-reflexion doctor` reports your setup.
+- `gene-edit-check doctor` reports your setup.
 
 **Corrections made before release**
 - An earlier draft reported a CpG-methylation vs efficacy correlation of +0.94 at *PDCD1*. With a 40-edit random

@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "crispr-reflexion"
+name = "gene-edit-check"
 version = "0.3.0"
-description = "Two-tier single-cell & sequence-hazard verifier and gradient-guided CRISPR base-editing optimizer powered by Google DeepMind AlphaGenome 2."
+description = "Computational-biology toolkit that checks whether a CRISPR base edit works only in the cells you want, using AlphaGenome 2 as the judge."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-keywords = ["alphagenome", "crispr", "base-editing", "single-cell", "regulatory-genomics"]
+keywords = ["computational-biology", "bioinformatics", "alphagenome", "crispr", "base-editing", "single-cell", "regulatory-genomics", "gene-editing"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -33,9 +33,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion"
-Issues = "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion/issues"
-Changelog = "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check"
+Issues = "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/issues"
+Changelog = "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 scverse = [
@@ -49,11 +49,11 @@ dev = [
 ]
 
 [project.scripts]
-crispr-reflexion = "crispr_reflexion.cli:app"
-crispr-reflexion-mcp = "crispr_reflexion.mcp_server.server:main"
+gene-edit-check = "gene_edit_check.cli:app"
+gene-edit-check-mcp = "gene_edit_check.mcp_server.server:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/crispr_reflexion"]
+packages = ["src/gene_edit_check"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

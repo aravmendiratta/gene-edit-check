@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from crispr_reflexion.benchmarks.hazard_coupling import analyze_hazard_coupling
-from crispr_reflexion.models import (
+from gene_edit_check.benchmarks.hazard_coupling import analyze_hazard_coupling
+from gene_edit_check.models import (
     BaseEditorType,
     CandidateGuideEdit,
     EfficacyNullCalibration,

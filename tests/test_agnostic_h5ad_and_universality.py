@@ -12,16 +12,16 @@ import pytest
 import scipy.sparse as sp
 from typer.testing import CliRunner
 
-from crispr_reflexion.ag_backend.protocol import GradientProfile
-from crispr_reflexion.benchmarks.universality import (
+from gene_edit_check.ag_backend.protocol import GradientProfile
+from gene_edit_check.benchmarks.universality import (
     compute_local_cpg_methylation_correlation,
     compute_sequence_cpg_architecture,
     local_cpg_count_within_50bp,
 )
-from crispr_reflexion.cli import app
-from crispr_reflexion.conditions import resolve_reference_pair
-from crispr_reflexion.datasets.generic_h5ad import GenericH5adSpec, build_generic_cohort
-from crispr_reflexion.models import (
+from gene_edit_check.cli import app
+from gene_edit_check.conditions import resolve_reference_pair
+from gene_edit_check.datasets.generic_h5ad import GenericH5adSpec, build_generic_cohort
+from gene_edit_check.models import (
     BackendMode,
     BaseEditorType,
     CandidateGuideEdit,
@@ -34,8 +34,8 @@ from crispr_reflexion.models import (
     Tier2HazardResult,
     TwoTierVerificationReport,
 )
-from crispr_reflexion.pipeline import resolve_scenario_references
-from crispr_reflexion.scenarios.registry import SCENARIOS
+from gene_edit_check.pipeline import resolve_scenario_references
+from gene_edit_check.scenarios.registry import SCENARIOS
 
 
 def test_cross_context_scenarios_registered_and_references_auto_resolved() -> None:
@@ -131,7 +131,7 @@ def _make_symbol_indexed_h5ad(
 
 
 def test_build_generic_cohort_reads_layers_raw_and_maps_ensembl(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("crispr_reflexion.datasets.generic_h5ad.PROCESSED_DIR", tmp_path / "proc")
+    monkeypatch.setattr("gene_edit_check.datasets.generic_h5ad.PROCESSED_DIR", tmp_path / "proc")
 
     h5_layers = _make_symbol_indexed_h5ad(tmp_path / "layers.h5ad", use_layers=True)
     spec_l = GenericH5adSpec(
@@ -178,7 +178,7 @@ def test_compute_sequence_cpg_architecture_exact_counts() -> None:
 
 
 def test_cli_run_h5ad_simulator_smoke(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("crispr_reflexion.datasets.generic_h5ad.PROCESSED_DIR", tmp_path / "proc")
+    monkeypatch.setattr("gene_edit_check.datasets.generic_h5ad.PROCESSED_DIR", tmp_path / "proc")
     h5_path = _make_symbol_indexed_h5ad(tmp_path / "cli_demo.h5ad", n_cells=120)
     out_dir = tmp_path / "out"
 
@@ -217,7 +217,7 @@ def test_resolve_reference_pair_handles_no_tissue_and_fallback() -> None:
 
 
 def test_build_generic_cohort_rejects_float_normalized_x(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("crispr_reflexion.datasets.generic_h5ad.PROCESSED_DIR", tmp_path / "proc")
+    monkeypatch.setattr("gene_edit_check.datasets.generic_h5ad.PROCESSED_DIR", tmp_path / "proc")
     ad = anndata.AnnData(
         X=np.array([[1.23, 0.45], [0.12, 2.34]], dtype=np.float32),
         obs=pd.DataFrame({"donor_id": ["d1", "d2"], "cluster": ["A", "B"]}, index=["c1", "c2"]),

@@ -22,12 +22,12 @@ jobs:
         run: .venv/bin/pytest -v
       - name: Smoke test CLI plumbing (SYNTHETIC data + scripted simulator; never a result)
         run: |
-          .venv/bin/crispr-reflexion ablate-sketch --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96
-          .venv/bin/crispr-reflexion optimize --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96 --max-iterations 4
+          .venv/bin/gene-edit-check ablate-sketch --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96
+          .venv/bin/gene-edit-check optimize --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96 --max-iterations 4
       - name: Reference-condition table is shipped and queryable (offline, no API key)
-        run: .venv/bin/crispr-reflexion conditions "CD8-positive" --modality methylation --limit 5
+        run: .venv/bin/gene-edit-check conditions "CD8-positive" --modality methylation --limit 5
       - name: Setup check runs without an API key
-        run: .venv/bin/crispr-reflexion doctor
+        run: .venv/bin/gene-edit-check doctor
       - name: Build the package and confirm the reference table ships inside it
         run: |
           uv build
@@ -36,4 +36,4 @@ jobs:
         run: |
           uv venv --python 3.12 /tmp/fresh
           uv pip install --python /tmp/fresh/bin/python dist/*.whl
-          /tmp/fresh/bin/crispr-reflexion conditions "CD8-positive" --limit 3
+          /tmp/fresh/bin/gene-edit-check conditions "CD8-positive" --limit 3

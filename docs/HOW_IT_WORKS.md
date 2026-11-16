@@ -50,7 +50,7 @@ finalist edit they *do* disagree (blood 0.146 → fail, colon 0.087 → pass), w
 kind of thing that should be shown, not smoothed over.
 
 ```bash
-crispr-reflexion conditions "CD8-positive" --modality methylation
+gene-edit-check conditions "CD8-positive" --modality methylation
 ```
 
 ### The expression scorer already returns the neighbours — don't throw them away

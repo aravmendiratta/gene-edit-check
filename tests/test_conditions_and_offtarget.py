@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from crispr_reflexion.ag_backend.protocol import VariantMultiModalScore
-from crispr_reflexion.conditions import (
+from gene_edit_check.ag_backend.protocol import VariantMultiModalScore
+from gene_edit_check.conditions import (
     EvidenceTier,
     best_evidence_condition,
     describe_condition,
@@ -17,8 +17,8 @@ from crispr_reflexion.conditions import (
     search_conditions,
     weakest_hazard_tier,
 )
-from crispr_reflexion.models import BackendMode, BaseEditorType, GenomicInterval
-from crispr_reflexion.verifier.off_tissue import run_off_tissue_panel
+from gene_edit_check.models import BackendMode, BaseEditorType, GenomicInterval
+from gene_edit_check.verifier.off_tissue import run_off_tissue_panel
 
 BLOOD_CD8 = "UBERON:0000178_CL:0000625"
 COLON_CD8 = "UBERON:0001155_CL:0000625"
@@ -86,7 +86,7 @@ class _TissueBackend:
 
 
 def _cand():  # type: ignore[no-untyped-def]
-    from crispr_reflexion.models import CandidateGuideEdit, SingleNucleotideVariant
+    from gene_edit_check.models import CandidateGuideEdit, SingleNucleotideVariant
 
     v = SingleNucleotideVariant(chromosome="chr2", position=500, reference="A", alternate="G", protospacer_index=5)
     return CandidateGuideEdit(
@@ -131,7 +131,7 @@ def test_off_tissue_panel_records_evidence_tiers() -> None:
 
 def test_mcp_tool_functions_work_without_the_mcp_package() -> None:
     """The tool bodies are plain functions, so they are testable and usable without MCP installed."""
-    from crispr_reflexion.mcp_server.server import list_scenarios_tool, run_optimization_tool, search_conditions_tool
+    from gene_edit_check.mcp_server.server import list_scenarios_tool, run_optimization_tool, search_conditions_tool
 
     ids = {s["scenario_id"] for s in list_scenarios_tool()}
     assert "crc-pd1-exhaustion" in ids and "pd1-exhaustion" in ids
@@ -142,10 +142,10 @@ def test_mcp_tool_functions_work_without_the_mcp_package() -> None:
 
 
 def test_installed_package_never_writes_into_site_packages(monkeypatch, tmp_path) -> None:  # type: ignore[no-untyped-def]
-    """Data and cache go to a per-user directory (or CRISPR_REFLEXION_HOME), never the install tree."""
-    from crispr_reflexion import paths
+    """Data and cache go to a per-user directory (or GENE_EDIT_CHECK_HOME), never the install tree."""
+    from gene_edit_check import paths
 
-    monkeypatch.setenv("CRISPR_REFLEXION_HOME", str(tmp_path))
+    monkeypatch.setenv("GENE_EDIT_CHECK_HOME", str(tmp_path))
     assert paths.home() == tmp_path
     assert paths.data_dir() == tmp_path / "data"
     assert tmp_path in paths.api_cache_dir().parents
@@ -153,8 +153,8 @@ def test_installed_package_never_writes_into_site_packages(monkeypatch, tmp_path
 
 def test_real_data_run_without_a_key_refuses_instead_of_faking(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     import typer
-    from crispr_reflexion.budget import RunBudgetTracker
-    from crispr_reflexion.cli import _resolve_backend
+    from gene_edit_check.budget import RunBudgetTracker
+    from gene_edit_check.cli import _resolve_backend
 
     monkeypatch.delenv("ALPHAGENOME_API_KEY", raising=False)
     with pytest.raises(typer.Exit):
@@ -166,7 +166,7 @@ def test_real_data_run_without_a_key_refuses_instead_of_faking(monkeypatch) -> N
 
 def test_doctor_runs_without_a_key(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     from typer.testing import CliRunner
-    from crispr_reflexion.cli import app
+    from gene_edit_check.cli import app
 
     monkeypatch.delenv("ALPHAGENOME_API_KEY", raising=False)
     result = CliRunner().invoke(app, ["doctor"])

@@ -15,14 +15,14 @@ metadata:
   version: "0.3.0"
 ---
 
-# AlphaGenome 2 Single-Cell Conditioned Variant & CRISPR Base-Editing Verifier (`crispr-reflexion`)
+# AlphaGenome 2 Single-Cell Conditioned Variant & CRISPR Base-Editing Verifier (`gene-edit-check`)
 
 ## Prerequisites
 
 1. **`uv` Installation**: Ensure `uv` is installed (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
 2. **AlphaGenome Non-Commercial Terms**: AlphaGenome 2 weights and API predictions are subject to the [AlphaGenome Non-Commercial Use Terms](https://deepmind.google.com/science/alphagenome/terms). All outputs carry an explicit `RESEARCH USE ONLY` notice and are not validated for clinical, diagnostic, or therapeutic use.
 3. **API Key Setup**:
-   Configure `ALPHAGENOME_API_KEY` in `.env` (or `~/.env`). Obtain a free non-commercial key at [https://deepmind.google.com/science/alphagenome](https://deepmind.google.com/science/alphagenome). If no key is present, `crispr-reflexion` can run in offline `--simulator` mode with an explicit `[SURROGATE_SIMULATOR]` provenance stamp.
+   Configure `ALPHAGENOME_API_KEY` in `.env` (or `~/.env`). Obtain a free non-commercial key at [https://deepmind.google.com/science/alphagenome](https://deepmind.google.com/science/alphagenome). If no key is present, `gene-edit-check` can run in offline `--simulator` mode with an explicit `[SURROGATE_SIMULATOR]` provenance stamp.
 
 ---
 
@@ -57,46 +57,46 @@ metadata:
 
 ### 1. Optimize (`optimize`), real data, live API
 ```bash
-uv run crispr-reflexion optimize                 # default scenario crc-pd1-exhaustion, ~1 min
+uv run gene-edit-check optimize                 # default scenario crc-pd1-exhaustion, ~1 min
 ```
 Outputs `outputs/report_crc-pd1-exhaustion.json` (provenance, data source, efficacy null, per-iteration Tier 1/Tier 2 results) and a 4-panel figure.
 Pre-set rules: direction (silencing must lower the target), efficacy must beat a 40-edit random-edit null, healthy/target ratio <= 0.35, **no neighbour gene above 0.50 of the target's shift**, splice <= 0.15, CpG methylation <= 0.12, zero bystanders. Finalists also get an **off-tissue safety panel** across six non-immune reference tissues. **Do not loosen thresholds to make a candidate pass.**
 
 ### 2. Validate that conditioning reproduces real biology (`validate-fidelity`)
 ```bash
-uv run crispr-reflexion validate-fidelity
+uv run gene-edit-check validate-fidelity
 ```
 Predicted vs observed tumor-vs-normal ln fold-change over a fixed 24-gene panel (live backend only). Last run: Spearman rho = +0.65 (p = 0.0005), 94% sign agreement on 17 changing genes, slope 0.56 (model compresses true differences).
 
 ### 3. Coreset ablation (`ablate-sketch`)
 ```bash
-uv run crispr-reflexion ablate-sketch
+uv run gene-edit-check ablate-sketch
 ```
 Facility-location sketches in `encode_cells()` space vs random subsampling (about -50% MMD^2 on real data). Sketch A and B are split by patient.
 
 ### 4. Is the coupling locus-specific? (`sweep-coupling`)
 ```bash
-uv run crispr-reflexion sweep-coupling           # PDCD1, CTLA4, HAVCR2, LAG3, TIGIT, TOX
+uv run gene-edit-check sweep-coupling           # PDCD1, CTLA4, HAVCR2, LAG3, TIGIT, TOX
 ```
 Runs the identical pipeline (same cells, sketches, thresholds, references) across six checkpoint loci with a 40-edit random null. Last run: CpG rho between +0.44 and +0.65 at every locus (all p < 0.01), positive everywhere. Do not report a locus as methylation-specific, generic or uncoupled: those labels flip with null size and seed.
 
 ### 5. Check robustness across seeds, subtypes, lineages & cancers (`sweep-universality`)
 ```bash
-uv run crispr-reflexion sweep-universality
+uv run gene-edit-check sweep-universality
 ```
 Evaluates multi-seed stability (seeds 42/7/99, mean CpG rho = +0.535 +/- 0.049), CRC MMRd vs MMRp subtypes, CD4+ CXCL13+ helper TILs, PDCD1+ gamma-delta TILs, Triple-Negative Breast Cancer CD8+ TILs (Wu et al. 2020), and physical GRCh38 CpG architecture across all 6 loci (`outputs/universality_report.json`). The random-edit-only control is positive but not individually significant (+0.26 to +0.39), and splicing also correlates among random edits, so the result is a moderate association, not a methylation-specific mechanism.
 
 ### 6. Run dataset-agnostic on any `.h5ad` (`run-h5ad`)
 ```bash
-uv run crispr-reflexion run-h5ad --h5ad path/or/url.h5ad --gene-id ENSG... --gene-symbol SYMBOL \
+uv run gene-edit-check run-h5ad --h5ad path/or/url.h5ad --gene-id ENSG... --gene-symbol SYMBOL \
   --target-query "..." --healthy-query "..." --cell-type "CD8-positive"
 ```
 Supports `.raw.X`, `.layers["counts"]`, and `.X`, auto-detects donor columns and Ensembl IDs, supports `expr_<GENE>` count predicates inside queries, and automatically resolves the strongest-evidence Tier 2 reference condition via `resolve_reference_pair()`.
 
 ### 7. Inspect reference-condition evidence (`conditions`)
 ```bash
-uv run crispr-reflexion conditions "CD8-positive" --modality methylation
-uv run crispr-reflexion conditions --refresh      # re-download the shipped table
+uv run gene-edit-check conditions "CD8-positive" --modality methylation
+uv run gene-edit-check conditions --refresh      # re-download the shipped table
 ```
 
 ## Reporting rules

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from crispr_reflexion.budget import BudgetExceededError, RunBudgetTracker
+from gene_edit_check.budget import BudgetExceededError, RunBudgetTracker
 
 
 def test_oversized_ism_window_raises() -> None:

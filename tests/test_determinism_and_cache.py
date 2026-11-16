@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from crispr_reflexion.budget import RunBudgetTracker
-from crispr_reflexion.cache import ContentAddressedCache
-from crispr_reflexion.ag_backend.simulator import SurrogateSimulatorBackend
-from crispr_reflexion.scenarios.registry import build_til_cohort_anndata
+from gene_edit_check.budget import RunBudgetTracker
+from gene_edit_check.cache import ContentAddressedCache
+from gene_edit_check.ag_backend.simulator import SurrogateSimulatorBackend
+from gene_edit_check.scenarios.registry import build_til_cohort_anndata
 
 
 def test_content_addressed_cache_roundtrip(tmp_path: Path) -> None:

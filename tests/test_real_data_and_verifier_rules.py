@@ -8,18 +8,18 @@ import pandas as pd
 import pytest
 import scipy.sparse as sp
 
-from crispr_reflexion.adata_utils import counts_fingerprint, drop_unexpressed_genes
-from crispr_reflexion.ag_backend.protocol import VariantMultiModalScore
-from crispr_reflexion.models import (
+from gene_edit_check.adata_utils import counts_fingerprint, drop_unexpressed_genes
+from gene_edit_check.ag_backend.protocol import VariantMultiModalScore
+from gene_edit_check.models import (
     BackendMode,
     BaseEditorType,
     CandidateGuideEdit,
     GenomicInterval,
     SingleNucleotideVariant,
 )
-from crispr_reflexion.sc_sketch.coreset import DisjointCellSketches
-from crispr_reflexion.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
-from crispr_reflexion.verifier.two_tier import VerificationThresholds, evaluate_candidate_two_tier
+from gene_edit_check.sc_sketch.coreset import DisjointCellSketches
+from gene_edit_check.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
+from gene_edit_check.verifier.two_tier import VerificationThresholds, evaluate_candidate_two_tier
 
 
 def _adata(n_cells: int = 120, n_genes: int = 30, n_donors: int = 10, seed: int = 0) -> anndata.AnnData:
@@ -129,10 +129,10 @@ def test_selectivity_ratio_default_is_strict() -> None:
 
 
 def test_real_cohort_has_the_expected_biology() -> None:
-    from crispr_reflexion.datasets import crc_pelka as crc
+    from gene_edit_check.datasets import crc_pelka as crc
 
     if not (crc.PROCESSED_DIR / "pelka_crc_cd8_pool600_seed42.h5ad").exists() and not crc.RAW_PATH.exists():
-        pytest.skip("real cohort not downloaded (run: crispr-reflexion ablate-sketch)")
+        pytest.skip("real cohort not downloaded (run: gene-edit-check ablate-sketch)")
     pdcd1 = "ENSG00000188389"
     coh = crc.build_cohort(pool_size=600, seed=42, marker_gene_ids=(pdcd1,))
     obs = coh.observed_cp10k

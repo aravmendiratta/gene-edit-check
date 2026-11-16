@@ -8,9 +8,9 @@
 
 ---
 
-# CRISPR-Reflexion (`crispr-reflexion`) — Revised Engineering & Execution Plan (v2)
+# gene-edit-check (`gene-edit-check`) — Revised Engineering & Execution Plan (v2)
 
-> **Research-Use-Only Notice:** `crispr-reflexion` is an in-silico research tool for exploring regulatory sequence grammar and single-cell variant effects using Google DeepMind's AlphaGenome 2 API. Following DeepMind's terms, outputs are candidate computational hypotheses and are **not** validated for clinical, diagnostic, or therapeutic use.
+> **Research-Use-Only Notice:** `gene-edit-check` is an in-silico research tool for exploring regulatory sequence grammar and single-cell variant effects using Google DeepMind's AlphaGenome 2 API. Following DeepMind's terms, outputs are candidate computational hypotheses and are **not** validated for clinical, diagnostic, or therapeutic use.
 
 ---
 
@@ -56,15 +56,15 @@ Our revised sketching pipeline (`sc_sketch/coreset.py`):
 ## 2. Revised Repository Layout
 
 ```text
-crispr-reflexion/
-├── pyproject.toml                     # Single primary CLI: `crispr-reflexion`
+gene-edit-check/
+├── pyproject.toml                     # Single primary CLI: `gene-edit-check`
 ├── README.md                          # Architecture, two-tier defense, RUO notice, citations
 ├── PROJECT_PLAN.md                    # This revised plan
 ├── SKILL.md                           # Agent Skill definition (Claude Code / Cursor / Antigravity)
 ├── scripts/
 │   └── probe_ag2_api.py               # Phase 0 live API probe (tests cell_conditioning + scorers + gradients)
 ├── src/
-│   └── crispr_reflexion/
+│   └── gene_edit_check/
 │       ├── __init__.py
 │       ├── cli.py                     # CLI: `probe`, `audit`, `optimize`, `ablate-sketch`, `validate-gt`
 │       ├── models.py                  # Pydantic v2 types (explicit Tier1Selectivity vs Tier2Hazard)

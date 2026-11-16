@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from crispr_reflexion.ag_backend.simulator import SurrogateSimulatorBackend
-from crispr_reflexion.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
-from crispr_reflexion.budget import RunBudgetTracker
-from crispr_reflexion.models import BackendMode
-from crispr_reflexion.scenarios.registry import SCENARIOS, build_til_cohort_anndata
-from crispr_reflexion.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
+from gene_edit_check.ag_backend.simulator import SurrogateSimulatorBackend
+from gene_edit_check.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
+from gene_edit_check.budget import RunBudgetTracker
+from gene_edit_check.models import BackendMode
+from gene_edit_check.scenarios.registry import SCENARIOS, build_til_cohort_anndata
+from gene_edit_check.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
 
 
 def test_end_to_end_two_tier_reflexion_loop() -> None:
