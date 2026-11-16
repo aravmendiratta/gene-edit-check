@@ -34,11 +34,21 @@ metadata:
    - **Tier 2 (Sequence-Intrinsic Hazards):** Evaluate `SpliceJunctionScorer()` and `MethylationScorer(width=1201)` against matched reference ontology conditions (`model_condition.from_curies`), and encode the resolution tier (`TIER1_SINGLE_CELL_CONDITIONED` vs. `TIER2_ONTOLOGY_REFERENCE_CONDITION`) explicitly in all JSON/Markdown reports.
 2. **Donor-Stratified `encode_cells()` Sketching Over Uniform Random Subsampling**:
    - Never use unstratified random sampling (`gene_counts_condition.subsample`) on multi-donor `.h5ad` atlases, as `encode_cells()` does not remove batch effects. Always stratify by donor/batch and select coresets in the 256-D `encode_cells()` latent space (`sc_sketch/coreset.py`).
-3. **Gradients Propose, Scoped ISM Verifies**:
+3. **Pick Reference Conditions By Evidence Tier, Not By Anatomy** (`conditions.py`):
+   - `supported_conditions()` reports, per condition and output type, whether the model has `observed` tracks, an `imputed_supported` imputation, or an unvalidated `imputed_exploratory` one. Only 185 of 2,799 human conditions have **observed** methylation.
+   - Choose the hazard reference with the strongest evidence for the modality being trusted, and **stamp the tier into the report** (`Tier2HazardResult.evidence_tiers`, `limiting_evidence_tier`). For CD8 T cells that is `UBERON:0000178_CL:0000625` (blood CD8: observed methylation, splicing, RNA-seq, TF ChIP); the tissue-matched `UBERON:0001155_CL:0000625` (colon CD8) is `imputed_exploratory` for both hazard modalities.
+   - Run the tissue-matched condition as a **concordance check** and report disagreement (`tissue_matched_agrees`). Never average a weak-evidence verdict into a strong-evidence one.
+4. **Measure Edit Direction, Do Not Infer It From Gradient Sign**:
+   - The gradient sign is a first-order heuristic and, audited against ISM on real data, is correct only ~70% of the time. Run an ISM pre-screen (`ism_prescreen_windows`) over compact windows first: one call measures every substitution in the window, so wrong-direction candidates are filtered before they cost verification calls.
+5. **Keep The Neighbour Genes The Scorer Already Returned**:
+   - The expression scorer returns every gene in the interval. Keeping the non-target rows costs nothing and catches edits that hit a shared regulatory element (`Tier1SelectivityResult.neighbor_gene_lfcs`). At *PDCD1* this caught three candidates dragging *RTP5* along.
+6. **Diagnose A Failed Search, Do Not Just Report It** (`benchmarks/hazard_coupling.py`):
+   - Test whether efficacy and each hazard are correlated across all scored variants. A hazard that scales with efficacy means the locus is constrained and a better optimiser will not help; one that does not means the search is the limit. Always report the random-edit-only control (rules out selection bias) and the splicing comparison (rules out generic entanglement of model outputs).
+7. **Gradients Propose, Scoped ISM Verifies**:
    - Never run brute-force ISM across the full 131 kb context window ($\sim 393\text{k}$ variants). Use `predict_interval_gradients` (`1` call) to rank PAM-valid base-editor windows (`ABE8e` / `CBE`, deaminase window `[4..8]`), then run scoped ISM ($\le 60\text{ bp}$) only on top candidate windows, enforced by `CostBudgetTracker` (`budget.py`) and content-addressed SQLite caching (`cache.py`).
-4. **Mandatory AlphaGenome Atlas Deep-Linking**:
+8. **Mandatory AlphaGenome Atlas Deep-Linking**:
    - Every reported variant (`chr:pos:ref>alt`) must include its clickable [AlphaGenome Atlas](https://deepmind.google.com/science/alphagenome/atlas) deep-link (`SingleNucleotideVariant.atlas_url`), formatted as `https://deepmind.google.com/science/alphagenome/atlas?q={chr}:{pos}:{ref}%3E{alt}&m=variant&i={chr}:{pos-190}-{pos+190}`.
-5. **Companion Skills Integration (`google-deepmind/science-skills`)**:
+9. **Companion Skills Integration (`google-deepmind/science-skills`)**:
    - Chain with `alphagenome-atlas-website-links` for multi-track Ref vs. Alt Sashimi/RNA-seq views (`/atlas/track-predictions`), `jaspar_database` for TF PWM verification, and `ensembl_database` for gene/transcript coordinate lookup.
 
 ---
@@ -50,7 +60,7 @@ metadata:
 uv run crispr-reflexion optimize                 # default scenario crc-pd1-exhaustion, ~1 min
 ```
 Outputs `outputs/report_crc-pd1-exhaustion.json` (provenance, data source, efficacy null, per-iteration Tier 1/Tier 2 results) and a 4-panel figure.
-Pre-set rules: direction (silencing must lower the target), efficacy must beat a 12-edit random-edit null, healthy/target ratio <= 0.35, splice <= 0.15, CpG methylation <= 0.12, zero bystanders. **Do not loosen thresholds to make a candidate pass.**
+Pre-set rules: direction (silencing must lower the target), efficacy must beat a 12-edit random-edit null, healthy/target ratio <= 0.35, **no neighbour gene above 0.50 of the target's shift**, splice <= 0.15, CpG methylation <= 0.12, zero bystanders. Finalists also get an **off-tissue safety panel** across six non-immune reference tissues. **Do not loosen thresholds to make a candidate pass.**
 
 ### 2. Validate that conditioning reproduces real biology (`validate-fidelity`)
 ```bash
@@ -64,13 +74,27 @@ uv run crispr-reflexion ablate-sketch
 ```
 Facility-location sketches in `encode_cells()` space vs random subsampling (about -50% MMD^2 on real data). Sketch A and B are split by patient.
 
+### 4. Is the coupling locus-specific? (`sweep-coupling`)
+```bash
+uv run crispr-reflexion sweep-coupling           # PDCD1, CTLA4, HAVCR2, LAG3, TIGIT, TOX
+```
+Runs the identical pipeline (same cells, sketches, thresholds, references) across six checkpoint loci and compares efficacy-vs-hazard coupling at each. Last run: methylation-specific at **PDCD1** (rho=+0.92, splice -0.30) and **LAG3** (+0.82, splice +0.10); generic hazard coupling at CTLA4/HAVCR2/TIGIT; uncoupled at TOX (+0.30, ns).
+
+### 5. Inspect reference-condition evidence (`conditions`)
+```bash
+uv run crispr-reflexion conditions "CD8-positive" --modality methylation
+uv run crispr-reflexion conditions --refresh      # re-download the shipped table
+```
+
 ## Reporting rules
 - State whether the run converged. Report failures and near-misses, not only passes.
 - Always state the data source and backend. `--simulator` and `pd1-exhaustion` (synthetic) are plumbing tests only and must never be presented as results.
 - Effect sizes are model predictions with no wet-lab validation; the model compresses true differences (slope ~0.56).
+- **Always quote the evidence tier** behind a Tier 2 hazard verdict. An `imputed_exploratory` number is a guess about a guess and must not be reported as equivalent to an `observed` one.
+- A coupling between two model predictions is evidence about the model, not a measurement of chromatin. Report the random-edit control and the splicing comparison alongside it, or do not make the claim.
 
 ## Reference example
-[`docs/examples/crc_pd1_real_run.md`](docs/examples/crc_pd1_real_run.md): real colorectal-cancer data, 8 iterations, not converged; two selective candidates fail only the CpG-methylation hazard.
+[`docs/examples/crc_pd1_real_run.md`](docs/examples/crc_pd1_real_run.md): real colorectal-cancer data, 8 iterations, not converged. The near-misses fail only the CpG-methylation hazard, and the coupling analysis shows why: at this locus efficacy and methylation disruption are the same quantity (rho=+0.94, p=8e-10).
 
 ## Citation
 See [`references/citation.bib`](references/citation.bib).

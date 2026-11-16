@@ -1,32 +1,113 @@
-# Worked example: PDCD1 silencing in exhausted colorectal-tumor CD8 T cells (real data, live API)
+# Worked example: PD-1 silencing in exhausted colorectal-cancer TILs
 
-`crispr-reflexion optimize --sketch-size 128 --pool-size 600 --max-iterations 8 --null-n 12 --seed 42`
-Backend `LIVE_ALPHAGENOME_V2` (`alphagenome-2.0.0-all_folds`). Data: Pelka et al. 2021 (see README). Research use only.
+Live AlphaGenome 2 (`alphagenome==2.0.0`), real data (Pelka et al. 2021), seed 42, sketch 128,
+pool 600, 8 iterations, 12-edit efficacy null, 10 ISM pre-screen windows.
 
-**Outcome: not converged.** No candidate passed every pre-set check in 8 iterations.
+```bash
+crispr-reflexion optimize --max-iterations 8 --null-n 12
+```
 
-## Pre-set rules (fixed before the run)
-Direction: PD-1 must go **down**. Efficacy: held-out |LFC| must exceed the largest of 12 random PAM-valid edits (**0.0604**, p ≥ 0.077).
-Selectivity: normal-colon shift ≤ 0.35 × target shift. Splice ≤ 0.15. CpG methylation ≤ 0.12. Zero bystander edits in window [4..8].
+**Outcome: not converged.** No candidate passed every check. The run's own coupling analysis says
+why, and that is the result worth reporting.
 
-## Trace (LFC on held-out-patient Sketch B; healthy = normal-colon CD8)
+---
 
-| # | Edit | Target | Healthy | Ratio | Splice | Meth | Failed |
-|---|---|---:|---:|---:|---:|---:|---|
-| 1 | ABE8e `…858903 A>G` | −0.130 | −0.231 | 1.78 | 0.00 | 0.684 | selectivity, methylation, bystander (2) |
-| 2 | CBE `…859997 C>T` | −0.132 | −0.031 | 0.23 | 0.00 | 0.691 | **methylation only** |
-| 3 | ABE8e `…859845 A>G` | −0.077 | −0.012 | 0.15 | 0.00 | 0.146 | **methylation only (by 0.026)** |
-| 4 | CBE `…858884 C>T` | −0.354 | −0.364 | 1.03 | 0.66 | 0.861 | selectivity, splice, methylation (promoter hit, non-selective) |
-| 5 | CBE `…858777 G>A` | +0.041 | +0.048 | 1.20 | 0.16 | 0.059 | direction, selectivity, splice |
-| 6 | ABE8e `…858890 T>C` | +0.068 | +0.071 | 1.05 | 0.15 | 0.309 | direction, selectivity, methylation |
-| 7 | CBE `…858785 G>A` | +0.028 | +0.040 | 1.43 | 0.09 | 0.062 | direction, selectivity |
-| 8 | ABE8e `…858912 A>G` | +0.063 | +0.073 | 1.15 | 0.00 | 0.372 | direction, selectivity, methylation |
+## Setup the run chose
 
-## What this says
-- **Two candidates are selective and effective** (2 and 3, ratio 0.23 and 0.15, both beat the random-edit null) and **both fail only on CpG methylation**. Candidate 2 (`protospacer CATCAAAGATGATGTCTGCG`, PAM AGG) overlaps what the project's motif table labels the PD-1 CR-C enhancer (annotation not independently verified).
-- Methylation is a genuine, not a spurious, signal: random edits at this locus have median methylation shift ≈ 0.012 (11 of 12 ≤ 0.05; one outlier 0.16 that also had the largest random PD-1 effect), so 0.146 is ~12× typical and 0.69 is far beyond it. A C>T at a CpG changes the CpG itself.
-- The 0.12 limit was **not loosened** to make candidate 3 pass. Whether 0.146 is acceptable is a scientific judgement for a domain expert, not something to tune away.
-- Iterations 5–8 are all wrong-direction edits that the verifier correctly rejected. That is a weakness of the proposer, not a success: after the first four candidates the gradient-sign ranking prior has little left to offer, and the loop spent its remaining budget on edits that raise PD-1. A better proposer (e.g. signed ISM over more windows, or a wider PAM set such as NG) is the obvious next step.
+| | |
+|---|---|
+| Locus | `chr2:241,793,329-241,924,401` (131 kb around the *PDCD1* TSS) |
+| Target state | `Exhausted_CD8_TIL` — 12,738 cells, 62 patients |
+| Healthy state | `Normal_Colon_CD8` — 2,626 cells, 36 patients |
+| Sketch split | by patient; Sketch A and B share **0** patients |
+| Hazard reference | `UBERON:0000178_CL:0000625` blood CD8 — **observed** methylation *and* splicing |
+| Tissue-matched check | `UBERON:0001155_CL:0000625` colon CD8 — `imputed_exploratory` for both |
+| Efficacy cutoff | 0.0604 = max \|LFC\| over 12 random PAM-valid edits (empirical p ≤ 1/13) |
 
-## Caveats
-Single seed, single gene, 12-edit null with one heavy-tailed outlier; Tier 2 uses a blood CD8 reference; all numbers are model predictions.
+## ISM pre-screen
+
+240 substitutions measured over 10 × 8 bp windows, covering 49 candidates. **19 were discarded for
+moving PD-1 the wrong way** before costing any verification call.
+
+The audit that justifies the pre-screen: the gradient sign agreed with the measured ISM sign only
+**70.4%** of the time. Relying on it, as the earlier version did, spent half the iteration budget on
+edits that *raised* PD-1.
+
+## Iteration trace
+
+| # | Editor | Edit | PD-1 (held-out B) | Healthy | Worst neighbour | Splice | CpG | Failed |
+|---|---|---|---|---|---|---|---|---|
+| 1 | CBE | chr2:241858884 C>T | −0.3543 | −0.3637 | — | 0.656 | 0.861 | 3 |
+| 2 | CBE | chr2:241859997 C>T | −0.1322 | −0.0310 | — | 0.000 | 0.692 | **1 (CpG)** |
+| 3 | CBE | chr2:241859900 C>T | −0.1144 | **+0.0005** | FAM240C +0.020 | 0.000 | 0.415 | 2 |
+| 4 | ABE8e | chr2:241859845 A>G | −0.0771 | −0.0119 | — | 0.000 | **0.146** | **1 (CpG)** |
+| 5 | ABE8e | chr2:241858956 T>C | −0.1378 | −0.2665 | RTP5 +0.107 | 0.000 | 0.710 | 3 |
+| 6 | ABE8e | chr2:241858962 T>C | −0.1153 | −0.1536 | RTP5 +0.063 | 0.000 | 0.415 | 3 |
+| 7 | CBE | chr2:241858777 G>A | **+0.0405** | +0.0484 | — | 0.161 | 0.059 | 3 |
+| 8 | CBE | chr2:241858973 G>A | −0.2900 | −0.5890 | RTP5 +0.193 | 0.000 | 1.338 | 3 |
+
+Seven of eight moved PD-1 in the intended direction (the earlier gradient-only search managed four).
+
+**Iteration 3** is the most selective edit found: PD-1 down 11.4% in exhausted TILs and **+0.05%** in
+normal colon T cells — a selectivity ratio of 0.004. It fails on methylation (0.415) and on three
+bystander bases in the editing window.
+
+**Iterations 5, 6 and 8** cluster around chr2:241,858,9xx and all drag ***RTP5*** with them, up to
+66% of the on-target effect. That is a shared regulatory element, and the critic learned to avoid it
+(`AVOID_SHARED_REGULATORY_ELEMENTS`). The previous version of the pipeline discarded those rows and
+would have reported these as clean.
+
+## The near miss, in full
+
+`chr2:241,859,845 A>G` · ABE8e · + strand · protospacer `TATTAGTGATGAGATGCGTC` · PAM `AGG` ·
+position 5 · 0 bystanders
+
+| Check | Value | Verdict |
+|---|---|---|
+| Direction | lowers PD-1 | pass |
+| Efficacy | −0.0771 vs cutoff 0.0604 | pass |
+| Healthy sparing | −0.0119, ratio 0.15 vs limit 0.35 | pass |
+| Cross-sketch transfer | A −0.0802 → B −0.0771 | pass |
+| Neighbour genes | none above threshold | pass |
+| Splice | 0.000 vs limit 0.15 | pass |
+| Bystanders | 0 | pass |
+| **CpG methylation** | **0.146 vs limit 0.12** | **fail** |
+
+Two things complicate it further:
+
+- **The references disagree.** Blood CD8 (observed evidence) gives 0.146 → fail. Colon CD8
+  (tissue-matched, exploratory evidence) gives 0.087 → pass. Reported side by side.
+- **It is not tissue-silent.** The off-tissue panel flags hepatocyte (0.049) and brain (0.040)
+  against a bar of 0.039 (50% of the on-target effect).
+
+The threshold was not moved. Whether 0.146 is tolerable needs wet-lab evidence, not a judgement from
+whoever set the limit.
+
+## Why the search stopped where it did
+
+Across all 20 scored variants (12 random + 8 candidates):
+
+| | Spearman ρ | p | random-edits-only ρ | p |
+|---|---|---|---|---|
+| **CpG methylation vs efficacy** | **+0.94** | 7.9×10⁻¹⁰ | **+0.73** | 0.0065 |
+| Splice vs efficacy | −0.05 | 0.84 | −0.28 | 0.37 |
+
+Verdict: **target constrained**, classification **methylation-specific**.
+
+At *PDCD1*, the sequence changes that silence the gene are the ones that disturb CpG methylation.
+More search iterations will not fix that. The random-edits-only column rules out selection bias (the
+null was scored before any candidate was chosen), and the splice row rules out the model simply
+moving every output at once.
+
+Across six checkpoint loci this pattern is specific rather than universal — methylation-specific at
+*PDCD1* and *LAG3*, generic at *CTLA4*/*HAVCR2*/*TIGIT*, absent at *TOX*:
+
+```bash
+crispr-reflexion sweep-coupling
+```
+
+## Caveat
+
+Every number above is a prediction from one model, with no wet-lab validation. The coupling is a
+correlation between two AlphaGenome 2 outputs; the two controls make it harder to explain away, but
+they do not establish that the mechanism is real chromatin biology.
