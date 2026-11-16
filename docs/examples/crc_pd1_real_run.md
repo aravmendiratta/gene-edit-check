@@ -52,7 +52,7 @@ normal colon T cells — a selectivity ratio of 0.004. It fails on methylation (
 bystander bases in the editing window.
 
 **Iterations 5, 6 and 8** cluster around chr2:241,858,9xx and all drag ***RTP5*** with them, up to
-66% of the on-target effect. That is a shared regulatory element, and the critic learned to avoid it
+66% of the on-target effect. That is a shared regulatory element, and the search learned to avoid it
 (`AVOID_SHARED_REGULATORY_ELEMENTS`). The previous version of the pipeline discarded those rows and
 would have reported these as clean.
 

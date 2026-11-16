@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from gene_edit_check.ag_backend.protocol import GradientProfile, VariantMultiModalScore
-from gene_edit_check.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
+from gene_edit_check.search.search_loop import run_gradient_ism_search
 from gene_edit_check.budget import RunBudgetTracker
 from gene_edit_check.models import BackendMode, GenomicInterval
 from gene_edit_check.scenarios.registry import SCENARIOS, build_til_cohort_anndata
@@ -72,7 +72,7 @@ def _run(prescreen_windows: int, ism_lfc: float = +0.30):  # type: ignore[no-unt
     cohort = build_til_cohort_anndata(n_cells_per_state=64, seed=42)
     t_sk, t_m = _sketches(backend, cohort, spec.target_state_name)
     h_sk, h_m = _sketches(backend, cohort, "Healthy_Naive_CD8")
-    result = run_gradient_ism_reflexion_optimization(
+    result = run_gradient_ism_search(
         scenario_id=spec.scenario_id, gene_id=spec.gene_id, gene_symbol=spec.gene_symbol,
         backend=backend, budget=budget, target_sketches=t_sk,
         healthy_sketches_map={"Healthy_Naive_CD8": h_sk}, sketch_metrics=[t_m, h_m],

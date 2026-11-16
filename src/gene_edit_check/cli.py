@@ -2,7 +2,7 @@
 
 Commands:
 - `gene-edit-check optimize`: donor-held-out coreset -> gradient-propose -> scoped-ISM ->
-  two-tier reflexion, on real single-cell data (default) or synthetic demo data.
+  two-tier search, on real single-cell data (default) or synthetic demo data.
 - `gene-edit-check ablate-sketch`: AG2-latent coreset vs random subsampling.
 - `gene-edit-check validate-fidelity`: does AlphaGenome 2, conditioned on real cell sketches,
   reproduce the fold-changes observed in those cells' full populations? (LIVE backend only)
@@ -111,7 +111,7 @@ def cmd_optimize(
     scenario: str = typer.Option(DEFAULT_SCENARIO, help="Scenario ID from registry."),
     sketch_size: int = typer.Option(128, min=4, max=256, help="Cells per disjoint sketch (<=256)."),
     pool_size: int = typer.Option(600, min=40, help="Candidate cells per state before sketching."),
-    max_iterations: int = typer.Option(6, min=1, max=12, help="Max reflexion iterations."),
+    max_iterations: int = typer.Option(6, min=1, max=12, help="Max search iterations."),
     null_n: int = typer.Option(40, min=0, help="Random PAM-valid edits for the efficacy null (0 disables)."),
     max_effect: float = typer.Option(
         0.0, min=0.0,

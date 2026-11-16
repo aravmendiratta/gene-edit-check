@@ -97,7 +97,7 @@ def render_optimization_report(
         )
     con.print(sketch_tbl)
 
-    # Table 2: Two-Tier Reflexion Trace
+    # Table 2: Two-Tier Search Trace
     trace_tbl = Table(
         title="Phase 2: Gradients-Propose -> Scoped-ISM -> Two-Tier Verification Loop",
         show_lines=True,
@@ -109,7 +109,7 @@ def render_optimization_report(
     trace_tbl.add_column("Tier 1: Healthy\nControl LFC (B)", justify="right")
     trace_tbl.add_column("Tier 1: Worst\nNeighbour Gene", justify="right")
     trace_tbl.add_column("Tier 2: Hazards\n(Splice / CpG / Bystanders)", justify="right")
-    trace_tbl.add_column("Status & Reflexion Critic Update")
+    trace_tbl.add_column("Status & failure analysis Update")
 
     for step in result.iterations:
         rep = step.report
@@ -136,7 +136,7 @@ def render_optimization_report(
             f"Splice: {t2.max_splice_junction_delta:.4f}\n"
             f"CpG: {t2.cpg_methylation_mean_abs_shift:.4f}\n"
             f"Bystanders: {n_bys}",
-            f"{status_badge} {step.critic_diagnosis}\n[cyan]Rule: {step.episodic_memory_rule_added}[/cyan]",
+            f"{status_badge} {step.diagnosis}\n[cyan]Rule: {step.constraint_added}[/cyan]",
         )
     con.print(trace_tbl)
 

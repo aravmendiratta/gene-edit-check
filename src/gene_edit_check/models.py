@@ -197,11 +197,11 @@ class TwoTierVerificationReport(BaseModel):
         return len(self.failure_reasons)
 
 
-class ReflexionStepTrace(BaseModel):
+class SearchStepTrace(BaseModel):
     iteration: int
     report: TwoTierVerificationReport
-    critic_diagnosis: str
-    episodic_memory_rule_added: str
+    diagnosis: str
+    constraint_added: str
 
 
 class ProvenanceRecord(BaseModel):
@@ -276,7 +276,7 @@ class OptimizationRunResult(BaseModel):
     locus: GenomicInterval
     provenance: ProvenanceRecord
     sketch_metrics: list[SketchQualityMetrics]
-    iterations: list[ReflexionStepTrace]
+    iterations: list[SearchStepTrace]
     selected_candidate: TwoTierVerificationReport | None = None
     converged: bool
     desired_direction: Literal["down", "up"] = "down"

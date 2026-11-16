@@ -1,4 +1,4 @@
-"""Gradient-Guided & Scoped-ISM Reflexion Optimizer (`agent/reflexion_loop.py`).
+"""Gradient-guided, scoped-ISM search (`search/search_loop.py`).
 
 Implements the test-time compute split:
 1. **Gradients Propose (2 calls):** Calls `predict_interval_gradients` on Target `Sketch A`
@@ -8,9 +8,9 @@ Implements the test-time compute split:
    `ABE8e` and `CBE` protospacers.
 3. **Scoped ISM Verification:** Runs `score_ism_variants` strictly on compact <= 10 bp
    windows around top candidate edits.
-4. **Reflexion Loop with Episodic Constraints:** Evaluates candidates via the Two-Tier
+4. **Search loop with accumulated constraints:** Evaluates candidates via the Two-Tier
    Verifier (`Sketch A` -> held-out `Sketch B` + CURIE hazards). When a candidate fails a
-   tier check, the Reflexion Critic records the failure mode (e.g. shared-lineage gradient
+   tier check, the failure analysis records the failure mode (e.g. shared-lineage gradient
    collateral or bystander collision) and re-ranks remaining candidates.
 """
 
@@ -30,7 +30,7 @@ from gene_edit_check.models import (
     GenomicInterval,
     IsmPrescreenSummary,
     OptimizationRunResult,
-    ReflexionStepTrace,
+    SearchStepTrace,
     SketchQualityMetrics,
     TwoTierVerificationReport,
 )
@@ -51,7 +51,7 @@ def _is_desired_direction(lfc: float, desired_direction: str) -> bool:
     return lfc < 0 if desired_direction == "down" else lfc > 0
 
 
-def run_gradient_ism_reflexion_optimization(
+def run_gradient_ism_search(
     scenario_id: str,
     gene_id: str,
     gene_symbol: str,
@@ -240,7 +240,7 @@ def run_gradient_ism_reflexion_optimization(
             splice_delta_values=[round(v, 6) for v in null_splice],
         )
 
-    # Episodic constraint flags updated by the Reflexion Critic as failures occur
+    # Constraint flags updated by the failure analysis as failures occur
     require_bystander_free = False
     healthy_gradient_penalty_weight = 0.0
     wrong_sign_multiplier = 0.25
@@ -250,11 +250,11 @@ def run_gradient_ism_reflexion_optimization(
     tried_variant_min_bystanders: dict[tuple[int, str, str], int] = {}
 
     _variant_key = _variant_key_of
-    traces: list[ReflexionStepTrace] = []
+    traces: list[SearchStepTrace] = []
     winning_report: TwoTierVerificationReport | None = None
 
     for step_idx in range(1, max_iterations + 1):
-        # Rank unevaluated candidates using current episodic policy
+        # Rank unevaluated candidates using current constraints
         def _rank_key(c: CandidateGuideEdit) -> float:
             if require_bystander_free and not c.is_bystander_clean:
                 return -999.0
@@ -340,17 +340,17 @@ def run_gradient_ism_reflexion_optimization(
             )
             rule_added = "NONE (All Tier 1 & Tier 2 constraints satisfied)"
             traces.append(
-                ReflexionStepTrace(
+                SearchStepTrace(
                     iteration=step_idx,
                     report=report,
-                    critic_diagnosis=diagnosis,
-                    episodic_memory_rule_added=rule_added,
+                    diagnosis=diagnosis,
+                    constraint_added=rule_added,
                 )
             )
             winning_report = report
             break
 
-        # Reflexion Critic analyzes failure reasons and updates search constraints
+        # failure analysis analyzes failure reasons and updates search constraints
         reasons_joined = "; ".join(report.failure_reasons)
         new_rules: list[str] = []
         if not report.tier2_hazards.bystander_clean_passed:
@@ -377,11 +377,11 @@ def run_gradient_ism_reflexion_optimization(
             new_rules.append("EXCLUDE_LOCUS_AND_STEP_TO_NEXT_SALIENT_PROTOSpacer")
 
         traces.append(
-            ReflexionStepTrace(
+            SearchStepTrace(
                 iteration=step_idx,
                 report=report,
-                critic_diagnosis=f"FAILED [{len(report.failure_reasons)} check(s)]: {reasons_joined}",
-                episodic_memory_rule_added=" + ".join(new_rules),
+                diagnosis=f"FAILED [{len(report.failure_reasons)} check(s)]: {reasons_joined}",
+                constraint_added=" + ".join(new_rules),
             )
         )
 

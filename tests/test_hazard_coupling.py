@@ -11,7 +11,7 @@ from gene_edit_check.models import (
     OptimizationRunResult,
     ProvenanceRecord,
     BackendMode,
-    ReflexionStepTrace,
+    SearchStepTrace,
     SingleNucleotideVariant,
     Tier1SelectivityResult,
     Tier2HazardResult,
@@ -19,7 +19,7 @@ from gene_edit_check.models import (
 )
 
 
-def _step(i: int, lfc: float, cpg: float, splice: float, reasons: list[str]) -> ReflexionStepTrace:
+def _step(i: int, lfc: float, cpg: float, splice: float, reasons: list[str]) -> SearchStepTrace:
     v = SingleNucleotideVariant(chromosome="chr2", position=1000 + i, reference="A", alternate="G", protospacer_index=5)
     cand = CandidateGuideEdit(
         candidate_id=f"c{i}", gene_symbol="PDCD1", editor=BaseEditorType.ABE8E, strand="+",
@@ -39,10 +39,10 @@ def _step(i: int, lfc: float, cpg: float, splice: float, reasons: list[str]) -> 
         ),
         composite_objective_score=0.0, all_checks_passed=not reasons, failure_reasons=reasons,
     )
-    return ReflexionStepTrace(iteration=i, report=rep, critic_diagnosis="", episodic_memory_rule_added="")
+    return SearchStepTrace(iteration=i, report=rep, diagnosis="", constraint_added="")
 
 
-def _result(steps: list[ReflexionStepTrace], null_lfc: list[float], null_cpg: list[float], null_splice: list[float]) -> OptimizationRunResult:
+def _result(steps: list[SearchStepTrace], null_lfc: list[float], null_cpg: list[float], null_splice: list[float]) -> OptimizationRunResult:
     return OptimizationRunResult(
         scenario_id="s", gene_symbol="PDCD1",
         locus=GenomicInterval(chromosome="chr2", start=0, end=10_000),

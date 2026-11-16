@@ -125,8 +125,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.36373, ratio=1.03 > 0.35); TIER2_SPLICE_HAZARD: SpliceJunctionScorer max delta=0.6562 > 0.1500; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.8613 > 0.1200",
-      "episodic_memory_rule_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=1.50)"
+      "diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.36373, ratio=1.03 > 0.35); TIER2_SPLICE_HAZARD: SpliceJunctionScorer max delta=0.6562 > 0.1500; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.8613 > 0.1200",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=1.50)"
     },
     {
       "iteration": 2,
@@ -204,8 +204,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [1 check(s)]: TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.6915 > 0.1200",
-      "episodic_memory_rule_added": "EXCLUDE_LOCUS_AND_STEP_TO_NEXT_SALIENT_PROTOSpacer"
+      "diagnosis": "FAILED [1 check(s)]: TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.6915 > 0.1200",
+      "constraint_added": "EXCLUDE_LOCUS_AND_STEP_TO_NEXT_SALIENT_PROTOSpacer"
     },
     {
       "iteration": 3,
@@ -316,8 +316,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [2 check(s)]: TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.4150 > 0.1200; TIER2_BYSTANDER_HAZARD: Protospacer contains 3 bystander editable base(s) in window [4..8]",
-      "episodic_memory_rule_added": "ENFORCE_ZERO_BYSTANDERS_IN_WINDOW_[4..8]"
+      "diagnosis": "FAILED [2 check(s)]: TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.4150 > 0.1200; TIER2_BYSTANDER_HAZARD: Protospacer contains 3 bystander editable base(s) in window [4..8]",
+      "constraint_added": "ENFORCE_ZERO_BYSTANDERS_IN_WINDOW_[4..8]"
     },
     {
       "iteration": 4,
@@ -416,8 +416,8 @@
           "passed": false
         }
       },
-      "critic_diagnosis": "FAILED [1 check(s)]: TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.1463 > 0.1200",
-      "episodic_memory_rule_added": "EXCLUDE_LOCUS_AND_STEP_TO_NEXT_SALIENT_PROTOSpacer"
+      "diagnosis": "FAILED [1 check(s)]: TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.1463 > 0.1200",
+      "constraint_added": "EXCLUDE_LOCUS_AND_STEP_TO_NEXT_SALIENT_PROTOSpacer"
     },
     {
       "iteration": 5,
@@ -504,8 +504,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.26647, ratio=1.93 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.10689 (ratio=0.78 > 0.50 of the target's -0.13782) -- the edit is not specific to ENSG00000188389; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.7096 > 0.1200",
-      "episodic_memory_rule_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=2.75) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5')"
+      "diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.26647, ratio=1.93 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.10689 (ratio=0.78 > 0.50 of the target's -0.13782) -- the edit is not specific to ENSG00000188389; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.7096 > 0.1200",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=2.75) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5')"
     },
     {
       "iteration": 6,
@@ -592,8 +592,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.15364, ratio=1.33 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.06318 (ratio=0.55 > 0.50 of the target's -0.11527) -- the edit is not specific to ENSG00000188389; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.4154 > 0.1200",
-      "episodic_memory_rule_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=4.00) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5')"
+      "diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.15364, ratio=1.33 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.06318 (ratio=0.55 > 0.50 of the target's -0.11527) -- the edit is not specific to ENSG00000188389; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=0.4154 > 0.1200",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=4.00) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5')"
     },
     {
       "iteration": 7,
@@ -673,8 +673,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [3 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.04052 moves the target gene the wrong way (goal: down-regulate); TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (+0.04843, ratio=1.20 > 0.35); TIER2_SPLICE_HAZARD: SpliceJunctionScorer max delta=0.1606 > 0.1500",
-      "episodic_memory_rule_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=5.25) + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+      "diagnosis": "FAILED [3 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.04052 moves the target gene the wrong way (goal: down-regulate); TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (+0.04843, ratio=1.20 > 0.35); TIER2_SPLICE_HAZARD: SpliceJunctionScorer max delta=0.1606 > 0.1500",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=5.25) + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
     },
     {
       "iteration": 8,
@@ -761,8 +761,8 @@
         ],
         "off_tissue_panel": null
       },
-      "critic_diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.58897, ratio=2.03 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.19273 (ratio=0.66 > 0.50 of the target's -0.29000) -- the edit is not specific to ENSG00000188389; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=1.3381 > 0.1200",
-      "episodic_memory_rule_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=6.50) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5')"
+      "diagnosis": "FAILED [3 check(s)]: TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.58897, ratio=2.03 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.19273 (ratio=0.66 > 0.50 of the target's -0.29000) -- the edit is not specific to ENSG00000188389; TIER2_METHYLATION_HAZARD: MethylationScorer(1201) shift=1.3381 > 0.1200",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=6.50) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5')"
     }
   ],
   "selected_candidate": {

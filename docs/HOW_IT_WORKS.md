@@ -10,7 +10,7 @@ turns down only in the exhausted tumour T cells, and not in healthy ones?*
 
 1. **Real cells in.** 77k T/NK cells from 62 colorectal-cancer patients, tumour and normal colon.
 2. **Shrink to a sketch.** AlphaGenome 2 accepts at most 256 cells to describe a cell state, so
-   representative cells are chosen by facility-location coreset in the model's own latent space —
+   representative cells are chosen by facility-location coreset in the model's own latent space , 
    with patients kept disjoint between the "proposal" sketch and the held-out "verification" sketch.
 3. **Gradients propose.** One gradient call shows which DNA positions matter for PD-1 in those
    cells. Only edits a base editor can actually make survive (PAM site, editing window, bystanders).
@@ -18,7 +18,7 @@ turns down only in the exhausted tumour T cells, and not in healthy ones?*
    substitution really does, *before* any verification budget is spent on it.
 5. **Two tiers verify.** Right direction, beats random edits, spares healthy T cells, doesn't drag
    neighbouring genes, no new splice sites, no large methylation shift, nothing in off-target tissues.
-6. **The critic learns from each failure** and re-ranks what to try next.
+6. **The search learns from each failure** and re-ranks what to try next.
 
 ---
 
@@ -26,7 +26,7 @@ turns down only in the exhausted tumour T cells, and not in healthy ones?*
 
 Each of these was a bug or a blind spot found by running the thing, not a design flourish.
 
-### Gradients say *where*, not *which way* — so measure it
+### Gradients say *where*, not *which way*, so measure it
 The gradient sign is a first-order heuristic: positive means "more of this base → more expression",
 so replacing it should lower expression. Audited against ISM ground truth, **it is right only 70% of
 the time.** Trusting it wasted whole verification rounds on edits that *raised* PD-1. The pipeline
@@ -38,14 +38,14 @@ verifier only ever sees candidates whose direction is already known.
 ### A hazard verdict is only as good as its evidence
 `supported_conditions()` returns 2,799 human reference conditions and, per modality, whether the
 model has **observed** tracks, a **validated** imputation, or an **unvalidated** one. Only 185 of
-2,799 have observed methylation. So the reference condition isn't hard-coded — it is chosen by
+2,799 have observed methylation. So the reference condition isn't hard-coded, it is chosen by
 evidence, and every hazard call is stamped with the tier it came from.
 
 This resolved a real question. The anatomically correct condition is colon CD8 T cell
 (`UBERON:0001155_CL:0000625`), but it is `imputed_exploratory` for both methylation and splicing.
 Blood CD8 (`UBERON:0000178_CL:0000625`) is the only CD8 condition that is **observed** for
 methylation, splicing, RNA-seq *and* TF ChIP. The pipeline uses blood CD8 as primary and colon CD8
-as a **concordance check** — and reports when they disagree rather than averaging them. On the
+as a **concordance check**, and reports when they disagree rather than averaging them. On the
 finalist edit they *do* disagree (blood 0.146 → fail, colon 0.087 → pass), which is exactly the
 kind of thing that should be shown, not smoothed over.
 
@@ -53,7 +53,7 @@ kind of thing that should be shown, not smoothed over.
 gene-edit-check conditions "CD8-positive" --modality methylation
 ```
 
-### The expression scorer already returns the neighbours — don't throw them away
+### The expression scorer already returns the neighbours, don't throw them away
 Scoring a variant returns every gene in the interval, and the old code kept one row. Keeping the
 rest costs nothing and catches edits that hit a shared regulatory element: three candidates were
 caught dragging ***RTP5*** along with PD-1 (up to 66% of the on-target effect).

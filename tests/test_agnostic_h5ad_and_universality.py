@@ -28,7 +28,7 @@ from gene_edit_check.models import (
     GenomicInterval,
     OptimizationRunResult,
     ProvenanceRecord,
-    ReflexionStepTrace,
+    SearchStepTrace,
     SingleNucleotideVariant,
     Tier1SelectivityResult,
     Tier2HazardResult,
@@ -271,7 +271,7 @@ def test_local_cpg_methylation_correlation() -> None:
             ),
             composite_objective_score=0.0, all_checks_passed=True,
         )
-        steps.append(ReflexionStepTrace(iteration=idx, report=rep, critic_diagnosis="", episodic_memory_rule_added=""))
+        steps.append(SearchStepTrace(iteration=idx, report=rep, diagnosis="", constraint_added=""))
 
     run_res = OptimizationRunResult(
         scenario_id="s", gene_symbol="PDCD1", locus=iv,

@@ -1,16 +1,16 @@
-"""End-to-end test of the Two-Tier Verifier & Gradient-ISM Reflexion Loop."""
+"""End-to-end test of the Two-Tier Verifier & Gradient-ISM search loop."""
 
 from __future__ import annotations
 
 from gene_edit_check.ag_backend.simulator import SurrogateSimulatorBackend
-from gene_edit_check.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
+from gene_edit_check.search.search_loop import run_gradient_ism_search
 from gene_edit_check.budget import RunBudgetTracker
 from gene_edit_check.models import BackendMode
 from gene_edit_check.scenarios.registry import SCENARIOS, build_til_cohort_anndata
 from gene_edit_check.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
 
 
-def test_end_to_end_two_tier_reflexion_loop() -> None:
+def test_end_to_end_two_tier_search_loop() -> None:
     spec = SCENARIOS["pd1-exhaustion"]
     budget = RunBudgetTracker()
     backend = SurrogateSimulatorBackend(budget=budget, seed=42)
@@ -28,7 +28,7 @@ def test_end_to_end_two_tier_reflexion_loop() -> None:
         h_adata, h_emb, "Healthy_Naive_CD8", sketch_size=16, seed=42
     )
 
-    result = run_gradient_ism_reflexion_optimization(
+    result = run_gradient_ism_search(
         scenario_id=spec.scenario_id,
         gene_id=spec.gene_id,
         gene_symbol=spec.gene_symbol,

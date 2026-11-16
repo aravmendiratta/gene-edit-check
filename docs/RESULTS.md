@@ -141,5 +141,5 @@ clearly predict coupling strength: Spearman rho between CpG density and coupling
 - Predicted effect sizes are compressed (slope ~0.56), and the efficacy null (40 edits) is still small.
 - Tier 2 hazards use a **blood** CD8 reference, because the colon one is exploratory-imputed. The
   tissue-matched cross-check disagrees on the finalist.
-- The healthy comparator is normal-colon CD8 T cells — mostly IL7R⁺/GZMK⁺ memory-like, not naive.
+- The healthy comparator is normal-colon CD8 T cells, mostly IL7R⁺/GZMK⁺ memory-like, not naive.
 - Tested across two independent solid-tumour cohorts (Pelka et al. 2021 CRC, 62 patients; Wu et al. 2020 TNBC, 5 patients), three random seeds, and three T-cell lineages, but still does not include blood malignancies or healthy non-epithelial organs beyond reference conditions; the six-locus sweep remains CRC-anchored.

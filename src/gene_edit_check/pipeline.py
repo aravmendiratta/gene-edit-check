@@ -8,7 +8,7 @@ import anndata
 
 from gene_edit_check.ag_backend.protocol import VerifierBackend
 from gene_edit_check.verifier.two_tier import VerificationThresholds
-from gene_edit_check.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
+from gene_edit_check.search.search_loop import run_gradient_ism_search
 from gene_edit_check.benchmarks.hazard_coupling import analyze_hazard_coupling
 from gene_edit_check.budget import RunBudgetTracker
 from gene_edit_check.conditions import resolve_reference_pair
@@ -104,7 +104,7 @@ def run_scenario(
     cohort = load_cohort(spec, pool_size=pool_size, seed=seed)
     target, healthy, metrics = build_all_sketches(backend, spec, cohort, sketch_size, seed)
     primary_curies, tissue_curies = resolve_scenario_references(spec)
-    result = run_gradient_ism_reflexion_optimization(
+    result = run_gradient_ism_search(
         scenario_id=spec.scenario_id,
         gene_id=spec.gene_id,
         gene_symbol=spec.gene_symbol,
