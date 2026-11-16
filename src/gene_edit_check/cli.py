@@ -112,7 +112,12 @@ def cmd_optimize(
     sketch_size: int = typer.Option(128, min=4, max=256, help="Cells per disjoint sketch (<=256)."),
     pool_size: int = typer.Option(600, min=40, help="Candidate cells per state before sketching."),
     max_iterations: int = typer.Option(6, min=1, max=12, help="Max reflexion iterations."),
-    null_n: int = typer.Option(12, min=0, help="Random PAM-valid edits for the efficacy null (0 disables)."),
+    null_n: int = typer.Option(40, min=0, help="Random PAM-valid edits for the efficacy null (0 disables)."),
+    max_effect: float = typer.Option(
+        0.0, min=0.0,
+        help="Dose-aware mode: reject edits that move the target more than this |LFC| (0 = off). "
+             "For when partial reduction is the goal, not full silencing.",
+    ),
     seed: int = typer.Option(42, help="Random seed."),
     simulator: bool = typer.Option(False, "--simulator", help="Force the SCRIPTED offline simulator (plumbing only)."),
     output_dir: str = typer.Option("outputs", help="Directory for JSON report and figure."),
@@ -124,6 +129,7 @@ def cmd_optimize(
     result = run_scenario(
         spec, backend, budget, sketch_size=sketch_size, max_iterations=max_iterations,
         seed=seed, pool_size=pool_size, null_n=null_n,
+        max_target_abs_lfc=max_effect or None,
     )
     render_optimization_report(result, console=console)
 
@@ -453,7 +459,7 @@ def cmd_run_h5ad(
     sketch_size: int = typer.Option(128, min=4, max=256),
     pool_size: int = typer.Option(600, min=40),
     max_iterations: int = typer.Option(6, min=1, max=12),
-    null_n: int = typer.Option(12, min=0),
+    null_n: int = typer.Option(40, min=0),
     seed: int = typer.Option(42),
     simulator: bool = typer.Option(False, "--simulator"),
     output_dir: str = typer.Option("outputs"),

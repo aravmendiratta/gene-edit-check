@@ -119,12 +119,13 @@ The full pipeline is `gene_edit_check.pipeline.run_scenario`. The scripted simul
 
 Of 8 candidate edits at *PDCD1*, 7 were blocked by the CpG-methylation check, and the closest near miss fails
 it at 0.146 against a limit of 0.12. Across 48 scored variants, efficacy and methylation shift are positively
-associated (Spearman ρ = +0.57, reproduced across three seeds, six cohorts and six checkpoint genes). The
+associated (Spearman ρ = +0.57, 95% bootstrap CI +0.28 to +0.77, reproduced across three seeds, six cohorts and six checkpoint genes). The
 association is moderate, and the controls do not show it is specific to methylation. An earlier, stronger claim
 (ρ = +0.94) was retracted after a larger random null did not support it.
 
 Details, tables and the parts that did not hold up: [docs/RESULTS.md](docs/RESULTS.md).
 How each stage works and why: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
+What already exists and what is new here: [docs/RELATED_WORK.md](docs/RELATED_WORK.md).
 
 ## Where files go
 

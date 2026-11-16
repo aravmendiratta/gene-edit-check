@@ -49,6 +49,13 @@ class CouplingResult(BaseModel):
     n_null_only: int
     spearman_rho_null_only: float
     spearman_p_null_only: float
+    # 95% percentile-bootstrap intervals (resampling edits with replacement). A p-value says whether
+    # the correlation is distinguishable from zero; the interval says how large it plausibly is,
+    # which is what a reader needs to judge a "moderate" association.
+    ci_low: float = 0.0
+    ci_high: float = 0.0
+    ci_low_null_only: float = 0.0
+    ci_high_null_only: float = 0.0
     interpretation: str = ""
 
     @property
@@ -79,6 +86,11 @@ class HazardCouplingReport(BaseModel):
     # methylation finding should not be read as mechanistic. Reported as the gap between the two
     # correlations rather than left for a reader to eyeball.
     methylation_minus_splice_rho: float = 0.0
+    # 95% bootstrap interval for that gap, resampling edits jointly so the two correlations stay
+    # paired. If it contains zero, the data cannot tell methylation-specific coupling from every
+    # hazard rising together; no cutoff is involved.
+    gap_ci_low: float = 0.0
+    gap_ci_high: float = 0.0
     coupling_class: Literal[
         "methylation_specific", "generic_hazard_coupling", "uncoupled", "unknown"
     ] = "unknown"
@@ -102,6 +114,53 @@ def _spearman(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return float(rho), float(p)
 
 
+_N_BOOT = 4000
+
+
+def _rank_corr(x: np.ndarray, y: np.ndarray) -> float:
+    """Spearman rho via ranks; 0.0 if either side is constant. Fast enough to run thousands of times."""
+    if len(x) < 3:
+        return 0.0
+    rx = stats.rankdata(x)
+    ry = stats.rankdata(y)
+    if np.ptp(rx) == 0 or np.ptp(ry) == 0:
+        return 0.0
+    return float(np.corrcoef(rx, ry)[0, 1])
+
+
+def bootstrap_spearman_ci(
+    x: np.ndarray, y: np.ndarray, n_boot: int = _N_BOOT, seed: int = 0, level: float = 0.95
+) -> tuple[float, float]:
+    """Percentile bootstrap interval for Spearman rho. Deterministic for a given seed."""
+    n = len(x)
+    if n < 5 or np.ptp(x) == 0 or np.ptp(y) == 0:
+        return 0.0, 0.0
+    rng = np.random.default_rng(seed)
+    draws = np.empty(n_boot)
+    for i in range(n_boot):
+        idx = rng.integers(0, n, n)
+        draws[i] = _rank_corr(x[idx], y[idx])
+    a = (1 - level) / 2
+    return float(np.quantile(draws, a)), float(np.quantile(draws, 1 - a))
+
+
+def bootstrap_rho_gap_ci(
+    lfc: np.ndarray, haz_a: np.ndarray, haz_b: np.ndarray, n_boot: int = _N_BOOT, seed: int = 0,
+    level: float = 0.95,
+) -> tuple[float, float]:
+    """Interval for rho(lfc, haz_a) - rho(lfc, haz_b), resampling edits jointly (paired)."""
+    n = len(lfc)
+    if n < 5:
+        return 0.0, 0.0
+    rng = np.random.default_rng(seed)
+    draws = np.empty(n_boot)
+    for i in range(n_boot):
+        idx = rng.integers(0, n, n)
+        draws[i] = _rank_corr(lfc[idx], haz_a[idx]) - _rank_corr(lfc[idx], haz_b[idx])
+    a = (1 - level) / 2
+    return float(np.quantile(draws, a)), float(np.quantile(draws, 1 - a))
+
+
 def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingReport:
     """Test whether efficacy and each hazard move together across every scored variant.
 
@@ -117,6 +176,7 @@ def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingRepo
     )
     null_lfc = np.array(null.abs_lfc_values) if null else np.array([])
 
+    pooled: dict[str, tuple[np.ndarray, np.ndarray]] = {}
     for hazard, (cand_field, null_field) in _HAZARD_FIELDS.items():
         cand_haz = np.array(
             [getattr(step.report.tier2_hazards, cand_field) for step in result.iterations]
@@ -127,6 +187,9 @@ def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingRepo
         all_haz = np.concatenate([null_haz, cand_haz]) if len(null_haz) else cand_haz
         rho, p = _spearman(all_lfc, all_haz)
         rho_n, p_n = _spearman(null_lfc, null_haz)
+        lo, hi = bootstrap_spearman_ci(all_lfc, all_haz)
+        lo_n, hi_n = bootstrap_spearman_ci(null_lfc, null_haz) if len(null_lfc) else (0.0, 0.0)
+        pooled[hazard] = (all_lfc, all_haz)
 
         cr = CouplingResult(
             hazard=hazard,
@@ -136,10 +199,14 @@ def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingRepo
             n_null_only=len(null_lfc),
             spearman_rho_null_only=round(rho_n, 4),
             spearman_p_null_only=float(f"{p_n:.3g}"),
+            ci_low=round(lo, 3),
+            ci_high=round(hi, 3),
+            ci_low_null_only=round(lo_n, 3),
+            ci_high_null_only=round(hi_n, 3),
         )
         if cr.is_significant and rho > 0:
             cr.interpretation = (
-                f"Efficacy and {hazard} rise together (rho={rho:+.2f}, p={p:.2g}): the edits that "
+                f"Efficacy and {hazard} rise together (rho={rho:+.2f}, 95% CI {lo:+.2f} to {hi:+.2f}, p={p:.2g}): the edits that "
                 f"move {result.gene_symbol} are the ones that perturb this modality"
                 + (
                     ". Holds among randomly chosen edits too, so it is not an artifact of "
@@ -163,30 +230,37 @@ def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingRepo
     if meth is not None and splice is not None:
         gap = meth.spearman_rho - splice.spearman_rho
         report.methylation_minus_splice_rho = round(gap, 4)
-        meth_couples = meth.is_significant and meth.spearman_rho > 0.5
+        lfc_all, meth_all = pooled["cpg_methylation"]
+        _, splice_all = pooled["splice_junction"]
+        g_lo, g_hi = bootstrap_rho_gap_ci(lfc_all, meth_all, splice_all, seed=1)
+        report.gap_ci_low, report.gap_ci_high = round(g_lo, 3), round(g_hi, 3)
+        meth_couples = meth.ci_low > 0.0
 
         if not meth_couples:
             report.coupling_class = "uncoupled"
             report.coupling_class_explanation = (
-                f"Efficacy does not track methylation here (rho={meth.spearman_rho:+.2f}, "
-                f"p={meth.spearman_p:.2g}). Edits that silence {result.gene_symbol} need not "
-                "disturb methylation, so the locus is not methylation-constrained."
+                f"The interval for the efficacy-methylation correlation includes zero "
+                f"(rho={meth.spearman_rho:+.2f}, 95% CI {meth.ci_low:+.2f} to {meth.ci_high:+.2f}), so "
+                f"the data do not show that edits which silence {result.gene_symbol} disturb methylation."
             )
-        elif gap >= 0.35:
+        elif g_lo > 0.0:
             report.coupling_class = "methylation_specific"
             report.coupling_class_explanation = (
-                f"Methylation couples to efficacy (rho={meth.spearman_rho:+.2f}) while splicing "
-                f"does not (rho={splice.spearman_rho:+.2f}, gap={gap:+.2f}). The two come from "
-                "different output heads, which argues against every prediction moving together, but "
-                "the label depends on a fixed cutoff and on null size, so treat it as suggestive only."
+                f"Methylation couples to efficacy (rho={meth.spearman_rho:+.2f}, CI "
+                f"{meth.ci_low:+.2f} to {meth.ci_high:+.2f}) more strongly than splicing does "
+                f"(rho={splice.spearman_rho:+.2f}); the paired gap is {gap:+.2f} with 95% CI "
+                f"{g_lo:+.2f} to {g_hi:+.2f}, which excludes zero. The two come from different output "
+                "heads, so this is evidence against every prediction moving together, though still only "
+                "a statement about model outputs."
             )
         else:
             report.coupling_class = "generic_hazard_coupling"
             report.coupling_class_explanation = (
-                f"Methylation (rho={meth.spearman_rho:+.2f}) *and* splicing "
-                f"(rho={splice.spearman_rho:+.2f}) both rise with efficacy (gap={gap:+.2f}). "
-                "Strong edits perturb everything the model scores here, so the methylation "
-                "correlation on its own should not be read as a methylation-specific mechanism."
+                f"Methylation (rho={meth.spearman_rho:+.2f}) couples to efficacy, but the paired gap to "
+                f"splicing (rho={splice.spearman_rho:+.2f}) is {gap:+.2f} with 95% CI {g_lo:+.2f} to "
+                f"{g_hi:+.2f}, which includes zero. The data cannot separate a methylation-specific "
+                "effect from strong edits perturbing every output the model scores, so do not read the "
+                "methylation correlation as mechanistic."
             )
 
     # Which check actually blocked the candidates?

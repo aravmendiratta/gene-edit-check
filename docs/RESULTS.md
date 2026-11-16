@@ -14,7 +14,8 @@ suggested, so this section separates what holds from what does not.
 **What holds**
 
 - Across all 48 variants scored in the main run, efficacy and CpG shift are positively correlated:
-  **Spearman rho = +0.57 (p = 2.2e-05)**.
+  **Spearman rho = +0.57, 95% bootstrap CI +0.28 to +0.77 (p = 2.2e-05)**. The interval is wide: the data support a
+  moderate association, not a precise size.
 - It reproduces across three independent seeds (patient splits and random-edit draws): rho = +0.48, +0.56, +0.57, all p < 1e-3.
 - The sign is positive in **all 6 cohorts** (rho from +0.25 to +0.73) and at **all 6 checkpoint loci** (rho from +0.44 to +0.65).
 
@@ -30,9 +31,12 @@ suggested, so this section separates what holds from what does not.
 - **It is not specific to methylation.** Among random edits, splicing also correlates with efficacy
   (rho = +0.33, p = 0.036). The earlier "splicing shows nothing" control came
   from a smaller null and does not survive.
-- **The labels flip.** The classifier that called loci "methylation-specific", "generic" or "uncoupled"
-  uses a fixed rho cutoff, and the same data crosses it depending on null size and seed. I no longer
-  treat those labels as findings.
+- **The labels flipped, so the classifier now uses intervals.** The earlier "methylation-specific / generic /
+  uncoupled" labels used a fixed rho cutoff that the same data crossed depending on null size and seed. They
+  now come from a paired bootstrap of the gap between the methylation and splice correlations. In the main run
+  the gap is +0.41 with 95% CI -0.02 to +0.82: it just includes zero, so the data cannot separate a
+  methylation-specific effect from every hazard rising together. The pooled splice correlation is +0.17
+  (CI -0.13 to +0.46); among random edits alone it is +0.33 (CI +0.02 to +0.60).
 
 **Reading it.** The simplest explanation is generic rather than *PDCD1*-specific: edits that move predicted
 expression a lot also tend to shift predicted methylation across a 1.2 kb window. This design cannot

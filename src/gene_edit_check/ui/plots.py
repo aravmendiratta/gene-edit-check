@@ -139,13 +139,13 @@ def export_optimization_figure(
     if meth and spl:
         ax_d.set_title(
             "D. Does the hazard scale with efficacy?" + chr(10) +
-            f"CpG rho={meth['spearman_rho']:+.2f} (p={meth['spearman_p']:.1g})   "
-            f"splice rho={spl['spearman_rho']:+.2f} (p={spl['spearman_p']:.2g})",
+            f"CpG rho={meth['spearman_rho']:+.2f} [{meth.get('ci_low', 0):+.2f}, {meth.get('ci_high', 0):+.2f}]   "
+            f"splice rho={spl['spearman_rho']:+.2f} [{spl.get('ci_low', 0):+.2f}, {spl.get('ci_high', 0):+.2f}]",
             fontsize=9.5, fontweight="bold",
         )
         ax_d.text(
-            0.03, 0.97,
-            f"pooled n={meth['n_total']}\n"
+            0.03, 0.40,
+            f"pooled n={meth['n_total']}; [ ] = 95% bootstrap CI\n"
             f"random-edit-only (n={meth['n_null_only']}): rho={meth['spearman_rho_null_only']:+.2f} "
             f"(p={meth['spearman_p_null_only']:.2g})",
             transform=ax_d.transAxes, fontsize=7.5, color="#fbbf24",

@@ -119,3 +119,25 @@ def test_handles_a_run_with_no_null_calibration() -> None:
     res.efficacy_null = None
     rep = analyze_hazard_coupling(res)  # must not raise
     assert rep.couplings and all(c.n_null_only == 0 for c in rep.couplings)
+
+
+def test_bootstrap_interval_brackets_a_known_correlation_and_is_deterministic() -> None:
+    import numpy as np
+
+    from gene_edit_check.benchmarks.hazard_coupling import bootstrap_rho_gap_ci, bootstrap_spearman_ci
+
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=60)
+    y = x + rng.normal(scale=0.5, size=60)  # strongly related
+    lo, hi = bootstrap_spearman_ci(x, y, n_boot=500, seed=3)
+    assert 0.0 < lo < hi <= 1.0
+    assert (lo, hi) == bootstrap_spearman_ci(x, y, n_boot=500, seed=3)
+
+    noise = rng.normal(size=60)  # unrelated: interval must straddle zero
+    lo_n, hi_n = bootstrap_spearman_ci(x, noise, n_boot=500, seed=3)
+    assert lo_n < 0.0 < hi_n
+
+    # Gap between a related and an unrelated hazard should be clearly positive.
+    g_lo, g_hi = bootstrap_rho_gap_ci(x, y, noise, n_boot=500, seed=3)
+    assert g_lo > 0.0
+    assert bootstrap_spearman_ci(np.ones(10), np.arange(10.0)) == (0.0, 0.0)  # degenerate input

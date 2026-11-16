@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Renamed the project to `gene-edit-check`.
+- Efficacy-hazard correlations now carry 95% bootstrap intervals, and the methylation-versus-splice label comes
+  from a paired bootstrap of the gap instead of a fixed cutoff. For the main PDCD1 run: rho +0.57
+  (CI +0.28 to +0.77); the gap to splicing is +0.41 (CI -0.02 to +0.82), so specificity to methylation is not
+  established.
+- New optional dose ceiling `optimize --max-effect`, which rejects edits that silence the target more than a
+  given |LFC|. Off by default.
+- `optimize` and `run-h5ad` now default to a 40-edit random null, matching the sweeps.
+- New `docs/RELATED_WORK.md` listing prior art and what this project does and does not add.
+
 ## 0.3.0
 
 First public release.

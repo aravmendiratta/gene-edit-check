@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import anndata
 
 from gene_edit_check.ag_backend.protocol import VerifierBackend
+from gene_edit_check.verifier.two_tier import VerificationThresholds
 from gene_edit_check.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
 from gene_edit_check.benchmarks.hazard_coupling import analyze_hazard_coupling
 from gene_edit_check.budget import RunBudgetTracker
@@ -98,6 +99,7 @@ def run_scenario(
     null_n: int = 12,
     ism_prescreen_windows: int = 10,
     off_tissue_panel: bool = True,
+    max_target_abs_lfc: float | None = None,
 ) -> OptimizationRunResult:
     cohort = load_cohort(spec, pool_size=pool_size, seed=seed)
     target, healthy, metrics = build_all_sketches(backend, spec, cohort, sketch_size, seed)
@@ -119,6 +121,7 @@ def run_scenario(
         null_n=null_n,
         ism_prescreen_windows=ism_prescreen_windows,
         run_off_tissue_panel_on_finalist=off_tissue_panel,
+        thresholds=VerificationThresholds(max_target_abs_lfc=max_target_abs_lfc),
         data_provenance=cohort.provenance,
     )
     # Why did the search end where it did? Distinguishes a weak optimiser from a locus where

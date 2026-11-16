@@ -902,7 +902,7 @@
       0.003376,
       0.000782,
       0.002229,
-      0.00003,
+      3e-05,
       0.001173,
       0.020445
     ],
@@ -1012,11 +1012,15 @@
         "hazard": "cpg_methylation",
         "n_total": 48,
         "spearman_rho": 0.5712,
-        "spearman_p": 0.0000224,
+        "spearman_p": 2.24e-05,
         "n_null_only": 40,
         "spearman_rho_null_only": 0.2593,
         "spearman_p_null_only": 0.106,
-        "interpretation": "Efficacy and cpg_methylation rise together (rho=+0.57, p=2.2e-05): the edits that move PDCD1 are the ones that perturb this modality, but it does not reach significance among the random edits alone, so selection bias is not excluded."
+        "ci_low": 0.284,
+        "ci_high": 0.773,
+        "ci_low_null_only": -0.06,
+        "ci_high_null_only": 0.52,
+        "interpretation": "Efficacy and cpg_methylation rise together (rho=+0.57, 95% CI +0.28 to +0.77, p=2.2e-05): the edits that move PDCD1 are the ones that perturb this modality, but it does not reach significance among the random edits alone, so selection bias is not excluded."
       },
       {
         "hazard": "splice_junction",
@@ -1026,6 +1030,10 @@
         "n_null_only": 40,
         "spearman_rho_null_only": 0.3333,
         "spearman_p_null_only": 0.0356,
+        "ci_low": -0.133,
+        "ci_high": 0.456,
+        "ci_low_null_only": 0.023,
+        "ci_high_null_only": 0.601,
         "interpretation": "No significant coupling to splice_junction (rho=+0.17, p=0.26): this hazard is independent of how hard the edit pushes the target."
       }
     ],
@@ -1035,8 +1043,10 @@
     "verdict": "target_constrained",
     "verdict_explanation": "7/8 candidates were blocked by cpg_methylation, and that hazard scales with efficacy (rho=+0.57). Edits that work tend to trip it, so more iterations may not help. This is an association between two model outputs, not proof that the two cannot be separated; a larger random null and a different regulatory element are the next things to try.",
     "methylation_minus_splice_rho": 0.4062,
-    "coupling_class": "methylation_specific",
-    "coupling_class_explanation": "Methylation couples to efficacy (rho=+0.57) while splicing does not (rho=+0.17, gap=+0.41). The two come from different output heads, which argues against every prediction moving together, but the label depends on a fixed cutoff and on null size, so treat it as suggestive only."
+    "gap_ci_low": -0.021,
+    "gap_ci_high": 0.817,
+    "coupling_class": "generic_hazard_coupling",
+    "coupling_class_explanation": "Methylation (rho=+0.57) couples to efficacy, but the paired gap to splicing (rho=+0.17) is +0.41 with 95% CI -0.02 to +0.82, which includes zero. The data cannot separate a methylation-specific effect from strong edits perturbing every output the model scores, so do not read the methylation correlation as mechanistic."
   },
   "data_provenance": {
     "data_source": "CZ CELLxGENE Discover (Pelka et al. 2021, colorectal cancer T/NK/ILC cells)",

@@ -39,6 +39,7 @@ class VerificationThresholds:
         desired_direction: Literal["down", "up"] = "down",
         null_abs_lfc_cutoff: float = 0.0,
         max_neighbor_lfc_ratio: float = 0.50,
+        max_target_abs_lfc: float | None = None,
     ) -> None:
         self.desired_direction = desired_direction
         self.null_abs_lfc_cutoff = null_abs_lfc_cutoff
@@ -49,6 +50,10 @@ class VerificationThresholds:
         self.require_bystander_clean = require_bystander_clean
         # No neighbouring gene in the window may move more than half as much as the target.
         self.max_neighbor_lfc_ratio = max_neighbor_lfc_ratio
+        # Optional ceiling on how hard the edit may move the target (dose-aware mode). Off by default.
+        # Partial reduction can beat full silencing: deleting one PD-1 enhancer in exhausted mouse CD8 T
+        # cells gave intermediate PD-1 and better function than a knockout (Weiss et al., Nat Immunol 2024).
+        self.max_target_abs_lfc = max_target_abs_lfc
 
 
 def evaluate_candidate_two_tier(
@@ -98,6 +103,17 @@ def evaluate_candidate_two_tier(
         failures.append(
             f"TIER1_EFFICACY: Held-out Sketch B |LFC|={abs(lfc_b):.5f} < cutoff {cutoff:.5f} "
             f"(null-calibrated; must beat random PAM-valid edits)"
+        )
+
+    if (
+        cfg.max_target_abs_lfc is not None
+        and direction_ok
+        and abs(lfc_b) > cfg.max_target_abs_lfc
+    ):
+        target_efficacy_ok = False
+        failures.append(
+            f"TIER1_OVERSHOOT: Held-out Sketch B |LFC|={abs(lfc_b):.5f} exceeds the dose ceiling "
+            f"{cfg.max_target_abs_lfc:.5f} (dose-aware mode wants partial, not total, reduction)"
         )
 
     # Check sign consistency and magnitude retention on Held-Out Sketch B

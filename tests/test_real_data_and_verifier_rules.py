@@ -203,3 +203,12 @@ def test_five_patients_still_get_a_patient_disjoint_split() -> None:
     assert m.split_by == "donor"
     assert m.donors_overlap_a_b == 0
     assert set(sk.sketch_a.obs["donor_id"]).isdisjoint(set(sk.sketch_b.obs["donor_id"]))
+
+
+def test_dose_ceiling_rejects_total_silencing_but_accepts_partial() -> None:
+    # Dose-aware mode: a partial reduction passes, an overshoot fails. Off by default.
+    assert _run(-0.10, -0.001, desired_direction="down", max_target_abs_lfc=0.15).all_checks_passed
+    rep = _run(-0.30, -0.001, desired_direction="down", max_target_abs_lfc=0.15)
+    assert not rep.all_checks_passed
+    assert any(r.startswith("TIER1_OVERSHOOT") for r in rep.failure_reasons)
+    assert _run(-0.30, -0.001, desired_direction="down").all_checks_passed  # no ceiling by default
