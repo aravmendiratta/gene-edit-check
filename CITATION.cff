@@ -18,10 +18,10 @@ keywords:
 abstract: >-
   A verifier-guided search for cell-state-selective CRISPR base edits that uses Google DeepMind's
   AlphaGenome 2 as the judge. Applied to PDCD1 (PD-1) silencing in exhausted tumour-infiltrating
-  CD8 T cells from colorectal cancer (Pelka et al., Cell 2021), it finds that edit efficacy and
-  CpG methylation disruption are tightly coupled at the PDCD1 and LAG3 loci (Spearman rho = +0.94
-  and +0.82), a coupling that survives a random-edit control and is absent for splicing and for
-  the transcription factor TOX.
+  CD8 T cells from colorectal cancer (Pelka et al., Cell 2021), no candidate edit passes every safety check;
+  CpG methylation is the binding constraint. Edit efficacy and predicted CpG methylation shift are positively
+  associated (Spearman rho about +0.5 to +0.6 across seeds, cohorts and six checkpoint loci), a moderate
+  association whose specificity to methylation is not established. Model predictions only; no wet-lab validation.
 references:
   - type: article
     authors:

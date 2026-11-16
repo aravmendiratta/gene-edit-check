@@ -464,8 +464,8 @@ def cmd_sweep_universality(
     sketch_size: int = typer.Option(128, min=4, max=256),
     pool_size: int = typer.Option(600, min=40),
     max_iterations: int = typer.Option(5, min=1, max=12),
-    null_n: int = typer.Option(10, min=0),
-    prescreen_windows: int = typer.Option(6, min=0),
+    null_n: int = typer.Option(40, min=0),
+    prescreen_windows: int = typer.Option(8, min=0),
     simulator: bool = typer.Option(False, "--simulator"),
     output_dir: str = typer.Option("outputs"),
 ) -> None:

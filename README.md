@@ -11,39 +11,40 @@
 
 ## The headline result
 
-The search **did not find a usable edit** — and the interesting part is *why*.
+The search **did not find a usable edit**. Of 8 verified candidates, 7 were blocked by the CpG-methylation
+check, and the closest near miss fails it at 0.146 against a limit of 0.12.
 
-Across 20 scored variants at the *PDCD1* locus, how much an edit silences PD-1 and how much it
-disrupts CpG methylation are almost the same quantity:
+The finding underneath that is an **association between how much an edit silences PD-1 and how much it
+disturbs CpG methylation**. It is real in this data, but smaller and less specific than a first pass
+suggested, so this section separates what holds from what does not.
 
-**Spearman ρ = +0.94 (p = 8 × 10⁻¹⁰, n = 20)**
+**What holds**
 
-Three things make that more than a curiosity:
+- Across all 48 variants scored in the main run, efficacy and CpG shift are positively correlated:
+  **Spearman rho = +0.57 (p = 2.2e-05)**.
+- It reproduces across three independent seeds (patient splits and random-edit draws): rho = +0.48, +0.56, +0.57, all p < 1e-3.
+- The sign is positive in **all 6 cohorts** (rho from +0.25 to +0.73) and at **all 6 checkpoint loci** (rho from +0.44 to +0.65).
 
-1. **It isn't selection bias.** It holds among the 12 *randomly chosen* edits alone (ρ = +0.73,
-   p = 0.0065), which were scored before any candidate was verified.
-2. **It isn't "the model's outputs all move together".** Splicing, a different output head, shows
-   no coupling at all (ρ = −0.05, p = 0.84).
-3. **It isn't universal.** Running the identical pipeline across six checkpoint loci gives a
-   structured answer, not a flat one.
+**What does not hold**
 
-| Gene | CpG ρ | random-only ρ | splice ρ | gap | class | blocked by |
-|---|---|---|---|---|---|---|
-| **PDCD1** | **+0.92** | +0.75 | −0.30 | **+1.22** | **methylation-specific** | methylation 5/5 |
-| **LAG3** | **+0.82** | +0.55 | +0.10 | **+0.72** | **methylation-specific** | methylation 5/5 |
-| HAVCR2 | +0.90 | +0.68 | +0.88 | +0.02 | generic hazard coupling | methylation 5/5 |
-| CTLA4 | +0.76 | +0.21 | +0.81 | −0.05 | generic hazard coupling | healthy selectivity 5/5 |
-| TIGIT | +0.62 | +0.18 | +0.65 | −0.03 | generic hazard coupling | healthy selectivity 5/5 |
-| TOX | +0.30 (ns) | −0.02 | +0.00 | +0.30 | uncoupled | healthy selectivity 5/5 |
+- **It is not near-identity.** An earlier version of this README reported rho = +0.94 at *PDCD1*. That came
+  from 20 variants and a 12-edit random null. With a 40-edit null it is about +0.5, and I have retracted
+  the stronger claim.
+- **The selection-bias control is inconclusive.** Among the 40 random edits alone (chosen before any
+  candidate was verified), rho = +0.26 (p = 0.106) in the main run, and +0.26, +0.37, +0.39 across the three seeds. Consistently positive, but
+  not individually significant, so I cannot rule out that the pooled correlation is partly produced by
+  how candidates were selected.
+- **It is not specific to methylation.** Among random edits, splicing also correlates with efficacy
+  (rho = +0.33, p = 0.036). The earlier "splicing shows nothing" control came
+  from a smaller null and does not survive.
+- **The labels flip.** The classifier that called loci "methylation-specific", "generic" or "uncoupled"
+  uses a fixed rho cutoff, and the same data crosses it depending on null size and seed. I no longer
+  treat those labels as findings.
 
-At *PDCD1* and *LAG3*, the sequence features that carry expression appear to be the CpGs
-themselves, so a single base edit that silences the gene without moving methylation may not exist
-there. That is a mechanistically sensible result — the *PDCD1* regulatory regions are CpG-dense and
-their demethylation is part of how T-cell exhaustion is established — and it is a **falsifiable
-claim about where to stop looking**, which is more useful than a candidate nobody checked.
-
-**This is a statement about what AlphaGenome 2 has learned, not a measurement of chromatin.** No
-wet-lab validation was performed. See [Honest limitations](#honest-limitations).
+**Reading it.** The simplest explanation is generic rather than *PDCD1*-specific: edits that move predicted
+expression a lot also tend to shift predicted methylation across a 1.2 kb window. This design cannot
+tell that apart from a CpG-borne regulatory mechanism, and both are statements about AlphaGenome 2's
+predictions, not measurements of chromatin. No wet-lab validation was performed.
 
 ![Summary figure](outputs/figure_crc-pd1-exhaustion.png)
 
@@ -183,52 +184,59 @@ crispr-reflexion run-h5ad \
 
 ---
 
-## Multi-seed, cross-cancer & cross-lineage invariance (`sweep-universality`)
+## Robustness checks (`sweep-universality`, `sweep-coupling`)
 
-To test whether the *PDCD1* finding is an artifact of one seed, one colorectal cancer cohort, or one T-cell subtype, `crispr-reflexion sweep-universality` evaluates multi-seed splits, colorectal tumor mismatch-repair subtypes (`MMRd` vs `MMRp`), distinct T-cell lineages (`CD8+`, `CD4+ CXCL13+`, `PDCD1+ γδ`), and an independent **Triple-Negative Breast Carcinoma** atlas (**Wu et al., *EMBO J* 2020**, 24,271 cells, CELLxGENE `4d036b2c`)—auto-resolving Tier 2 hazard references via `resolve_reference_pair()` (`outputs/universality_report.json`):
+All runs use a 40-edit random null, 5 iterations, 8 ISM pre-screen windows, live AlphaGenome 2.
+Every cohort is split into proposal and verification sketches **by patient** with zero overlap.
 
-### 1. Multi-seed stability (CRC CD8+ TILs, independent patient splits & null draws)
+### Seeds (CRC CD8+ TILs, independent patient splits and null draws)
 
-| Seed | CpG ρ | CpG p | Random-only ρ | Splice ρ | Gap (CpG − Splice) | Grad Sign Agree | Class |
-|---|---|---|---|---|---|---|---|
-| `42` | **+0.921** | 1.1×10⁻⁶ | +0.746 | −0.661 | +1.583 | 68% | **methylation-specific** |
-| `7` | **+0.932** | 4.2×10⁻⁷ | +0.770 | −0.500 | +1.432 | 65% | **methylation-specific** |
-| `99` | **+0.864** | 3.2×10⁻⁵ | +0.551 | −0.083 | +0.947 | 66% | **methylation-specific** |
-| **Mean ± SD** | **+0.906 ± 0.037** | — | **+0.689** | — | — | — | **3/3 invariant** |
+| Seed | CpG rho | CpG p | Random-edit-only rho | Splice rho |
+|---|---|---|---|---|
+| 42 | +0.48 | 8.5e-04 | +0.26 | +0.20 |
+| 7 | +0.56 | 7.5e-05 | +0.37 | -0.04 |
+| 99 | +0.57 | 4.3e-05 | +0.39 | -0.01 |
 
-### 2. Cross-cancer, cross-subtype & cross-lineage consistency (*PDCD1*)
+Mean CpG rho = +0.535 +/- 0.049; mean random-edit-only rho = +0.338.
 
-The overall CpG correlation is positive and significant in all six contexts. The **random-edit-only control** (the one that rules out selection bias) is **not**: it holds in 3 of 6 and is near zero in the other 3. Read the last column before the first.
+### Cohorts, subtypes and lineages (*PDCD1*, seed 42)
 
-| Context | Cohort (target cells) | Auto-resolved Tier 2 ref [tier] | CpG ρ | CpG p | Splice ρ | Gap | Class | Random-edit-only ρ |
-|---|---|---|---|---|---|---|---|---|
-| CRC All CD8+ TILs | Pelka 2021 (12,738) | blood CD8 [observed] | **+0.921** | 1.1×10⁻⁶ | −0.661 | +1.58 | **methylation-specific** | +0.75 (holds) |
-| CRC MMRd / MSI-H CD8+ | Pelka 2021 (10,582) | blood CD8 [observed] | **+0.729** | 2.1×10⁻³ | +0.012 | +0.72 | **methylation-specific** | +0.08 (fails) |
-| CRC MMRp / MSS CD8+ | Pelka 2021 (2,156) | blood CD8 [observed] | **+0.886** | 1.1×10⁻⁵ | −0.704 | +1.59 | **methylation-specific** | +0.64 (holds) |
-| CRC CD4+ CXCL13+ Helper TILs | Pelka 2021 (2,135) | blood CD4 [observed] | **+0.689** | 4.5×10⁻³ | +0.105 | +0.58 | **methylation-specific** | +0.01 (fails) |
-| CRC PDCD1+ γδ TILs | Pelka 2021 (3,204) | blood γδ T [imp_exploratory] | **+0.718** | 2.6×10⁻³ | −0.344 | +1.06 | **methylation-specific** | +0.05 (fails) |
-| **Breast Cancer (TNBC) CD8+** | **Wu 2020 (2,162)** | **blood CD8 [observed]** | **+0.804** | **3.1×10⁻⁴** | **−0.455** | **+1.26** | **methylation-specific** | +0.35 (weak) |
-
-### 3. Physical GRCh38 CpG architecture (±2.5 kb cis-window around TSS)
-
-| Gene | GC% | CpG count | CpG / 100 bp | CpG Obs/Exp | Efficacy vs CpG ρ | Class |
+| Context | Target cells / patients | Auto-resolved Tier 2 reference [evidence] | CpG rho | p | Random-edit-only rho | Splice rho |
 |---|---|---|---|---|---|---|
-| **PDCD1** | **61.4%** | **143** | **2.86** | 0.303 | **+0.92** | **methylation-specific** |
-| **LAG3** | **60.6%** | **151** | **3.02** | 0.330 | **+0.79** | **methylation-specific** |
-| HAVCR2 | 42.6% | 60 | 1.20 | 0.266 | +0.89 | generic hazard coupling |
-| CTLA4 | 41.3% | 32 | 0.64 | 0.150 | +0.76 | generic hazard coupling |
-| TIGIT | 46.6% | 35 | 0.70 | 0.130 | +0.62 | generic hazard coupling |
-| TOX | 52.3% | 240 | 4.80 | 0.702 | +0.30 (ns) | uncoupled |
+| CRC All CD8+ TILs (Pelka 2021) | 12,738 / 62 | blood CD8-positive, alpha-beta T cell [observed] | +0.48 | 8.5e-04 | +0.26 | +0.20 |
+| CRC MMRd / MSI-H CD8+ TILs | 10,582 / 34 | blood CD8-positive, alpha-beta T cell [observed] | +0.30 | 0.047 | +0.00 | +0.22 |
+| CRC MMRp / MSS CD8+ TILs | 2,156 / 28 | blood CD8-positive, alpha-beta T cell [observed] | +0.73 | 1.6e-08 | +0.61 | -0.28 |
+| CRC CD4+ CXCL13+ Helper TILs | 2,135 / 60 | blood CD4-positive, alpha-beta T cell [observed] | +0.25 | 0.098 | -0.06 | -0.30 |
+| CRC PDCD1+ gamma-delta TILs | 3,204 / 58 | blood gamma-delta T cell [imputed_exploratory] | +0.42 | 0.004 | +0.18 | -0.00 |
+| Breast Cancer (TNBC) CD8+ TILs (Wu 2020) | 2,162 / 5 | blood CD8-positive, alpha-beta T cell [observed] | +0.38 | 0.010 | +0.12 | -0.19 |
 
-Notice the structural split on physical GRCh38 DNA sequence alone (zero dependence on model output heads): **`PDCD1` and `LAG3` share ~61% GC and ~3.0 CpGs/100 bp** with methylation-specific coupling, whereas `CTLA4`/`HAVCR2`/`TIGIT` are AT-rich / CpG-sparse (`0.64–1.20 CpGs/100 bp`, generic hazard coupling). Meanwhile **`TOX` carries a classic CpG island** (`Obs/Exp = 0.702 > 0.60`), yet remains **`uncoupled`**—showing CpG island presence alone is not sufficient for coupling.
+Sources: CRC from Pelka et al. 2021; breast from Wu et al., *EMBO J* 2020. The TNBC row has 5 patients, so its
+sketches are split 2/3 (target) and 1/4 (healthy): patient-disjoint, but the healthy proposal sketch is a single
+patient. Its groups are defined by marker expression and the healthy group is non-exhausted tumour T cells,
+not normal tissue. The gamma-delta row uses an `imputed_exploratory` reference, the weakest evidence tier.
+
+### Checkpoint loci (same cells, same thresholds)
+
+| Gene | GC | CpG / 100 bp | CpG rho (p) | Random-edit-only rho | Splice rho |
+|---|---|---|---|---|---|
+| PDCD1 | 61% | 2.86 | +0.48 (8.5e-04) | +0.26 | +0.20 |
+| CTLA4 | 41% | 0.64 | +0.65 (1.2e-06) | +0.51 | +0.71 |
+| HAVCR2 | 43% | 1.20 | +0.54 (1.4e-04) | +0.34 | +0.58 |
+| LAG3 | 61% | 3.02 | +0.57 (4.6e-05) | +0.39 | +0.29 |
+| TIGIT | 47% | 0.70 | +0.50 (5.4e-04) | +0.31 | +0.59 |
+| TOX | 52% | 4.80 | +0.44 (0.003) | +0.36 | +0.00 |
+
+CpG density of the surrounding sequence (computed directly from GRCh38, independent of the model) does not
+clearly predict coupling strength: Spearman rho between CpG density and coupling across the six loci is
+-0.60 (n = 6, so there is almost no power to say anything either way).
 
 ---
 
 ## How it is kept honest
 
 - **Held out by patient.** Sketch B never contains a patient from Sketch A.
-- **Null-calibrated efficacy.** A candidate must beat 12 random PAM-valid edits at the same locus
-  (empirical p ≤ 1/13). Thresholds are fixed before any candidate is verified.
+- **Null-calibrated efficacy.** A candidate must beat 40 random PAM-valid edits at the same locus
+  (empirical p ≤ 1/41). Thresholds are fixed before any candidate is verified.
 - **Direction matters.** Silencing means the edit must *lower* PD-1; a large increase fails.
 - **Tiers never mix.** Tier 1 is single-cell-conditioned expression; Tier 2 is reference-condition
   hazards. The API forbids both conditions in one call, and the report never claims single-cell
@@ -251,10 +259,6 @@ Notice the structural split on physical GRCh38 DNA sequence alone (zero dependen
   tissue-matched cross-check disagrees on the finalist.
 - The healthy comparator is normal-colon CD8 T cells — mostly IL7R⁺/GZMK⁺ memory-like, not naive.
 - Tested across two independent solid-tumour cohorts (Pelka et al. 2021 CRC, 62 patients; Wu et al. 2020 TNBC, 5 patients), three random seeds, and three T-cell lineages, but still does not include blood malignancies or healthy non-epithelial organs beyond reference conditions; the six-locus sweep remains CRC-anchored.
-- **Unresolved discrepancy:** the universality report gives splice ρ = −0.66 for PDCD1 seed 42; re-running the identical scenario and settings from cache gives −0.30. The CpG numbers match exactly. Until that is explained, treat the splice column as unverified.
-- **TNBC is not patient-disjoint.** It has 5 patients, below the 6 needed for a donor split, so Sketch A/B were split by cell and the held-out-by-patient guarantee does not apply to that row. Its target/healthy groups are also defined by marker expression, and the healthy group is non-exhausted tumour T cells, not normal tissue.
-- The γδ row uses an `imputed_exploratory` reference, the weakest evidence tier.
-- Note that the random-edit-only correlation reaches nominal p < 0.05 primarily in larger/all-donor CD8 cohorts (`ρ = +0.73..+0.77`) and drops when conditioned on smaller single-lineage or 5-donor subsets (`ρ = +0.01..+0.35`, n = 10 random edits), even as the full 15-variant coupling stays significant (`p ≤ 0.0045`) everywhere.
 
 ## Citation
 

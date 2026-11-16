@@ -145,8 +145,8 @@ def export_optimization_figure(
         )
         ax_d.text(
             0.03, 0.97,
-            f"{str(hc.get('coupling_class', '')).replace('_', ' ')}\n"
-            f"random-edit control: rho={meth['spearman_rho_null_only']:+.2f} "
+            f"pooled n={meth['n_total']}\n"
+            f"random-edit-only (n={meth['n_null_only']}): rho={meth['spearman_rho_null_only']:+.2f} "
             f"(p={meth['spearman_p_null_only']:.2g})",
             transform=ax_d.transAxes, fontsize=7.5, color="#fbbf24",
             va="top", ha="left", linespacing=1.4,

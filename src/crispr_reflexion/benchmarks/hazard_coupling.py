@@ -177,9 +177,8 @@ def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingRepo
             report.coupling_class_explanation = (
                 f"Methylation couples to efficacy (rho={meth.spearman_rho:+.2f}) while splicing "
                 f"does not (rho={splice.spearman_rho:+.2f}, gap={gap:+.2f}). The two come from "
-                "different output heads, so this is not simply every prediction moving together: "
-                f"the sequence features that carry {result.gene_symbol} expression appear to be "
-                "CpG-borne."
+                "different output heads, which argues against every prediction moving together, but "
+                "the label depends on a fixed cutoff and on null size, so treat it as suggestive only."
             )
         else:
             report.coupling_class = "generic_hazard_coupling"
@@ -224,10 +223,10 @@ def analyze_hazard_coupling(result: OptimizationRunResult) -> HazardCouplingRepo
             report.verdict_explanation = (
                 f"{counts[binding]}/{len(result.iterations)} candidates were blocked by "
                 f"{binding}, and that hazard scales with efficacy (rho="
-                f"{coupled.spearman_rho:+.2f}). At this locus the two cannot easily be separated, "
-                f"so a better optimiser is unlikely to help: the constraint is the target, not the "
-                f"search. Testing a different gene, a different regulatory element, or accepting a "
-                f"methylation shift would all be more productive than more iterations."
+                f"{coupled.spearman_rho:+.2f}). Edits that work tend to trip it, so more iterations may not "
+                f"help. This is an association between two model outputs, not proof that the two "
+                f"cannot be separated; a larger random null and a different regulatory element are "
+                f"the next things to try."
             )
         elif frac >= 0.5:
             report.verdict = "search_limited"

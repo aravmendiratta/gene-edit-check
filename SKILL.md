@@ -60,7 +60,7 @@ metadata:
 uv run crispr-reflexion optimize                 # default scenario crc-pd1-exhaustion, ~1 min
 ```
 Outputs `outputs/report_crc-pd1-exhaustion.json` (provenance, data source, efficacy null, per-iteration Tier 1/Tier 2 results) and a 4-panel figure.
-Pre-set rules: direction (silencing must lower the target), efficacy must beat a 12-edit random-edit null, healthy/target ratio <= 0.35, **no neighbour gene above 0.50 of the target's shift**, splice <= 0.15, CpG methylation <= 0.12, zero bystanders. Finalists also get an **off-tissue safety panel** across six non-immune reference tissues. **Do not loosen thresholds to make a candidate pass.**
+Pre-set rules: direction (silencing must lower the target), efficacy must beat a 40-edit random-edit null, healthy/target ratio <= 0.35, **no neighbour gene above 0.50 of the target's shift**, splice <= 0.15, CpG methylation <= 0.12, zero bystanders. Finalists also get an **off-tissue safety panel** across six non-immune reference tissues. **Do not loosen thresholds to make a candidate pass.**
 
 ### 2. Validate that conditioning reproduces real biology (`validate-fidelity`)
 ```bash
@@ -78,13 +78,13 @@ Facility-location sketches in `encode_cells()` space vs random subsampling (abou
 ```bash
 uv run crispr-reflexion sweep-coupling           # PDCD1, CTLA4, HAVCR2, LAG3, TIGIT, TOX
 ```
-Runs the identical pipeline (same cells, sketches, thresholds, references) across six checkpoint loci and compares efficacy-vs-hazard coupling at each. Last run: methylation-specific at **PDCD1** (rho=+0.92, splice -0.30) and **LAG3** (+0.82, splice +0.10); generic hazard coupling at CTLA4/HAVCR2/TIGIT; uncoupled at TOX (+0.30, ns).
+Runs the identical pipeline (same cells, sketches, thresholds, references) across six checkpoint loci with a 40-edit random null. Last run: CpG rho between +0.44 and +0.65 at every locus (all p < 0.01), positive everywhere. Do not report a locus as methylation-specific, generic or uncoupled: those labels flip with null size and seed.
 
-### 5. Prove invariance across seeds, subtypes, lineages & cancers (`sweep-universality`)
+### 5. Check robustness across seeds, subtypes, lineages & cancers (`sweep-universality`)
 ```bash
 uv run crispr-reflexion sweep-universality
 ```
-Evaluates multi-seed stability (seeds 42/7/99, mean CpG rho = +0.906 +/- 0.037), CRC MMRd vs MMRp subtypes, CD4+ CXCL13+ helper TILs, PDCD1+ gamma-delta TILs, Triple-Negative Breast Cancer CD8+ TILs (Wu et al. 2020, CpG rho = +0.804), and physical GRCh38 CpG architecture across all 6 loci (`outputs/universality_report.json`).
+Evaluates multi-seed stability (seeds 42/7/99, mean CpG rho = +0.535 +/- 0.049), CRC MMRd vs MMRp subtypes, CD4+ CXCL13+ helper TILs, PDCD1+ gamma-delta TILs, Triple-Negative Breast Cancer CD8+ TILs (Wu et al. 2020), and physical GRCh38 CpG architecture across all 6 loci (`outputs/universality_report.json`). The random-edit-only control is positive but not individually significant (+0.26 to +0.39), and splicing also correlates among random edits, so the result is a moderate association, not a methylation-specific mechanism.
 
 ### 6. Run dataset-agnostic on any `.h5ad` (`run-h5ad`)
 ```bash
@@ -104,10 +104,10 @@ uv run crispr-reflexion conditions --refresh      # re-download the shipped tabl
 - Always state the data source and backend. `--simulator` and `pd1-exhaustion` (synthetic) are plumbing tests only and must never be presented as results.
 - Effect sizes are model predictions with no wet-lab validation; the model compresses true differences (slope ~0.56).
 - **Always quote the evidence tier** behind a Tier 2 hazard verdict. An `imputed_exploratory` number is a guess about a guess and must not be reported as equivalent to an `observed` one.
-- A coupling between two model predictions is evidence about the model, not a measurement of chromatin. Report the random-edit control and the splicing comparison alongside it, or do not make the claim.
+- A correlation between two model predictions is evidence about the model, not a measurement of chromatin. Use a random null of at least 40 edits; a 12-edit null produced a rho of +0.94 that fell to about +0.5. Report the random-edit-only control and the splicing comparison alongside any coupling claim, and do not label loci with a fixed rho cutoff.
 
 ## Reference example
-[`docs/examples/crc_pd1_real_run.md`](docs/examples/crc_pd1_real_run.md): real colorectal-cancer data, 8 iterations, not converged. The near-misses fail only the CpG-methylation hazard, and the coupling analysis shows why: at this locus efficacy and methylation disruption are the same quantity (rho=+0.94, p=8e-10).
+[`docs/examples/crc_pd1_real_run.md`](docs/examples/crc_pd1_real_run.md): real colorectal-cancer data, 8 iterations, not converged. The near-misses fail only the CpG-methylation hazard. Efficacy and CpG shift are positively associated (rho = +0.57, p = 2e-5, n = 48), a moderate and not a near-identical relationship.
 
 ## Citation
 See [`references/citation.bib`](references/citation.bib).

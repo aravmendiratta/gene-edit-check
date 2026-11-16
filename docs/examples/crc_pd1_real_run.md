@@ -1,14 +1,13 @@
 # Worked example: PD-1 silencing in exhausted colorectal-cancer TILs
 
 Live AlphaGenome 2 (`alphagenome==2.0.0`), real data (Pelka et al. 2021), seed 42, sketch 128,
-pool 600, 8 iterations, 12-edit efficacy null, 10 ISM pre-screen windows.
+pool 600, 8 iterations, 40-edit efficacy null, 10 ISM pre-screen windows.
 
 ```bash
-crispr-reflexion optimize --max-iterations 8 --null-n 12
+crispr-reflexion optimize --max-iterations 8 --null-n 40
 ```
 
-**Outcome: not converged.** No candidate passed every check. The run's own coupling analysis says
-why, and that is the result worth reporting.
+**Outcome: not converged.** No candidate passed every check, and 7 of 8 were blocked by CpG methylation.
 
 ---
 
@@ -22,7 +21,7 @@ why, and that is the result worth reporting.
 | Sketch split | by patient; Sketch A and B share **0** patients |
 | Hazard reference | `UBERON:0000178_CL:0000625` blood CD8 — **observed** methylation *and* splicing |
 | Tissue-matched check | `UBERON:0001155_CL:0000625` colon CD8 — `imputed_exploratory` for both |
-| Efficacy cutoff | 0.0604 = max \|LFC\| over 12 random PAM-valid edits (empirical p ≤ 1/13) |
+| Efficacy cutoff | 0.0204 = max \|LFC\| over 40 random PAM-valid edits (empirical p ≤ 1/41) |
 
 ## ISM pre-screen
 
@@ -83,37 +82,30 @@ Two things complicate it further:
 The threshold was not moved. Whether 0.146 is tolerable needs wet-lab evidence, not a judgement from
 whoever set the limit.
 
-## Why the search stopped where it did
+## What the 48 scored variants say about efficacy and methylation
 
-Across all 20 scored variants (12 random + 8 candidates):
+Across all 48 variants (40 random edits + 8 candidates):
 
-| | Spearman ρ | p | random-edits-only ρ | p |
+| | Spearman rho | p | random-edits-only rho | p |
 |---|---|---|---|---|
-| **CpG methylation vs efficacy** | **+0.94** | 7.9×10⁻¹⁰ | **+0.73** | 0.0065 |
-| Splice vs efficacy | −0.05 | 0.84 | −0.28 | 0.37 |
+| **CpG methylation vs efficacy** | **+0.57** | 2.2e-05 | +0.26 | 0.106 |
+| Splice vs efficacy | +0.17 | 0.262 | +0.33 | 0.036 |
 
-Verdict: **target constrained**, classification **methylation-specific**.
+Edits that silence *PDCD1* more also shift CpG methylation more, moderately and consistently. Three
+things limit what that supports:
 
-At *PDCD1*, the sequence changes that silence the gene are the ones that disturb CpG methylation.
-More search iterations will not fix that. The random-edits-only column rules out selection bias (the
-null was scored before any candidate was chosen), and the splice row rules out the model simply
-moving every output at once.
+- The random-edits-only correlation is positive but not significant, so selection of candidates for
+  efficacy may contribute to the pooled figure.
+- Splicing also correlates among random edits, so the pattern is not specific to methylation.
+- An earlier run of this same example used a 12-edit null and reported rho = +0.94. That figure did not
+  survive a larger null and has been withdrawn. The efficacy cutoff moved with it, from 0.060 (one outlying
+  random edit) to 0.020.
 
-Across six checkpoint loci this pattern is specific rather than universal — methylation-specific at
-*PDCD1* and *LAG3*, generic at *CTLA4*/*HAVCR2*/*TIGIT*, absent at *TOX*:
-
-```bash
-crispr-reflexion sweep-coupling
-```
-
-Across three random seeds (`42, 7, 99`, mean CpG ρ = `+0.906 ± 0.037`), CRC MMRd/MMRp subtypes (`+0.729`, `+0.886`), CD4+ CXCL13+ (`+0.689`) and γδ (`+0.718`) T-cell lineages, and an independent **Triple-Negative Breast Cancer** cohort (Wu et al. 2020, `+0.804`, splice `−0.455`), *PDCD1* classifies identically as `methylation_specific` / `target_constrained`:
-
-```bash
-crispr-reflexion sweep-universality
-```
+Across three seeds the pooled rho is +0.48, +0.56, +0.57
+(mean +0.535). Across cohorts, lineages and six checkpoint loci it is positive
+everywhere. See the README for the full tables.
 
 ## Caveat
 
-Every number above is a prediction from one model, with no wet-lab validation. The coupling is a
-correlation between two AlphaGenome 2 outputs; the two controls make it harder to explain away, but
-they do not establish that the mechanism is real chromatin biology.
+Every number above is a prediction from one model, with no wet-lab validation. The association is a
+correlation between two AlphaGenome 2 outputs and does not establish a chromatin mechanism.
