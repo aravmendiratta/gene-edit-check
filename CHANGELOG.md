@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `scripts/make_launch_video.py` builds a 25-second silent launch video (`assets/launch.mp4`) from the project's own
+  figures. It needs `pillow` and `imageio-ffmpeg`, which are not project dependencies.
+
 - Design language, `docs/DESIGN.md`: a drawn double-helix mark with one coral rung (the edited base), a deep
   teal, cream and coral palette, serif titles, and a small helix stamp on every figure. Figures ship in light
   and dark (`fig_x.png`, `fig_x-dark.png`), with a logo, banners and a social card (`scripts/make_brand.py`).
