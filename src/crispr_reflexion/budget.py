@@ -18,7 +18,7 @@ class RunBudgetTracker:
     max_gradient_calls: int = 8
     max_ism_window_bp: int = 60
     max_total_ism_variants: int = 420
-    max_variant_score_calls: int = 90
+    max_variant_score_calls: int = 150
     max_encode_cells_calls: int = 12
     max_encode_cells_total: int = 4000
     encode_cells_per_request: int = 1000  # alphagenome MAX_ENCODE_CELLS_PER_REQUEST

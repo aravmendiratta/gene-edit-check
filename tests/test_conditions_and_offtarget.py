@@ -127,3 +127,15 @@ def test_off_tissue_bar_is_relative_to_the_on_target_effect() -> None:
 def test_off_tissue_panel_records_evidence_tiers() -> None:
     p = _panel("CL:0000182", 0.001, on_target=0.2)
     assert p.evidence_tiers["hepatocyte"] == "observed"
+
+
+def test_mcp_tool_functions_work_without_the_mcp_package() -> None:
+    """The tool bodies are plain functions, so they are testable and usable without MCP installed."""
+    from crispr_reflexion.mcp_server.server import list_scenarios_tool, run_optimization_tool, search_conditions_tool
+
+    ids = {s["scenario_id"] for s in list_scenarios_tool()}
+    assert "crc-pd1-exhaustion" in ids and "pd1-exhaustion" in ids
+    hits = search_conditions_tool("blood CD8", modality="methylation", limit=3)
+    assert hits and hits[0]["methylation"] == "observed"
+    with pytest.raises(ValueError, match="Unknown scenario"):
+        run_optimization_tool(scenario_id="nope")

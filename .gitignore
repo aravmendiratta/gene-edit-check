@@ -20,7 +20,7 @@ build/
 *.db
 
 # Raw single-cell data (396 MB; re-downloaded automatically on first run)
-data/
+/data/
 
 # Scratch and superseded runs
 outputs/_old_synthetic_run/

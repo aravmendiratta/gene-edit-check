@@ -3,8 +3,8 @@
     "name": "Arav Mendiratta"
   },
   "description": "AlphaGenome 2 single-cell conditioning (`encode_cells`, `cell_conditioning`), donor-stratified coreset sketching, and two-tier CRISPR base-editing verification skill compatible with google-deepmind/science-skills.",
-  "license": "Apache 2.0",
+  "license": "MIT",
   "name": "crispr-reflexion",
   "repository": "https://github.com/aravmendiratta/crispr-reflexion",
-  "version": "0.2.0"
+  "version": "0.3.0"
 }

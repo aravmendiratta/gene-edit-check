@@ -193,3 +193,13 @@ def test_hazard_report_stamps_the_evidence_tier_of_its_reference() -> None:
     assert "CD8" in t2.reference_biosample_name
     assert t2.evidence_tiers["methylation"] == "observed"
     assert t2.limiting_evidence_tier == "observed"
+
+
+def test_five_patients_still_get_a_patient_disjoint_split() -> None:
+    """A 5-patient cohort (e.g. the TNBC set) can be split 3/2 by patient, so it must be."""
+    a = _adata(n_cells=150, n_donors=5)
+    emb = np.random.default_rng(1).normal(size=(a.n_obs, 16)).astype(np.float32)
+    sk, m = build_disjoint_sketches_and_ablation(a, emb, "S", sketch_size=10, seed=3)
+    assert m.split_by == "donor"
+    assert m.donors_overlap_a_b == 0
+    assert set(sk.sketch_a.obs["donor_id"]).isdisjoint(set(sk.sketch_b.obs["donor_id"]))

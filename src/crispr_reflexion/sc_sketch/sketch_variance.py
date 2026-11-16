@@ -37,7 +37,7 @@ def build_disjoint_sketches_and_ablation(
     sketch_size: int = 32,
     donor_col: str = "donor_id",
     seed: int = 42,
-    min_donors_for_donor_split: int = 6,
+    min_donors_for_donor_split: int = 4,
 ) -> tuple[DisjointCellSketches, SketchQualityMetrics]:
     """Split `adata` into disjoint Proposal Sketch A and Held-Out Verification Sketch B
     in AlphaGenome 2's latent space, and run the stratified vs. unstratified random ablation.

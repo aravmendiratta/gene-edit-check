@@ -12,7 +12,7 @@ description: >-
   256`), or evaluating regulatory variants across distinct cell states.
 metadata:
   author: Arav Mendiratta
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # AlphaGenome 2 Single-Cell Conditioned Variant & CRISPR Base-Editing Verifier (`crispr-reflexion`)
