@@ -1,14 +1,19 @@
-# gene-edit-check
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/assets/banner-dark.svg">
+    <img alt="gene-edit-check" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/assets/banner.svg" width="760">
+  </picture>
+</p>
 
-**Checks, on a computer, whether a gene edit works only in the cells you want, before anyone spends weeks testing it in a lab.**
+<p align="center">
+  <a href="https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://pypi.org/project/gene-edit-check/"><img alt="PyPI" src="https://img.shields.io/pypi/v/gene-edit-check?color=2a78d6&labelColor=55534f"></a>
+  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-2a78d6?labelColor=55534f">
+  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-2a78d6?labelColor=55534f">
+  <img alt="Research use only" src="https://img.shields.io/badge/use-research%20only-eb6834?labelColor=55534f">
+</p>
 
-[![CI](https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml/badge.svg)](https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/gene-edit-check)](https://pypi.org/project/gene-edit-check/)
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Use](https://img.shields.io/badge/use-research%20only-orange)
-
-A computational-biology toolkit built on Google DeepMind's AlphaGenome 2.
+<p align="center"><sub>A computational-biology toolkit built on Google DeepMind's AlphaGenome 2.</sub></p>
 
 ---
 
@@ -26,7 +31,10 @@ you want to change and the ones you want to leave alone. It proposes single-lett
 one would do in both, and runs the survivors through a set of safety checks. What comes out is a short list of
 edits worth taking to a lab, or a clear reason why there isn't one.
 
-![How a candidate edit is judged](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_pipeline.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_pipeline-dark.png">
+  <img alt="How a candidate edit is judged" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_pipeline.png">
+</picture>
 
 The part that keeps it honest: the patients' cells used to *propose* an edit are never the ones used to *judge*
 it, and every claim of "it works" has to beat a crowd of random edits first.
@@ -43,17 +51,29 @@ the judge.
 eight disturbed DNA methylation, the chemical tags that help control which genes are active, more than the
 safety limit allows. The closest miss was 0.146 against a limit of 0.12.
 
-![Candidate scorecard](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_scorecard.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_scorecard-dark.png">
+  <img alt="Candidate scorecard" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_scorecard.png">
+</picture>
 
 **A pattern showed up underneath.** The more strongly an edit turned PD-1 down, the more it also shifted
 methylation. The sign was the same at all six exhaustion-related genes we tried. It is a moderate link, not a precise
 one, and the data cannot yet say whether it is specific to methylation or something every strong edit does.
 
-![Efficacy against hazard](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_coupling.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_coupling-dark.png">
+  <img alt="Efficacy against hazard" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_coupling.png">
+</picture>
 
-![Correlation with its uncertainty](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_forest.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_forest-dark.png">
+  <img alt="Correlation with its uncertainty" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_forest.png">
+</picture>
 
-![The same pattern at six genes](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_loci.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_loci-dark.png">
+  <img alt="The same pattern at six genes" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_loci.png">
+</picture>
 
 **A check against a lab screen.** A published CRISPRi screen in human T cells found PD-1 regulatory elements
 at +14.8 and +16.1 kb from the gene. We asked whether the model points at them. It recognises two elements
@@ -62,7 +82,10 @@ nothing. So every effective edit the search found sits in the promoter, which is
 damage is. That fits the pattern above, but it does not prove it. Details and caveats are in
 [docs/RESULTS.md](docs/RESULTS.md#checked-against-a-wet-lab-screen).
 
-![Model saliency at published elements, and edit effects at promoter versus enhancers](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_enhancers.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_enhancers-dark.png">
+  <img alt="Model saliency at published elements, and edit effects at promoter versus enhancers" src="https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_enhancers.png">
+</picture>
 
 **Why a negative result is useful.** It tells a lab which edits not to spend months on, and it points to the
 real obstacle (methylation at this gene) rather than leaving a vague sense that "it didn't work".

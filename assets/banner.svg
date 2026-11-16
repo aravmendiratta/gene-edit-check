@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200" width="1000" height="200" role="img" aria-label="gene-edit-check: check a gene edit on a computer before the lab">
+  <style>text { font-family:Inter, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; }</style>
+  <rect x="40" y="52" width="96" height="96" rx="23.04" fill="#2a78d6"/>
+  <path d="M65.92 102.88 L82.24 118.24 L111.04 83.68" fill="none" stroke="#ffffff" stroke-width="8.64" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="164" y="108" font-size="52" font-weight="600" fill="#111111" letter-spacing="-1">gene-edit-<tspan fill="#2a78d6">check</tspan></text>
+  <text x="166" y="152" font-size="22" fill="#55534f">Check a gene edit on a computer, before anyone spends weeks on it in a lab.</text>
+</svg>

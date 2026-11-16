@@ -23,10 +23,10 @@ def render_optimization_report(
     con = console or Console()
     prov = result.provenance
     is_live = prov.backend_mode == BackendMode.LIVE_ALPHAGENOME_V2
-    badge_color = "bold green" if is_live else "bold yellow"
+    badge_color = "bold #4a90e2" if is_live else "bold #eb6834"
 
     header_text = Text()
-    header_text.append(f"GENE-EDIT-CHECK v{__version__} ", style="bold cyan")
+    header_text.append(f"GENE-EDIT-CHECK v{__version__} ", style="bold #4a90e2")
     header_text.append(f"[{prov.backend_mode.value}] ", style=badge_color)
     header_text.append(
         f"| Model: {prov.model_version} | Seed: {prov.random_seed} "
@@ -34,8 +34,8 @@ def render_optimization_report(
         f"| Scoped ISM Variants: {prov.total_ism_variants_scored}\n",
         style="dim",
     )
-    header_text.append(prov.research_use_only_notice, style="italic yellow")
-    con.print(Panel(header_text, title=f"Scenario: {result.scenario_id} ({result.gene_symbol})", border_style="cyan"))
+    header_text.append(prov.research_use_only_notice, style="italic dim")
+    con.print(Panel(header_text, title=f"Scenario: {result.scenario_id} ({result.gene_symbol})", border_style="dim"))
 
     dp = result.data_provenance
     if dp:
@@ -54,8 +54,8 @@ def render_optimization_report(
             f"[bold]ISM pre-screen:[/bold] {ps.n_windows} windows x {ps.window_width_bp} bp -> "
             f"{ps.n_variants_measured} substitutions measured, "
             f"{ps.n_candidates_with_measurement} candidates covered "
-            f"([green]{ps.n_correct_direction} correct direction[/green], "
-            f"[red]{ps.n_wrong_direction_filtered} filtered out[/red]); "
+            f"([#4a90e2]{ps.n_correct_direction} correct direction[/#4a90e2], "
+            f"[#eb6834]{ps.n_wrong_direction_filtered} filtered out[/#eb6834]); "
             f"best measured LFC {ps.best_measured_lfc:+.5f}. "
             f"Gradient sign agreed with measured ISM sign {ps.gradient_sign_agreement:.0%} of the time "
             f"[dim](the heuristic this pre-screen replaces)[/dim]"
@@ -79,9 +79,9 @@ def render_optimization_report(
     sketch_tbl.add_column("Pool -> Sketch (A/B)", justify="right")
     sketch_tbl.add_column("A/B split", justify="center")
     sketch_tbl.add_column("Donors A/B (overlap)", justify="right")
-    sketch_tbl.add_column("MMD^2 (Stratified Coreset)", justify="right", style="green")
-    sketch_tbl.add_column("MMD^2 (Random Subsample)", justify="right", style="yellow")
-    sketch_tbl.add_column("MMD Reduction", justify="right", style="bold cyan")
+    sketch_tbl.add_column("MMD^2 (Stratified Coreset)", justify="right", style="#4a90e2")
+    sketch_tbl.add_column("MMD^2 (Random Subsample)", justify="right", style="#eb6834")
+    sketch_tbl.add_column("MMD Reduction", justify="right", style="bold #4a90e2")
     sketch_tbl.add_column("Sketch A/B Cosine", justify="right")
 
     for sm in result.sketch_metrics:
@@ -119,7 +119,7 @@ def render_optimization_report(
         h_val = next(iter(t1.healthy_control_deltas.values()), 0.0)
         n_bys = len(cand.bystander_edits_in_window)
 
-        status_badge = "[bold green]PASS[/bold green]" if rep.all_checks_passed else "[bold red]FAIL[/bold red]"
+        status_badge = "[bold #4a90e2]PASS[/bold #4a90e2]" if rep.all_checks_passed else "[bold #eb6834]FAIL[/bold #eb6834]"
         trace_tbl.add_row(
             str(step.iteration),
             f"{cand.editor.value}\n{cand.target_edit.chromosome}:{cand.target_edit.position} ({cand.strand})\n"
@@ -136,7 +136,7 @@ def render_optimization_report(
             f"Splice: {t2.max_splice_junction_delta:.4f}\n"
             f"CpG: {t2.cpg_methylation_mean_abs_shift:.4f}\n"
             f"Bystanders: {n_bys}",
-            f"{status_badge} {step.diagnosis}\n[cyan]Rule: {step.constraint_added}[/cyan]",
+            f"{status_badge} {step.diagnosis}\n[#4a90e2]Rule: {step.constraint_added}[/#4a90e2]",
         )
     con.print(trace_tbl)
 
@@ -158,14 +158,14 @@ def render_optimization_report(
                 f"(p={c['spearman_p']:.3g}, n={c['n_total']}){ctrl}[/]"
             )
         verdict = str(hc.get("verdict", "inconclusive"))
-        color = {"target_constrained": "bold yellow", "search_limited": "bold cyan"}.get(verdict, "dim")
+        color = {"target_constrained": "bold #eb6834", "search_limited": "bold #4a90e2"}.get(verdict, "dim")
         lines.append("")
         lines.append(f"Verdict: [{color}]{verdict.upper().replace('_', ' ')}[/] -- {hc.get('verdict_explanation', '')}")
         con.print(
             Panel(
                 "\n".join(lines),
                 title="Efficacy-Hazard Coupling: is the limit the search, or the target?",
-                border_style="magenta",
+                border_style="dim",
             )
         )
 
@@ -197,7 +197,7 @@ def render_optimization_report(
             )
         if t2s.tissue_matched_agrees is not None:
             verdict = "AGREES" if t2s.tissue_matched_agrees else "DISAGREES"
-            style = "green" if t2s.tissue_matched_agrees else "bold yellow"
+            style = "#4a90e2" if t2s.tissue_matched_agrees else "bold #eb6834"
             summary += (
                 f"\nTissue-matched cross-check ({t2s.tissue_matched_biosample_name}, weaker evidence): "
                 f"[{style}]{verdict}[/{style}] "
@@ -213,7 +213,7 @@ def render_optimization_report(
                 f"\nNeighbour genes in interval ({len(t1s.neighbor_gene_lfcs)} scored, {flag}): {neigh}"
             )
 
-        con.print(Panel(summary, title="Selected Candidate gRNA Specification (Research-Use-Only)", border_style="green"))
+        con.print(Panel(summary, title="Selected Candidate gRNA Specification (Research-Use-Only)", border_style="#4a90e2"))
 
         panel = sel.off_tissue_panel
         if panel:
@@ -234,6 +234,6 @@ def render_optimization_report(
                     tissue,
                     f"{val:.5f}",
                     panel.evidence_tiers.get(tissue, "?"),
-                    "[green]ok[/green]" if ok else "[bold red]FLAG[/bold red]",
+                    "[#4a90e2]ok[/#4a90e2]" if ok else "[bold #eb6834]FLAG[/bold #eb6834]",
                 )
             con.print(ot)

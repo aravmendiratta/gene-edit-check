@@ -28,18 +28,40 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 from gene_edit_check.models import OptimizationRunResult
 
-# ---- design tokens (light surface) ---------------------------------------------------------
-SURFACE = "#ffffff"
-INK = "#111111"        # primary text
-INK_2 = "#55534f"      # secondary text
-INK_3 = "#8a8985"      # muted text
-GRID = "#ebebe8"       # hairlines
-NEUTRAL = "#b9b8b3"    # context marks
-NEUTRAL_SOFT = "#e4e3df"
-BLUE = "#2a78d6"       # accent / the subject
-BLUE_SOFT = "#cde2fb"
-ORANGE = "#eb6834"     # fail / limit
-ORANGE_SOFT = "#fbe1d6"
+# ---- design tokens -------------------------------------------------------------------------
+# One palette per surface. `use_mode()` rebinds the module-level names below, so every drawing
+# function reads the active palette at call time. The language is documented in docs/DESIGN.md.
+PALETTES: dict[str, dict[str, str]] = {
+    "light": {
+        "SURFACE": "#ffffff", "PANEL": "#f7f7f5",
+        "INK": "#111111", "INK_2": "#55534f", "INK_3": "#8a8985",
+        "GRID": "#ebebe8", "NEUTRAL": "#b9b8b3", "NEUTRAL_SOFT": "#e4e3df",
+        "BLUE": "#2a78d6", "BLUE_SOFT": "#cde2fb", "ORANGE": "#eb6834", "ORANGE_SOFT": "#fbe1d6",
+        "ON_ACCENT": "#ffffff",
+    },
+    "dark": {
+        "SURFACE": "#0d1117", "PANEL": "#151b23",
+        "INK": "#f2f2f0", "INK_2": "#b4b3ae", "INK_3": "#8a8e96",
+        "GRID": "#262c35", "NEUTRAL": "#5d626b", "NEUTRAL_SOFT": "#303640",
+        "BLUE": "#5aa0f2", "BLUE_SOFT": "#1c3b63", "ORANGE": "#f08457", "ORANGE_SOFT": "#4a2b20",
+        "ON_ACCENT": "#0d1117",
+    },
+}
+SURFACE = PANEL = INK = INK_2 = INK_3 = GRID = NEUTRAL = NEUTRAL_SOFT = ""
+BLUE = BLUE_SOFT = ORANGE = ORANGE_SOFT = ON_ACCENT = ""
+MODE = "light"
+
+
+def use_mode(mode: str = "light") -> None:
+    """Switch every figure drawn afterwards to the `light` or `dark` palette."""
+    global MODE
+    if mode not in PALETTES:
+        raise ValueError(f"mode must be one of {sorted(PALETTES)}")
+    MODE = mode
+    globals().update(PALETTES[mode])
+
+
+use_mode("light")
 
 _FONT = ["Inter", "SF Pro Display", "Segoe UI", "Helvetica Neue", "Arial", "DejaVu Sans"]
 _DPI = 200
@@ -98,6 +120,7 @@ def _footer(fig: Any, result: OptimizationRunResult | None, extra: str = "") -> 
     if extra:
         parts.append(extra)
     fig.text(0.04, 0.012, "  ·  ".join(parts), fontsize=7.6, color=INK_3, ha="left", va="bottom")
+    fig.text(0.96, 0.012, "gene-edit-check", fontsize=7.6, color=INK_3, ha="right", va="bottom", fontweight="semibold")
 
 
 # ---- data helpers --------------------------------------------------------------------------
@@ -152,7 +175,7 @@ def _panel_scorecard(ax: Any, result: OptimizationRunResult) -> None:
         row = _check_row(step.report.failure_reasons)
         if i % 2 == 0:
             ax.add_patch(FancyBboxPatch((-2.95, i - 0.5), m + 2.5, 1.0, boxstyle="round,pad=0,rounding_size=0.12",
-                                        fc="#f7f7f5", ec="none", zorder=0))
+                                        fc=PANEL, ec="none", zorder=0))
         pos, sub = _candidate_label(step)
         ax.text(-2.8, i - 0.1, pos, fontsize=9.3, color=INK, va="center", ha="left", fontweight="semibold")
         ax.text(-2.8, i + 0.26, sub, fontsize=7.8, color=INK_3, va="center", ha="left")
@@ -394,9 +417,9 @@ def fig_pipeline() -> Any:
     for i, (num, head, body, tag) in enumerate(steps):
         x0 = i * (w + gap) + 0.5
         ax.add_patch(FancyBboxPatch((x0, 3), w, 24, boxstyle="round,pad=0,rounding_size=1.6",
-                                    fc="#f7f7f5", ec=GRID, lw=1.0))
+                                    fc=PANEL, ec=GRID, lw=1.0))
         ax.scatter([x0 + 3.0], [22.6], s=330, color=BLUE, linewidths=0, zorder=3)
-        ax.text(x0 + 3.0, 22.55, num, color="white", fontsize=9.5, fontweight="semibold", ha="center", va="center")
+        ax.text(x0 + 3.0, 22.55, num, color=ON_ACCENT, fontsize=9.5, fontweight="semibold", ha="center", va="center")
         ax.text(x0 + 6.4, 22.6, head, fontsize=10.6, fontweight="semibold", color=INK, ha="left", va="center")
         ax.text(x0 + 2.0, 14.0, body, fontsize=8.5, color=INK_2, ha="left", va="center", linespacing=1.45)
         ax.text(x0 + 2.0, 6.0, tag.upper(), fontsize=7.2, color=BLUE, ha="left", va="center", fontweight="semibold")
@@ -410,7 +433,7 @@ def fig_pipeline() -> Any:
 
 def _save(fig: Any, path: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=_DPI)
+    fig.savefig(path, dpi=_DPI, facecolor=SURFACE)
     plt.close(fig)
     return path
 
@@ -420,22 +443,34 @@ def export_figure_set(
     out_dir: Path | str = "outputs",
     sweep_json: Path | str | None = None,
 ) -> list[Path]:
-    """Write the README figures. The per-locus chart needs the saved sweep JSON; skipped if absent."""
+    """Write the README figures in both palettes (`fig_x.png` and `fig_x-dark.png`).
+
+    The per-locus and enhancer charts need saved JSON from earlier runs and are skipped if absent.
+    """
     out = Path(out_dir)
-    paths = [
-        _save(fig_pipeline(), out / "fig_pipeline.png"),
-        _save(fig_scorecard(result), out / "fig_scorecard.png"),
-        _save(fig_coupling(result), out / "fig_coupling.png"),
-        _save(fig_forest(result), out / "fig_forest.png"),
-    ]
-    conc, enh = out / "enhancer_concordance_1000bp.json", out / "report_crc-pd1-exhaustion-enhancer.json"
-    if conc.exists() and enh.exists():
-        paths.append(_save(fig_enhancers(json.loads(conc.read_text(encoding="utf-8")), result,
-                                         OptimizationRunResult.model_validate_json(enh.read_text(encoding="utf-8"))),
-                           out / "fig_enhancers.png"))
+    paths: list[Path] = []
     sweep_path = Path(sweep_json) if sweep_json else out / "sweep_coupling_seed42.json"
-    if sweep_path.exists():
-        paths.append(_save(fig_loci(json.loads(sweep_path.read_text(encoding="utf-8"))), out / "fig_loci.png"))
+    conc, enh = out / "enhancer_concordance_1000bp.json", out / "report_crc-pd1-exhaustion-enhancer.json"
+    try:
+        for mode in ("light", "dark"):
+            use_mode(mode)
+            suffix = "" if mode == "light" else "-dark"
+            paths += [
+                _save(fig_pipeline(), out / f"fig_pipeline{suffix}.png"),
+                _save(fig_scorecard(result), out / f"fig_scorecard{suffix}.png"),
+                _save(fig_coupling(result), out / f"fig_coupling{suffix}.png"),
+                _save(fig_forest(result), out / f"fig_forest{suffix}.png"),
+            ]
+            if conc.exists() and enh.exists():
+                paths.append(_save(
+                    fig_enhancers(json.loads(conc.read_text(encoding="utf-8")), result,
+                                  OptimizationRunResult.model_validate_json(enh.read_text(encoding="utf-8"))),
+                    out / f"fig_enhancers{suffix}.png"))
+            if sweep_path.exists():
+                paths.append(_save(fig_loci(json.loads(sweep_path.read_text(encoding="utf-8"))),
+                                   out / f"fig_loci{suffix}.png"))
+    finally:
+        use_mode("light")
     return paths
 
 

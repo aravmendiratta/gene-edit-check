@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Design language: documented in `docs/DESIGN.md` and held in one palette table in code. Every README figure now
+  ships in light and dark (`fig_x.png`, `fig_x-dark.png`), a logo, banner and social card were added
+  (`scripts/make_brand.py`), and the terminal output uses the same two hues.
+
 ## 0.3.1
 
 - New: check against a published wet-lab screen (`scripts/validate_enhancers.py`). Model saliency recognises two
