@@ -296,6 +296,56 @@ def fig_forest(result: OptimizationRunResult) -> Any:
     return fig
 
 
+def fig_enhancers(concordance: dict[str, Any], promoter: OptimizationRunResult, enhancer: OptimizationRunResult) -> Any:
+    """Where the model looks versus where a wet-lab screen found PD-1 regulatory elements."""
+    from matplotlib.ticker import FixedLocator, FuncFormatter
+
+    _theme()
+    fig = plt.figure(figsize=(10.4, 4.3), dpi=_DPI)
+    axa = fig.add_axes([0.085, 0.17, 0.36, 0.55])
+    axb = fig.add_axes([0.58, 0.17, 0.39, 0.55])
+
+    prof = concordance["profiles"]["target saliency (exhausted TIL)"]["elements"]
+    names = list(prof)
+    ys = list(range(len(names)))[::-1]
+    axa.axvline(0.95, color=ORANGE, lw=1.0)
+    axa.text(0.945, -0.62, "95th percentile", color=ORANGE, fontsize=8, va="center", ha="right")
+    for y, n in zip(ys, names):
+        r = prof[n]
+        pct = r["percentile_vs_null"]
+        hit = pct >= 0.95
+        axa.plot([0, pct], [y, y], color=NEUTRAL, lw=1.2, zorder=1)
+        axa.scatter([pct], [y], s=46, color=BLUE if hit else NEUTRAL, zorder=3, edgecolor=SURFACE, linewidth=1.2)
+    axa.set_yticks(ys)
+    axa.set_yticklabels(names)
+    axa.set_xlim(0, 1.02)
+    axa.set_ylim(-0.9, len(names) - 0.4)
+    axa.set_xlabel("Model saliency, percentile vs random windows")
+    _clean_axes(axa, "x")
+
+    for res, color, label in ((promoter, BLUE, "Promoter (+/- 2.5 kb)"), (enhancer, NEUTRAL, "Published enhancers (+14.8, +16.1 kb)")):
+        xs, yv = [], []
+        for it in res.iterations:
+            xs.append(max(abs(it.report.tier1_selectivity.target_delta_sketch_b), 1e-3))
+            yv.append(it.report.tier2_hazards.cpg_methylation_mean_abs_shift)
+        axb.scatter(xs, yv, s=40, color=color, edgecolor=SURFACE, linewidth=1.0, label=label, zorder=3)
+    axb.set_xscale("log")
+    axb.xaxis.set_major_locator(FixedLocator([0.001, 0.01, 0.1, 1]))
+    axb.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+    axb.set_xlabel("Predicted PD-1 change, |log fold change| (held-out cells)")
+    axb.set_ylabel("Methylation shift")
+    axb.axhline(0.12, color=ORANGE, lw=1.0, ls=(0, (4, 3)))
+    axb.text(0.0011, 0.14, "safety limit", color=ORANGE, fontsize=8)
+    axb.legend(frameon=False, fontsize=8.5, loc="upper left", bbox_to_anchor=(0.0, 1.0))
+    _clean_axes(axb, "y")
+
+    _title(fig, "The model finds the near elements, not the +15 kb enhancers",
+           "Left: model saliency at regulatory elements found by a CRISPRi screen in human CD8 T cells.\n"
+           "Right: predicted effect of eight edits at the promoter versus eight at the two +15 kb enhancers.")
+    _footer(fig, None, "Reference: Wang et al., bioRxiv 2026, doi:10.64898/2026.01.27.702006. 1,000-bp windows.")
+    return fig
+
+
 def fig_loci(sweep: list[dict[str, Any]]) -> Any:
     """Per-locus correlation: all edits vs random edits only (dumbbell, one axis)."""
     _theme()
@@ -378,6 +428,11 @@ def export_figure_set(
         _save(fig_coupling(result), out / "fig_coupling.png"),
         _save(fig_forest(result), out / "fig_forest.png"),
     ]
+    conc, enh = out / "enhancer_concordance_1000bp.json", out / "report_crc-pd1-exhaustion-enhancer.json"
+    if conc.exists() and enh.exists():
+        paths.append(_save(fig_enhancers(json.loads(conc.read_text(encoding="utf-8")), result,
+                                         OptimizationRunResult.model_validate_json(enh.read_text(encoding="utf-8"))),
+                           out / "fig_enhancers.png"))
     sweep_path = Path(sweep_json) if sweep_json else out / "sweep_coupling_seed42.json"
     if sweep_path.exists():
         paths.append(_save(fig_loci(json.loads(sweep_path.read_text(encoding="utf-8"))), out / "fig_loci.png"))

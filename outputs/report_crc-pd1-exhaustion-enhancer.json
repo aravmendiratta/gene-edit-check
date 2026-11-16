@@ -1,0 +1,1129 @@
+{
+  "scenario_id": "crc-pd1-exhaustion",
+  "gene_symbol": "PDCD1",
+  "locus": {
+    "chromosome": "chr2",
+    "start": 241793329,
+    "end": 241924401
+  },
+  "provenance": {
+    "backend_mode": "LIVE_ALPHAGENOME_V2",
+    "model_version": "alphagenome-2.0.0-all_folds",
+    "random_seed": 42,
+    "total_api_calls": 84,
+    "cache_hits": 6,
+    "total_ism_variants_scored": 312,
+    "gradient_calls_used": 0,
+    "research_use_only_notice": "RESEARCH USE ONLY: Outputs are computational hypotheses generated via AlphaGenome 2 and are not validated for clinical, diagnostic, or therapeutic use."
+  },
+  "sketch_metrics": [
+    {
+      "cell_state_name": "Exhausted_CD8_TIL",
+      "total_source_cells": 600,
+      "sketch_size": 128,
+      "donor_stratified": true,
+      "split_by": "donor",
+      "n_donors_sketch_a": 30,
+      "n_donors_sketch_b": 31,
+      "donors_overlap_a_b": 0,
+      "ag2_latent_mmd_stratified": 0.001349,
+      "ag2_latent_mmd_unstratified_random": 0.0028,
+      "mmd_reduction_pct": 51.82,
+      "sketch_a_B_cosine_consistency": 0.99408
+    },
+    {
+      "cell_state_name": "Normal_Colon_CD8",
+      "total_source_cells": 600,
+      "sketch_size": 128,
+      "donor_stratified": true,
+      "split_by": "donor",
+      "n_donors_sketch_a": 18,
+      "n_donors_sketch_b": 18,
+      "donors_overlap_a_b": 0,
+      "ag2_latent_mmd_stratified": 0.001398,
+      "ag2_latent_mmd_unstratified_random": 0.002774,
+      "mmd_reduction_pct": 49.6,
+      "sketch_a_B_cosine_consistency": 0.99353
+    }
+  ],
+  "iterations": [
+    {
+      "iteration": 1,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_CBE_pos241874513_plus_p6",
+          "gene_symbol": "PDCD1",
+          "editor": "CBE",
+          "strand": "+",
+          "protospacer_20nt": "GAAACCGCGTCCAGGGCCCC",
+          "pam_sequence": "TGG",
+          "genomic_start": 241874507,
+          "genomic_end": 241874530,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241874513,
+            "reference": "C",
+            "alternate": "T",
+            "protospacer_index": 6,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874513:C%3ET&m=variant&i=chr2:241874323-241874703"
+          },
+          "bystander_edits_in_window": [
+            {
+              "chromosome": "chr2",
+              "position": 241874512,
+              "reference": "C",
+              "alternate": "T",
+              "protospacer_index": 5,
+              "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874512:C%3ET&m=variant&i=chr2:241874322-241874702"
+            },
+            {
+              "chromosome": "chr2",
+              "position": 241874515,
+              "reference": "C",
+              "alternate": "T",
+              "protospacer_index": 8,
+              "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874515:C%3ET&m=variant&i=chr2:241874325-241874705"
+            }
+          ],
+          "disrupted_motif": null,
+          "gradient_saliency_score": 0.001175,
+          "ism_verification_score": -0.004331
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": -0.002338,
+          "target_delta_sketch_b": -0.001515,
+          "target_sketch_bootstrap_se": 0.000582,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.002356
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": -0.006343,
+            "NEU4": 0.000752,
+            "ENSG00000215023": -0.002094,
+            "FAM240C": -0.014037,
+            "ENSG00000224272": 0.002516,
+            "ENSG00000235151": -0.008119
+          },
+          "worst_neighbor_gene": "FAM240C",
+          "worst_neighbor_lfc": -0.014037,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.0,
+          "cpg_methylation_mean_abs_shift": 0.03456,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": false,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.0,
+          "tissue_matched_cpg_shift": 0.077727,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.038631,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_EFFICACY: Held-out Sketch B |LFC|=0.00151 < cutoff 0.00565 (null-calibrated; must beat random PAM-valid edits)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (-0.00234) -> Held-Out Sketch B (-0.00151) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00236, ratio=1.55 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'FAM240C' in the same interval shifts -0.01404 (ratio=9.27 > 0.50 of the target's -0.00151) -- the edit is not specific to ENSG00000188389",
+          "TIER2_BYSTANDER_HAZARD: Protospacer contains 2 bystander editable base(s) in window [4..8]"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [5 check(s)]: TIER1_EFFICACY: Held-out Sketch B |LFC|=0.00151 < cutoff 0.00565 (null-calibrated; must beat random PAM-valid edits); TIER1_GOODHART_GUARD: Failed Sketch A (-0.00234) -> Held-Out Sketch B (-0.00151) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00236, ratio=1.55 > 0.35); TIER1_NEIGHBOR_GENE: 'FAM240C' in the same interval shifts -0.01404 (ratio=9.27 > 0.50 of the target's -0.00151) -- the edit is not specific to ENSG00000188389; TIER2_BYSTANDER_HAZARD: Protospacer contains 2 bystander editable base(s) in window [4..8]",
+      "constraint_added": "ENFORCE_ZERO_BYSTANDERS_IN_WINDOW_[4..8] + INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=1.50) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'FAM240C') + PRIORITIZE_HIGH_ISM_JACOBIAN_PEAKS"
+    },
+    {
+      "iteration": 2,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_ABE8e_pos241874504_plus_p4",
+          "gene_symbol": "PDCD1",
+          "editor": "ABE8e",
+          "strand": "+",
+          "protospacer_20nt": "GAAAGGGGAAACCGCGTCCA",
+          "pam_sequence": "GGG",
+          "genomic_start": 241874500,
+          "genomic_end": 241874523,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241874504,
+            "reference": "A",
+            "alternate": "G",
+            "protospacer_index": 4,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874504:A%3EG&m=variant&i=chr2:241874314-241874694"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": null,
+          "gradient_saliency_score": 0.000919,
+          "ism_verification_score": -0.002769
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": 0.003597,
+          "target_delta_sketch_b": 0.001149,
+          "target_sketch_bootstrap_se": 0.001731,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.004527
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": -0.008984,
+            "NEU4": -0.000482,
+            "ENSG00000215023": 0.005336,
+            "FAM240C": -0.001495,
+            "ENSG00000224272": 0.004649,
+            "ENSG00000235151": 0.001683
+          },
+          "worst_neighbor_gene": "RTP5",
+          "worst_neighbor_lfc": -0.008984,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.0,
+          "cpg_methylation_mean_abs_shift": 0.047941,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.0,
+          "tissue_matched_cpg_shift": 0.089775,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.011973,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00115 moves the target gene the wrong way (goal: down-regulate)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (+0.00360) -> Held-Out Sketch B (+0.00115) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00453, ratio=3.94 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts -0.00898 (ratio=7.82 > 0.50 of the target's +0.00115) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [4 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.00115 moves the target gene the wrong way (goal: down-regulate); TIER1_GOODHART_GUARD: Failed Sketch A (+0.00360) -> Held-Out Sketch B (+0.00115) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00453, ratio=3.94 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts -0.00898 (ratio=7.82 > 0.50 of the target's +0.00115) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=2.30) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5') + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+    },
+    {
+      "iteration": 3,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_ABE8e_pos241874511_plus_p4",
+          "gene_symbol": "PDCD1",
+          "editor": "ABE8e",
+          "strand": "+",
+          "protospacer_20nt": "GAAACCGCGTCCAGGGCCCC",
+          "pam_sequence": "TGG",
+          "genomic_start": 241874507,
+          "genomic_end": 241874530,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241874511,
+            "reference": "A",
+            "alternate": "G",
+            "protospacer_index": 4,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874511:A%3EG&m=variant&i=chr2:241874321-241874701"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": null,
+          "gradient_saliency_score": 0.001108,
+          "ism_verification_score": -0.002253
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": -0.000348,
+          "target_delta_sketch_b": 0.000319,
+          "target_sketch_bootstrap_se": 0.000471,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.002676
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": -0.006071,
+            "NEU4": -0.000037,
+            "ENSG00000215023": -0.001394,
+            "FAM240C": -0.005385,
+            "ENSG00000224272": 0.003279,
+            "ENSG00000235151": 0.011469
+          },
+          "worst_neighbor_gene": "ENSG00000235151",
+          "worst_neighbor_lfc": 0.011469,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.0,
+          "cpg_methylation_mean_abs_shift": 0.091797,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.0,
+          "tissue_matched_cpg_shift": 0.111771,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.014257,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00032 moves the target gene the wrong way (goal: down-regulate)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (-0.00035) -> Held-Out Sketch B (+0.00032) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00268, ratio=8.40 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'ENSG00000235151' in the same interval shifts +0.01147 (ratio=36.01 > 0.50 of the target's +0.00032) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [4 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.00032 moves the target gene the wrong way (goal: down-regulate); TIER1_GOODHART_GUARD: Failed Sketch A (-0.00035) -> Held-Out Sketch B (+0.00032) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00268, ratio=8.40 > 0.35); TIER1_NEIGHBOR_GENE: 'ENSG00000235151' in the same interval shifts +0.01147 (ratio=36.01 > 0.50 of the target's +0.00032) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=3.55) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'ENSG00000235151') + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+    },
+    {
+      "iteration": 4,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_ABE8e_pos241873723_minus_p4",
+          "gene_symbol": "PDCD1",
+          "editor": "ABE8e",
+          "strand": "-",
+          "protospacer_20nt": "AGGAGGGGCTGAGCTGCTGG",
+          "pam_sequence": "CGG",
+          "genomic_start": 241873703,
+          "genomic_end": 241873726,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241873723,
+            "reference": "T",
+            "alternate": "C",
+            "protospacer_index": 4,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241873723:T%3EC&m=variant&i=chr2:241873533-241873913"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": "CTCF (Chromatin_Insulator)",
+          "gradient_saliency_score": 0.000657,
+          "ism_verification_score": -0.001755
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": 0.004044,
+          "target_delta_sketch_b": 0.00048,
+          "target_sketch_bootstrap_se": 0.00252,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.003049
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": 0.011909,
+            "NEU4": -0.002239,
+            "ENSG00000215023": 0.003592,
+            "FAM240C": -0.002034,
+            "ENSG00000224272": 0.003665,
+            "ENSG00000235151": 0.006558
+          },
+          "worst_neighbor_gene": "RTP5",
+          "worst_neighbor_lfc": 0.011909,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.085938,
+          "cpg_methylation_mean_abs_shift": 0.033323,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.027679,
+          "tissue_matched_cpg_shift": 0.032834,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.01707,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00048 moves the target gene the wrong way (goal: down-regulate)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (+0.00404) -> Held-Out Sketch B (+0.00048) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00305, ratio=6.36 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.01191 (ratio=24.83 > 0.50 of the target's +0.00048) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [4 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.00048 moves the target gene the wrong way (goal: down-regulate); TIER1_GOODHART_GUARD: Failed Sketch A (+0.00404) -> Held-Out Sketch B (+0.00048) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00305, ratio=6.36 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts +0.01191 (ratio=24.83 > 0.50 of the target's +0.00048) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=4.80) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5') + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+    },
+    {
+      "iteration": 5,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_ABE8e_pos241874803_minus_p6",
+          "gene_symbol": "PDCD1",
+          "editor": "ABE8e",
+          "strand": "-",
+          "protospacer_20nt": "CCCTCATCCGTGTCACCCGC",
+          "pam_sequence": "AGG",
+          "genomic_start": 241874785,
+          "genomic_end": 241874808,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241874803,
+            "reference": "T",
+            "alternate": "C",
+            "protospacer_index": 6,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874803:T%3EC&m=variant&i=chr2:241874613-241874993"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": "CTCF (Chromatin_Insulator)",
+          "gradient_saliency_score": 0.000664,
+          "ism_verification_score": 0.001645
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": 0.00432,
+          "target_delta_sketch_b": 0.005988,
+          "target_sketch_bootstrap_se": 0.001179,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.001558
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": true,
+          "cross_sketch_generalization_passed": true,
+          "neighbor_gene_lfcs": {
+            "RTP5": -0.005465,
+            "NEU4": -0.00055,
+            "ENSG00000215023": 0.001853,
+            "FAM240C": 0.000507,
+            "ENSG00000224272": 0.009142,
+            "ENSG00000235151": 0.007929
+          },
+          "worst_neighbor_gene": "ENSG00000224272",
+          "worst_neighbor_lfc": 0.009142,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.0,
+          "cpg_methylation_mean_abs_shift": 0.020151,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.0,
+          "tissue_matched_cpg_shift": 0.018837,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.012426,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00599 moves the target gene the wrong way (goal: down-regulate)",
+          "TIER1_NEIGHBOR_GENE: 'ENSG00000224272' in the same interval shifts +0.00914 (ratio=1.53 > 0.50 of the target's +0.00599) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [2 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.00599 moves the target gene the wrong way (goal: down-regulate); TIER1_NEIGHBOR_GENE: 'ENSG00000224272' in the same interval shifts +0.00914 (ratio=1.53 > 0.50 of the target's +0.00599) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'ENSG00000224272') + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+    },
+    {
+      "iteration": 6,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_CBE_pos241873731_plus_p5",
+          "gene_symbol": "PDCD1",
+          "editor": "CBE",
+          "strand": "+",
+          "protospacer_20nt": "GTCTCTTGCCCCTGGTTTTG",
+          "pam_sequence": "TGG",
+          "genomic_start": 241873726,
+          "genomic_end": 241873749,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241873731,
+            "reference": "C",
+            "alternate": "T",
+            "protospacer_index": 5,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241873731:C%3ET&m=variant&i=chr2:241873541-241873921"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": null,
+          "gradient_saliency_score": 0.000728,
+          "ism_verification_score": 0.000914
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": 0.004616,
+          "target_delta_sketch_b": 2e-6,
+          "target_sketch_bootstrap_se": 0.003263,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.002807
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": 0.005675,
+            "NEU4": 0.000108,
+            "ENSG00000215023": 0.005698,
+            "FAM240C": 0.002841,
+            "ENSG00000224272": 0.002061,
+            "ENSG00000235151": 0.005001
+          },
+          "worst_neighbor_gene": "ENSG00000215023",
+          "worst_neighbor_lfc": 0.005698,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.034271,
+          "cpg_methylation_mean_abs_shift": 0.020842,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.019379,
+          "tissue_matched_cpg_shift": 0.015732,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.008795,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00000 moves the target gene the wrong way (goal: down-regulate)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (+0.00462) -> Held-Out Sketch B (+0.00000) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00281, ratio=1471.62 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'ENSG00000215023' in the same interval shifts +0.00570 (ratio=2987.62 > 0.50 of the target's +0.00000) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": {
+          "tissues": {
+            "hepatocyte": 0.000427,
+            "brain": 0.007095,
+            "heart": 0.003181,
+            "lung": 0.004627,
+            "kidney": 0.000797,
+            "spleen": 0.000127
+          },
+          "evidence_tiers": {
+            "hepatocyte": "observed",
+            "brain": "observed",
+            "heart": "observed",
+            "lung": "observed",
+            "kidney": "observed",
+            "spleen": "observed"
+          },
+          "max_abs_lfc": 0.007095,
+          "worst_tissue": "brain",
+          "threshold": 1e-6,
+          "passed": false
+        }
+      },
+      "diagnosis": "FAILED [4 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.00000 moves the target gene the wrong way (goal: down-regulate); TIER1_GOODHART_GUARD: Failed Sketch A (+0.00462) -> Held-Out Sketch B (+0.00000) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00281, ratio=1471.62 > 0.35); TIER1_NEIGHBOR_GENE: 'ENSG00000215023' in the same interval shifts +0.00570 (ratio=2987.62 > 0.50 of the target's +0.00000) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=6.05) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'ENSG00000215023') + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+    },
+    {
+      "iteration": 7,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_CBE_pos241874717_minus_p4",
+          "gene_symbol": "PDCD1",
+          "editor": "CBE",
+          "strand": "-",
+          "protospacer_20nt": "GCCCGGTAAGCAGAGGGTGC",
+          "pam_sequence": "CGG",
+          "genomic_start": 241874697,
+          "genomic_end": 241874720,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241874717,
+            "reference": "G",
+            "alternate": "A",
+            "protospacer_index": 4,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874717:G%3EA&m=variant&i=chr2:241874527-241874907"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": null,
+          "gradient_saliency_score": 0.000831,
+          "ism_verification_score": 0.000072
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": 0.002578,
+          "target_delta_sketch_b": -0.001269,
+          "target_sketch_bootstrap_se": 0.00272,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.003243
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": -0.01059,
+            "NEU4": -0.007123,
+            "ENSG00000215023": -0.001423,
+            "FAM240C": -0.001163,
+            "ENSG00000224272": 0.004329,
+            "ENSG00000235151": 0.003166
+          },
+          "worst_neighbor_gene": "RTP5",
+          "worst_neighbor_lfc": -0.01059,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.0,
+          "cpg_methylation_mean_abs_shift": 0.046139,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.0,
+          "tissue_matched_cpg_shift": 0.025559,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.00909,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_EFFICACY: Held-out Sketch B |LFC|=0.00127 < cutoff 0.00565 (null-calibrated; must beat random PAM-valid edits)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (+0.00258) -> Held-Out Sketch B (-0.00127) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00324, ratio=2.56 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts -0.01059 (ratio=8.35 > 0.50 of the target's -0.00127) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [4 check(s)]: TIER1_EFFICACY: Held-out Sketch B |LFC|=0.00127 < cutoff 0.00565 (null-calibrated; must beat random PAM-valid edits); TIER1_GOODHART_GUARD: Failed Sketch A (+0.00258) -> Held-Out Sketch B (-0.00127) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00324, ratio=2.56 > 0.35); TIER1_NEIGHBOR_GENE: 'RTP5' in the same interval shifts -0.01059 (ratio=8.35 > 0.50 of the target's -0.00127) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=7.30) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'RTP5') + PRIORITIZE_HIGH_ISM_JACOBIAN_PEAKS"
+    },
+    {
+      "iteration": 8,
+      "report": {
+        "candidate": {
+          "candidate_id": "PDCD1_CBE_pos241874790_plus_p6",
+          "gene_symbol": "PDCD1",
+          "editor": "CBE",
+          "strand": "+",
+          "protospacer_20nt": "GCCTGCGGGTGACACGGATG",
+          "pam_sequence": "AGG",
+          "genomic_start": 241874784,
+          "genomic_end": 241874807,
+          "target_edit": {
+            "chromosome": "chr2",
+            "position": 241874790,
+            "reference": "C",
+            "alternate": "T",
+            "protospacer_index": 6,
+            "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241874790:C%3ET&m=variant&i=chr2:241874600-241874980"
+          },
+          "bystander_edits_in_window": [],
+          "disrupted_motif": null,
+          "gradient_saliency_score": 0.000817,
+          "ism_verification_score": 0.001705
+        },
+        "tier1_selectivity": {
+          "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+          "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+          "target_condition_name": "Exhausted_CD8_TIL",
+          "target_delta_sketch_a": -0.001633,
+          "target_delta_sketch_b": 0.004241,
+          "target_sketch_bootstrap_se": 0.004154,
+          "healthy_control_deltas": {
+            "Normal_Colon_CD8": -0.002575
+          },
+          "target_efficacy_passed": false,
+          "healthy_selectivity_passed": false,
+          "cross_sketch_generalization_passed": false,
+          "neighbor_gene_lfcs": {
+            "RTP5": 0.003407,
+            "NEU4": -0.000728,
+            "ENSG00000215023": 0.000979,
+            "FAM240C": 0.000771,
+            "ENSG00000224272": 0.001413,
+            "ENSG00000235151": 0.003627
+          },
+          "worst_neighbor_gene": "ENSG00000235151",
+          "worst_neighbor_lfc": 0.003627,
+          "neighbor_specificity_passed": false
+        },
+        "tier2_hazards": {
+          "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+          "reference_curies": [
+            "UBERON:0000178",
+            "CL:0000625"
+          ],
+          "max_splice_junction_delta": 0.0,
+          "cpg_methylation_mean_abs_shift": 0.026341,
+          "splicing_hazard_passed": true,
+          "methylation_hazard_passed": true,
+          "bystander_clean_passed": true,
+          "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+          "evidence_tiers": {
+            "methylation": "observed",
+            "splice_junctions": "observed"
+          },
+          "limiting_evidence_tier": "observed",
+          "tissue_matched_curies": [
+            "UBERON:0001155",
+            "CL:0000625"
+          ],
+          "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+          "tissue_matched_splice_delta": 0.0,
+          "tissue_matched_cpg_shift": 0.014917,
+          "tissue_matched_agrees": true
+        },
+        "composite_objective_score": -0.00973,
+        "all_checks_passed": false,
+        "failure_reasons": [
+          "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00424 moves the target gene the wrong way (goal: down-regulate)",
+          "TIER1_GOODHART_GUARD: Failed Sketch A (-0.00163) -> Held-Out Sketch B (+0.00424) transfer",
+          "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00257, ratio=0.61 > 0.35)",
+          "TIER1_NEIGHBOR_GENE: 'ENSG00000235151' in the same interval shifts +0.00363 (ratio=0.86 > 0.50 of the target's +0.00424) -- the edit is not specific to ENSG00000188389"
+        ],
+        "off_tissue_panel": null
+      },
+      "diagnosis": "FAILED [4 check(s)]: TIER1_DIRECTION: Held-out Sketch B LFC=+0.00424 moves the target gene the wrong way (goal: down-regulate); TIER1_GOODHART_GUARD: Failed Sketch A (-0.00163) -> Held-Out Sketch B (+0.00424) transfer; TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00257, ratio=0.61 > 0.35); TIER1_NEIGHBOR_GENE: 'ENSG00000235151' in the same interval shifts +0.00363 (ratio=0.86 > 0.50 of the target's +0.00424) -- the edit is not specific to ENSG00000188389",
+      "constraint_added": "INCREASE_DIFFERENTIAL_GRADIENT_PENALTY (lambda=6.36) + AVOID_SHARED_REGULATORY_ELEMENTS (collateral on 'ENSG00000235151') + STRONGLY_PREFER_GRADIENT_SIGN_THAT_MOVES_TARGET_IN_DESIRED_DIRECTION"
+    }
+  ],
+  "selected_candidate": {
+    "candidate": {
+      "candidate_id": "PDCD1_CBE_pos241873731_plus_p5",
+      "gene_symbol": "PDCD1",
+      "editor": "CBE",
+      "strand": "+",
+      "protospacer_20nt": "GTCTCTTGCCCCTGGTTTTG",
+      "pam_sequence": "TGG",
+      "genomic_start": 241873726,
+      "genomic_end": 241873749,
+      "target_edit": {
+        "chromosome": "chr2",
+        "position": 241873731,
+        "reference": "C",
+        "alternate": "T",
+        "protospacer_index": 5,
+        "atlas_url": "https://deepmind.google.com/science/alphagenome/atlas?q=chr2:241873731:C%3ET&m=variant&i=chr2:241873541-241873921"
+      },
+      "bystander_edits_in_window": [],
+      "disrupted_motif": null,
+      "gradient_saliency_score": 0.000728,
+      "ism_verification_score": 0.000914
+    },
+    "tier1_selectivity": {
+      "resolution_tier": "TIER1_SINGLE_CELL_CONDITIONED",
+      "output_modality": "SC_GENE_EXPRESSION_DENOISED",
+      "target_condition_name": "Exhausted_CD8_TIL",
+      "target_delta_sketch_a": 0.004616,
+      "target_delta_sketch_b": 2e-6,
+      "target_sketch_bootstrap_se": 0.003263,
+      "healthy_control_deltas": {
+        "Normal_Colon_CD8": -0.002807
+      },
+      "target_efficacy_passed": false,
+      "healthy_selectivity_passed": false,
+      "cross_sketch_generalization_passed": false,
+      "neighbor_gene_lfcs": {
+        "RTP5": 0.005675,
+        "NEU4": 0.000108,
+        "ENSG00000215023": 0.005698,
+        "FAM240C": 0.002841,
+        "ENSG00000224272": 0.002061,
+        "ENSG00000235151": 0.005001
+      },
+      "worst_neighbor_gene": "ENSG00000215023",
+      "worst_neighbor_lfc": 0.005698,
+      "neighbor_specificity_passed": false
+    },
+    "tier2_hazards": {
+      "resolution_tier": "TIER2_ONTOLOGY_REFERENCE_CONDITION",
+      "reference_curies": [
+        "UBERON:0000178",
+        "CL:0000625"
+      ],
+      "max_splice_junction_delta": 0.034271,
+      "cpg_methylation_mean_abs_shift": 0.020842,
+      "splicing_hazard_passed": true,
+      "methylation_hazard_passed": true,
+      "bystander_clean_passed": true,
+      "reference_biosample_name": "blood CD8-positive, alpha-beta T cell",
+      "evidence_tiers": {
+        "methylation": "observed",
+        "splice_junctions": "observed"
+      },
+      "limiting_evidence_tier": "observed",
+      "tissue_matched_curies": [
+        "UBERON:0001155",
+        "CL:0000625"
+      ],
+      "tissue_matched_biosample_name": "colon CD8-positive, alpha-beta T cell",
+      "tissue_matched_splice_delta": 0.019379,
+      "tissue_matched_cpg_shift": 0.015732,
+      "tissue_matched_agrees": true
+    },
+    "composite_objective_score": -0.008795,
+    "all_checks_passed": false,
+    "failure_reasons": [
+      "TIER1_DIRECTION: Held-out Sketch B LFC=+0.00000 moves the target gene the wrong way (goal: down-regulate)",
+      "TIER1_GOODHART_GUARD: Failed Sketch A (+0.00462) -> Held-Out Sketch B (+0.00000) transfer",
+      "TIER1_SELECTIVITY: Off-target shift in healthy 'Normal_Colon_CD8' (-0.00281, ratio=1471.62 > 0.35)",
+      "TIER1_NEIGHBOR_GENE: 'ENSG00000215023' in the same interval shifts +0.00570 (ratio=2987.62 > 0.50 of the target's +0.00000) -- the edit is not specific to ENSG00000188389"
+    ],
+    "off_tissue_panel": {
+      "tissues": {
+        "hepatocyte": 0.000427,
+        "brain": 0.007095,
+        "heart": 0.003181,
+        "lung": 0.004627,
+        "kidney": 0.000797,
+        "spleen": 0.000127
+      },
+      "evidence_tiers": {
+        "hepatocyte": "observed",
+        "brain": "observed",
+        "heart": "observed",
+        "lung": "observed",
+        "kidney": "observed",
+        "spleen": "observed"
+      },
+      "max_abs_lfc": 0.007095,
+      "worst_tissue": "brain",
+      "threshold": 1e-6,
+      "passed": false
+    }
+  },
+  "converged": false,
+  "desired_direction": "down",
+  "efficacy_null": {
+    "n_random_edits": 40,
+    "abs_lfc_values": [
+      0.001997,
+      0.000922,
+      0.001749,
+      0.005649,
+      0.002491,
+      0.00129,
+      0.001795,
+      0.000487,
+      0.001348,
+      0.003365,
+      0.005439,
+      0.002034,
+      0.001651,
+      0.005085,
+      0.001918,
+      0.001802,
+      0.000053,
+      0.00227,
+      0.000243,
+      0.003747,
+      0.000618,
+      0.000467,
+      0.003492,
+      0.003333,
+      0.000362,
+      0.001028,
+      0.002099,
+      0.000747,
+      0.000018,
+      0.000054,
+      0.005336,
+      0.002114,
+      0.00528,
+      0.005336,
+      0.003807,
+      0.005085,
+      0.001694,
+      0.001367,
+      0.000213,
+      0.001118
+    ],
+    "abs_lfc_max": 0.005649,
+    "abs_lfc_mean": 0.002223,
+    "cutoff_used": 0.005649,
+    "empirical_p_floor": 0.0244,
+    "cpg_methylation_shift_values": [
+      0.00986,
+      0.026799,
+      0.010572,
+      0.154298,
+      0.011103,
+      0.020219,
+      0.012503,
+      0.010314,
+      0.021391,
+      0.015058,
+      0.00828,
+      0.010595,
+      0.03659,
+      0.010767,
+      0.01375,
+      0.028678,
+      0.009216,
+      0.010849,
+      0.012838,
+      0.009461,
+      0.009532,
+      0.010948,
+      0.008433,
+      0.017065,
+      0.009321,
+      0.017387,
+      0.01144,
+      0.008077,
+      0.007716,
+      0.019489,
+      0.009461,
+      0.007422,
+      0.00736,
+      0.009461,
+      0.01444,
+      0.010767,
+      0.008623,
+      0.026172,
+      0.016637,
+      0.017211
+    ],
+    "splice_delta_values": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.024979,
+      0.030411,
+      0.0,
+      0.029999,
+      0.030518,
+      0.0,
+      0.0,
+      0.038879,
+      0.0,
+      0.0,
+      0.0,
+      0.028015,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.014992,
+      0.0,
+      0.0
+    ]
+  },
+  "ism_prescreen": {
+    "n_windows": 10,
+    "window_width_bp": 8,
+    "n_variants_measured": 240,
+    "n_candidates_with_measurement": 35,
+    "n_correct_direction": 15,
+    "n_wrong_direction_filtered": 20,
+    "gradient_sign_agreement": 0.7042,
+    "best_measured_lfc": -0.010748
+  },
+  "hazard_coupling": {
+    "gene_symbol": "PDCD1",
+    "couplings": [
+      {
+        "hazard": "cpg_methylation",
+        "n_total": 48,
+        "spearman_rho": -0.1664,
+        "spearman_p": 0.258,
+        "n_null_only": 40,
+        "spearman_rho_null_only": -0.1266,
+        "spearman_p_null_only": 0.436,
+        "ci_low": -0.473,
+        "ci_high": 0.162,
+        "ci_low_null_only": -0.475,
+        "ci_high_null_only": 0.231,
+        "interpretation": "No significant coupling to cpg_methylation (rho=-0.17, p=0.26): this hazard is independent of how hard the edit pushes the target."
+      },
+      {
+        "hazard": "splice_junction",
+        "n_total": 48,
+        "spearman_rho": -0.1975,
+        "spearman_p": 0.178,
+        "n_null_only": 40,
+        "spearman_rho_null_only": -0.1017,
+        "spearman_p_null_only": 0.532,
+        "ci_low": -0.426,
+        "ci_high": 0.058,
+        "ci_low_null_only": -0.328,
+        "ci_high_null_only": 0.12,
+        "interpretation": "No significant coupling to splice_junction (rho=-0.20, p=0.18): this hazard is independent of how hard the edit pushes the target."
+      }
+    ],
+    "binding_constraint": "neighbor_gene",
+    "n_candidates_failing_binding_constraint": 8,
+    "n_candidates": 8,
+    "verdict": "search_limited",
+    "verdict_explanation": "8/8 candidates were blocked by neighbor_gene, but it does not scale with efficacy -- so edits that work without tripping it should exist. This is a search problem: widen the proposal window or spend more iterations.",
+    "methylation_minus_splice_rho": 0.0311,
+    "gap_ci_low": -0.321,
+    "gap_ci_high": 0.377,
+    "coupling_class": "uncoupled",
+    "coupling_class_explanation": "The interval for the efficacy-methylation correlation includes zero (rho=-0.17, 95% CI -0.47 to +0.16), so the data do not show that edits which silence PDCD1 disturb methylation."
+  },
+  "data_provenance": {
+    "data_source": "CZ CELLxGENE Discover (Pelka et al. 2021, colorectal cancer T/NK/ILC cells)",
+    "citation": "Pelka K. et al. Spatially organized multicellular immune hubs in human colorectal cancer. Cell 184, 4734 (2021). doi:10.1016/j.cell.2021.08.003",
+    "collection_id": "4d82bd8e-8827-410b-8fc7-685b7dd92585",
+    "dataset_id": "7674f8f4-7200-4f08-8412-eb114016a66f",
+    "asset_url": "https://datasets.cellxgene.cziscience.com/8a3ea2bf-70e2-4b60-964d-e7b3f9ad75b3.h5ad",
+    "raw_file_head_sha256_16": "c8dbe73cb8bc97a2",
+    "target_definition": "disease == 'colon adenocarcinoma' & ClusterFull in ['cTNI14 (CD8+ CXCL13+)', 'cTNI15 (CD8+ CXCL13+ HSP+)', 'cTNI16 (CD8+ CXCL13+ prolif)']",
+    "healthy_definition": "disease == 'normal' & ClusterMidway == 'TCD8'",
+    "pool_size_per_state": 600,
+    "seed": 42,
+    "states": {
+      "Exhausted_CD8_TIL": {
+        "n_cells_full_population": 12738,
+        "n_donors_full_population": 62,
+        "n_cells_pool": 600,
+        "n_donors_pool": 62
+      },
+      "Normal_Colon_CD8": {
+        "n_cells_full_population": 2626,
+        "n_donors_full_population": 36,
+        "n_cells_pool": 600,
+        "n_donors_pool": 36
+      }
+    },
+    "scan_regions_tss_relative_bp": [
+      [
+        14300,
+        15300
+      ],
+      [
+        15600,
+        16600
+      ]
+    ]
+  }
+}

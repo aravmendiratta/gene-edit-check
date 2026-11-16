@@ -2,8 +2,8 @@
 
 When a verifier-guided search fails, there are two very different reasons it might have:
 
-1. **The search was bad.** It looked in the wrong places, or wasted its budget.
-2. **The target is constrained.** Every edit that works also trips a safety check, because the
+1. The search was bad. It looked in the wrong places, or wasted its budget.
+2. The target is constrained. Every edit that works also trips a safety check, because the
    sequence features that control the gene *are* the features the check protects.
 
 These demand opposite responses -- fix the optimiser, or stop looking -- so it is worth
@@ -15,7 +15,7 @@ down, the more it perturbs CpG methylation. That is expected for this locus -- t
 regulatory regions (CR-B/CR-C) are CpG-dense, and T-cell exhaustion involves their
 demethylation -- so the model is reproducing a real coupling rather than behaving arbitrarily.
 
-**What this is and is not.** The correlation is between two *AlphaGenome 2 predictions*, so it is
+What this is and is not. The correlation is between two *AlphaGenome 2 predictions*, so it is
 evidence about what the model has learned, not a measurement of chromatin. Two things could
 produce it: genuine biology (regulatory grammar at this locus is carried by CpGs), or a shared
 internal representation that makes the model's expression and methylation heads move together

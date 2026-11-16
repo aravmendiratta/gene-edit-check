@@ -7,33 +7,46 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: "3.11" }
+          - { os: ubuntu-latest, python: "3.12" }
+          - { os: macos-latest, python: "3.12" }
+          - { os: windows-latest, python: "3.12" }
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-      - name: Set up Python 3.12
-        run: uv python install 3.12
       - name: Install dependencies
         run: |
-          uv venv --python 3.12 .venv
-          uv pip install --python .venv/bin/python -e ".[scverse,dev]"
-      - name: Run unit & determinism test suite (offline simulator backend)
-        run: .venv/bin/pytest -v
-      - name: Smoke test CLI plumbing (SYNTHETIC data + scripted simulator; never a result)
+          uv venv --python ${{ matrix.python }} .venv
+          if [ "$RUNNER_OS" = Windows ]; then echo "BIN=.venv/Scripts" >> "$GITHUB_ENV"; else echo "BIN=.venv/bin" >> "$GITHUB_ENV"; fi
+          uv pip install --python "$([ "$RUNNER_OS" = Windows ] && echo .venv/Scripts/python || echo .venv/bin/python)" -e ".[scverse,dev]"
+      - name: Unit and determinism tests (offline simulator backend)
+        run: $BIN/pytest -q
+      - name: Smoke test the CLI (synthetic data and scripted simulator; never a result)
         run: |
-          .venv/bin/gene-edit-check ablate-sketch --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96
-          .venv/bin/gene-edit-check optimize --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96 --max-iterations 4
-      - name: Reference-condition table is shipped and queryable (offline, no API key)
-        run: .venv/bin/gene-edit-check conditions "CD8-positive" --modality methylation --limit 5
-      - name: Setup check runs without an API key
-        run: .venv/bin/gene-edit-check doctor
+          $BIN/gene-edit-check ablate-sketch --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96
+          $BIN/gene-edit-check optimize --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96 --max-iterations 4 --output-dir "$RUNNER_TEMP/out"
+          $BIN/gene-edit-check optimize --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96 --max-iterations 2 --scan-region 100:900 --tag region --output-dir "$RUNNER_TEMP/out"
+      - name: The reference-condition table is shipped and queryable (offline, no API key)
+        run: $BIN/gene-edit-check conditions "CD8-positive" --modality methylation --limit 5
+      - name: Setup check runs without an API key and uses a per-user cache path
+        run: $BIN/gene-edit-check doctor
       - name: Build the package and confirm the reference table ships inside it
         run: |
           uv build
-          unzip -l dist/*.whl | grep ag2_supported_conditions.tsv.gz
+          python -m zipfile -l dist/*.whl | grep ag2_supported_conditions.tsv.gz
       - name: A fresh install of the wheel works with no extras
         run: |
-          uv venv --python 3.12 /tmp/fresh
-          uv pip install --python /tmp/fresh/bin/python dist/*.whl
-          /tmp/fresh/bin/gene-edit-check conditions "CD8-positive" --limit 3
+          uv venv --python ${{ matrix.python }} "$RUNNER_TEMP/fresh"
+          if [ "$RUNNER_OS" = Windows ]; then FB="$RUNNER_TEMP/fresh/Scripts"; else FB="$RUNNER_TEMP/fresh/bin"; fi
+          uv pip install --python "$FB/python" dist/*.whl
+          "$FB/gene-edit-check" conditions "CD8-positive" --limit 3

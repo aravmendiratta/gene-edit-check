@@ -12,15 +12,15 @@ each of 15 output modalities, *how the model knows about it*:
 This matters a lot for Tier 2 hazard calls. A methylation or splicing verdict taken from an
 `imputed_exploratory` condition is a guess about a guess. Only 185 of 2,799 conditions have
 *observed* methylation. So instead of hard-coding CURIEs, we pick the reference condition that
-has the strongest evidence for the modality we are about to trust, and we **record the tier we
-actually got** in the report, so a reader can discount the number appropriately.
+has the strongest evidence for the modality we are about to trust, and we record the tier we
+actually got in the report, so a reader can discount the number appropriately.
 
 Consequence for this project's PD-1 scenario: `UBERON:0000178_CL:0000625` (blood CD8+ alpha-beta
-T cell) is the *only* CD8 T-cell condition with `observed` methylation **and** `observed` splice
-junctions **and** `observed` RNA-seq **and** `observed` TF ChIP. The tissue-matched alternative,
+T cell) is the *only* CD8 T-cell condition with `observed` methylation and `observed` splice
+junctions and `observed` RNA-seq and `observed` TF ChIP. The tissue-matched alternative,
 `UBERON:0001155_CL:0000625` (colon CD8+ alpha-beta T cell), is `imputed_exploratory` for both
 hazard modalities. We therefore keep blood CD8 as the *primary* hazard reference and use colon
-CD8 only as a tissue-matched **concordance** check -- a disagreement is reported, never averaged
+CD8 only as a tissue-matched concordance check -- a disagreement is reported, never averaged
 away.
 """
 

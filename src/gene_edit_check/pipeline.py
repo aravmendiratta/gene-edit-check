@@ -100,6 +100,7 @@ def run_scenario(
     ism_prescreen_windows: int = 10,
     off_tissue_panel: bool = True,
     max_target_abs_lfc: float | None = None,
+    scan_regions: list[tuple[int, int]] | None = None,
 ) -> OptimizationRunResult:
     cohort = load_cohort(spec, pool_size=pool_size, seed=seed)
     target, healthy, metrics = build_all_sketches(backend, spec, cohort, sketch_size, seed)
@@ -123,6 +124,7 @@ def run_scenario(
         run_off_tissue_panel_on_finalist=off_tissue_panel,
         thresholds=VerificationThresholds(max_target_abs_lfc=max_target_abs_lfc),
         data_provenance=cohort.provenance,
+        scan_regions=scan_regions,
     )
     # Why did the search end where it did? Distinguishes a weak optimiser from a locus where
     # efficacy and a hazard are inseparable. Uses variants already scored, so it is free.

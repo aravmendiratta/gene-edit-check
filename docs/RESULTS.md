@@ -17,7 +17,7 @@ suggested, so this section separates what holds from what does not.
   **Spearman rho = +0.57, 95% bootstrap CI +0.28 to +0.77 (p = 2.2e-05)**. The interval is wide: the data support a
   moderate association, not a precise size.
 - It reproduces across three independent seeds (patient splits and random-edit draws): rho = +0.48, +0.56, +0.57, all p < 1e-3.
-- The sign is positive in **all 6 cohorts** (rho from +0.25 to +0.73) and at **all 6 checkpoint loci** (rho from +0.44 to +0.65).
+- The sign is positive in **all 6 cohorts** (rho from +0.25 to +0.73) and at **all 6 loci tested** (rho from +0.44 to +0.65). Six is a small number of loci, so this shows consistency, not generality.
 
 **What does not hold**
 
@@ -46,6 +46,59 @@ predictions, not measurements of chromatin. No wet-lab validation was performed.
 ![Summary figure](../outputs/figure_crc-pd1-exhaustion.png)
 
 ---
+
+## Checked against a wet-lab screen
+
+The question: does the model look in the right places? A CRISPRi tiling screen in primary human CD8 T cells
+([Wang et al., bioRxiv 2026](https://doi.org/10.64898/2026.01.27.702006)) found PD-1-lowering elements at
+**+14.8 kb** and **+16.1 kb** from the *PDCD1* TSS, and accessible regions at **-4.4, -4.65 and -38 kb** whose
+repression also lowered PD-1. The paper gives positions relative to the TSS, which is how the check below uses
+them; no genome-build conversion is involved. Reproduce with `python scripts/validate_enhancers.py`.
+
+**Test 1: does model saliency point at those elements?** For each element I took the mean input-gradient
+magnitude in a window around it and ranked it against about 125,000 windows elsewhere in the 131-kb interval
+(promoter +/-2.5 kb excluded).
+
+| Element | Percentile (1,000-bp windows) | One-sided p |
+|---|---|---|
+| -4.65 kb | 97th | 0.027 |
+| -4.4 kb | 97th | 0.033 |
+| -38 kb | 69th | 0.31 |
+| +14.8 kb | 19th | 0.81 |
+| +16.1 kb | 18th | 0.82 |
+
+The two elements nearest the TSS stand out; the two +15 kb enhancers sit below the median, and the -38 kb
+element is unremarkable. Taken as five elements, the enrichment is **not significant** (joint p of 0.14 to 0.28
+depending on window width: 200, 500, 1,000 or 2,000 bp). Gradient saliency is therefore not validated as an
+enhancer finder here. It can see regions close to the promoter, and the data give no support beyond that.
+
+**Test 2: what do single-base edits at the +15 kb enhancers do?** I pointed the search at 1-kb windows around
+both enhancers (`--scan-region 14300:15300 --scan-region 15600:16600`) and ran the same two-tier verifier.
+
+| Where the edits are | Predicted PD-1 change, max abs. log fold change | Largest methylation shift |
+|---|---|---|
+| Promoter (+/-2.5 kb), 8 candidates | 0.35 | 1.34 |
+| The two +15 kb enhancers, 8 candidates | 0.006 | 0.09 |
+
+Single-base edits at the enhancers move PD-1 by almost nothing in the model, and they do not disturb
+methylation either. The random-edit null in that region has a maximum of 0.0056, so none of those edits can be
+told apart from noise.
+
+![Model saliency at published elements, and edit effects at promoter versus enhancers](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_enhancers.png)
+
+**What this does and does not show**
+
+- It shows that every edit the search could rank as effective lies in the promoter, and the promoter is where
+  the large methylation shifts are. That is a plausible reason the two travel together here, but this analysis does not
+  prove it. An edit that silences the gene through an enhancer, if one exists, was not found.
+- It does **not** show that the enhancers are unimportant. The lab screen used CRISPRi and Cas9 indels, which
+  perturb a whole element. A single C-to-T or A-to-G change is a much smaller perturbation, and which bases in an element matter is
+  known only from the paper's essential-sequence analysis, not from this model.
+- It does not validate the model's predicted effect sizes. The lab reports a 15 to 25 percent reduction in PD-1 protein
+  for CRISPRi at either enhancer; this tool predicts near zero for single-base edits there. That gap is
+  unexplained and is a limitation of the tool or of the single-base edit design, not a result about biology.
+- Positions are TSS-relative, from a preprint that is not yet peer reviewed. I could not find a data deposition
+  to check them against, so the element positions are taken from the paper's text.
 
 ## Data
 

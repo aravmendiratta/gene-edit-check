@@ -53,3 +53,38 @@ def test_end_to_end_two_tier_search_loop() -> None:
         result.selected_candidate.tier2_hazards.resolution_tier
         == "TIER2_ONTOLOGY_REFERENCE_CONDITION"
     )
+
+
+def _run_with_regions(regions):  # type: ignore[no-untyped-def]
+    spec = SCENARIOS["pd1-exhaustion"]
+    budget = RunBudgetTracker()
+    backend = SurrogateSimulatorBackend(budget=budget, seed=42)
+    cohort = build_til_cohort_anndata(n_cells_per_state=64, seed=42)
+    sk, mets = {}, []
+    for name in (spec.target_state_name, "Healthy_Naive_CD8"):
+        ad = cohort[name]
+        s, m = build_disjoint_sketches_and_ablation(ad, backend.encode_cells(ad, name), name, sketch_size=16, seed=42)
+        sk[name], _ = s, mets.append(m)
+    return run_gradient_ism_search(
+        scenario_id=spec.scenario_id, gene_id=spec.gene_id, gene_symbol=spec.gene_symbol, backend=backend,
+        budget=budget, target_sketches=sk[spec.target_state_name],
+        healthy_sketches_map={"Healthy_Naive_CD8": sk["Healthy_Naive_CD8"]}, sketch_metrics=mets,
+        reference_curies=list(spec.reference_curies), max_iterations=2, random_seed=42, null_n=0,
+        scan_regions=regions,
+    )
+
+
+def test_scan_region_confines_candidates_and_is_recorded() -> None:
+    result = _run_with_regions([(1000, 2200)])
+    tss = result.locus.start + (result.locus.end - result.locus.start) // 2
+    for it in result.iterations:
+        rel = it.report.candidate.target_edit.position - tss
+        assert 950 <= rel <= 2250
+    assert result.data_provenance["scan_regions_tss_relative_bp"] == [[1000, 2200]]
+
+
+def test_scan_region_outside_the_interval_is_rejected() -> None:
+    import pytest
+
+    with pytest.raises(ValueError, match="outside"):
+        _run_with_regions([(10_000_000, 10_000_100)])

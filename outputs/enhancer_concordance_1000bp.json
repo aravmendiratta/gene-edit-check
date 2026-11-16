@@ -1,0 +1,137 @@
+{
+  "reference": "Wang et al., bioRxiv 2026, doi:10.64898/2026.01.27.702006 (CRISPRi tiling screen, primary human CD8 T cells)",
+  "interval": "chr2:241793329-241924401",
+  "tss_genomic_estimate": 241858865,
+  "window_bp": 1000,
+  "permutations": 20000,
+  "profiles": {
+    "target saliency (exhausted TIL)": {
+      "elements": {
+        "+14.8 kb CRE": {
+          "offset_bp": 14800,
+          "score": 0.0002858428955078125,
+          "percentile_vs_null": 0.1853332480491237,
+          "p_one_sided": 0.8146682337514891,
+          "note": "CRISPRi lowers PD-1 (15-25%); Cas9 indels in TIL CD8 lower PD-1"
+        },
+        "+16.1 kb CRE": {
+          "offset_bp": 16100,
+          "score": 0.0002836761474609375,
+          "percentile_vs_null": 0.18155942177305873,
+          "p_one_sided": 0.8184420298545649,
+          "note": "CRISPRi lowers PD-1 (15-25%); reporter +2.6x in CD8 T cells"
+        },
+        "-4.4 kb ACR": {
+          "offset_bp": -4400,
+          "score": 0.006459152221679688,
+          "percentile_vs_null": 0.9668750799539465,
+          "p_one_sided": 0.03313265053208926,
+          "note": "CRISPRi sgRNAs lower PD-1"
+        },
+        "-4.65 kb ACR": {
+          "offset_bp": -4650,
+          "score": 0.008548065185546875,
+          "percentile_vs_null": 0.9731514647563003,
+          "p_one_sided": 0.02685631591150768,
+          "note": "CRISPRi sgRNAs lower PD-1"
+        },
+        "-38 kb ACR": {
+          "offset_bp": -38000,
+          "score": 0.0007133865356445312,
+          "percentile_vs_null": 0.6890271203786619,
+          "p_one_sided": 0.3109783886210453,
+          "note": "CRISPRi sgRNAs lower PD-1"
+        }
+      },
+      "mean_percentile": 0.5991892669822183,
+      "joint_p_one_sided": 0.22683865806709663,
+      "null_windows": 125072,
+      "top_windows_outside_promoter": [
+        {
+          "offset_bp": 4831,
+          "score": 0.017743423461914064
+        },
+        {
+          "offset_bp": 4830,
+          "score": 0.017741790771484377
+        },
+        {
+          "offset_bp": 4832,
+          "score": 0.017740829467773438
+        },
+        {
+          "offset_bp": 4833,
+          "score": 0.017739891052246094
+        },
+        {
+          "offset_bp": 4843,
+          "score": 0.017736244201660156
+        }
+      ]
+    },
+    "differential (target - healthy)": {
+      "elements": {
+        "+14.8 kb CRE": {
+          "offset_bp": 14800,
+          "score": 0.0002719497680664063,
+          "percentile_vs_null": 0.5485960086989894,
+          "p_one_sided": 0.4514083775075356,
+          "note": "CRISPRi lowers PD-1 (15-25%); Cas9 indels in TIL CD8 lower PD-1"
+        },
+        "+16.1 kb CRE": {
+          "offset_bp": 16100,
+          "score": 0.00014745330810546876,
+          "percentile_vs_null": 0.20190770116412946,
+          "p_one_sided": 0.7980939131547177,
+          "note": "CRISPRi lowers PD-1 (15-25%); reporter +2.6x in CD8 T cells"
+        },
+        "-4.4 kb ACR": {
+          "offset_bp": -4400,
+          "score": 0.0011318378448486328,
+          "percentile_vs_null": 0.9364685940898043,
+          "p_one_sided": 0.06353889328632079,
+          "note": "CRISPRi sgRNAs lower PD-1"
+        },
+        "-4.65 kb ACR": {
+          "offset_bp": -4650,
+          "score": 0.0016836929321289063,
+          "percentile_vs_null": 0.9513880005117052,
+          "p_one_sided": 0.0486196061500084,
+          "note": "CRISPRi sgRNAs lower PD-1"
+        },
+        "-38 kb ACR": {
+          "offset_bp": -38000,
+          "score": 0.00020395183563232423,
+          "percentile_vs_null": 0.3758954842011002,
+          "p_one_sided": 0.6241075212076147,
+          "note": "CRISPRi sgRNAs lower PD-1"
+        }
+      },
+      "mean_percentile": 0.6028511577331457,
+      "joint_p_one_sided": 0.2224388780560972,
+      "null_windows": 125072,
+      "top_windows_outside_promoter": [
+        {
+          "offset_bp": 4920,
+          "score": 0.013769149780273438
+        },
+        {
+          "offset_bp": 4921,
+          "score": 0.013768352508544923
+        },
+        {
+          "offset_bp": 4925,
+          "score": 0.013768257141113282
+        },
+        {
+          "offset_bp": 4907,
+          "score": 0.013768192291259765
+        },
+        {
+          "offset_bp": 4922,
+          "score": 0.013768138885498047
+        }
+      ]
+    }
+  }
+}

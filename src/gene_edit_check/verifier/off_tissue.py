@@ -3,7 +3,7 @@
 Tier 1 asks whether an edit is selective *between cell states* (exhausted tumour T cells vs
 normal-colon T cells). That is the scientific question, but it is not the whole safety question.
 
-A base editor is delivered to **cells**, not to a cell state. Whatever vector carries it will
+A base editor is delivered to cells, not to a cell state. Whatever vector carries it will
 reach tissues nobody intended. So for a finalist edit we also ask: under reference conditions
 for tissues this therapy has no business touching -- liver, brain, heart, lung, kidney -- does
 the model predict the locus moves at all?

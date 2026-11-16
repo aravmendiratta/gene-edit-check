@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.3.1
+
+- New: check against a published wet-lab screen (`scripts/validate_enhancers.py`). Model saliency recognises two
+  elements near the PDCD1 promoter but not the +14.8 and +16.1 kb enhancers; single-base edits there are
+  predicted to do almost nothing. Details and caveats in `docs/RESULTS.md`.
+- New: `--scan-region START:END` (repeatable) points the search at a distal element instead of the promoter, and
+  `--tag` keeps the outputs of separate runs apart.
+- Renamed the search loop away from LLM-agent terms: `agent/reflexion_loop.py` is now `search/search_loop.py`,
+  and the report fields `critic_diagnosis` and `episodic_memory_rule_added` are now `diagnosis` and
+  `constraint_added`. Reports saved by 0.3.0 need those two keys renamed to load.
+- CI now runs on Linux (Python 3.11 and 3.12), macOS and Windows.
+
 - Renamed the project to `gene-edit-check`.
 - Efficacy-hazard correlations now carry 95% bootstrap intervals, and the methylation-versus-splice label comes
   from a paired bootstrap of the gap instead of a fixed cutoff. For the main PDCD1 run: rho +0.57

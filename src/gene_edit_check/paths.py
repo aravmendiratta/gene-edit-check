@@ -2,10 +2,10 @@
 
 Two situations, two answers:
 
-* **Installed with pip.** Data (a 396 MB atlas) and the API-response cache must not land in the
+* Installed with pip. Data (a 396 MB atlas) and the API-response cache must not land in the
   Python install directory or in whatever folder the user happens to be in. They go to a per-user
   cache directory, overridable with `GENE_EDIT_CHECK_HOME`.
-* **Source checkout** (a `pyproject.toml` sits above the package). Keep using the project folder,
+* Source checkout (a `pyproject.toml` sits above the package). Keep using the project folder,
   so a developer's existing `data/` and `.ag2_cache/` are found and nothing is re-downloaded.
 
 Reports and figures are different: they are the user's output, so they go to `./outputs` by default.

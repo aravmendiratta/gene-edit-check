@@ -106,6 +106,19 @@ def _get_spec(scenario: str):  # type: ignore[no-untyped-def]
     return SCENARIOS[scenario]
 
 
+def _parse_regions(values: list[str]) -> list[tuple[int, int]] | None:
+    out: list[tuple[int, int]] = []
+    for v in values:
+        try:
+            lo, hi = (int(x) for x in v.replace("+", "").split(":"))
+        except ValueError:
+            raise typer.BadParameter(f"'{v}' is not START:END (integers, TSS-relative bp)") from None
+        if hi <= lo:
+            raise typer.BadParameter(f"'{v}': END must be greater than START")
+        out.append((lo, hi))
+    return out or None
+
+
 @app.command("optimize")
 def cmd_optimize(
     scenario: str = typer.Option(DEFAULT_SCENARIO, help="Scenario ID from registry."),
@@ -118,25 +131,32 @@ def cmd_optimize(
         help="Dose-aware mode: reject edits that move the target more than this |LFC| (0 = off). "
              "For when partial reduction is the goal, not full silencing.",
     ),
+    scan_region: list[str] = typer.Option(
+        [], "--scan-region",
+        help="TSS-relative region to search, as START:END in bp (repeatable), e.g. 14300:15300. "
+             "Default is the promoter, -2500:2500.",
+    ),
     seed: int = typer.Option(42, help="Random seed."),
     simulator: bool = typer.Option(False, "--simulator", help="Force the SCRIPTED offline simulator (plumbing only)."),
     output_dir: str = typer.Option("outputs", help="Directory for JSON report and figure."),
+    tag: str = typer.Option("", help="Suffix for the output file names, e.g. 'enhancer'."),
 ) -> None:
     """Run the full pipeline on a scenario and write a JSON report + figure."""
+    regions = _parse_regions(scan_region)
     spec = _get_spec(scenario)
     budget = RunBudgetTracker()
     backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed, require_live=spec.data_source != "synthetic")
     result = run_scenario(
         spec, backend, budget, sketch_size=sketch_size, max_iterations=max_iterations,
         seed=seed, pool_size=pool_size, null_n=null_n,
-        max_target_abs_lfc=max_effect or None,
+        max_target_abs_lfc=max_effect or None, scan_regions=regions,
     )
     render_optimization_report(result, console=console)
 
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = out_dir / f"report_{spec.scenario_id}.json"
-    fig_path = out_dir / f"figure_{spec.scenario_id}.png"
+    json_path = out_dir / f"report_{spec.scenario_id}{("-" + tag) if tag else ""}.json"
+    fig_path = out_dir / f"figure_{spec.scenario_id}{("-" + tag) if tag else ""}.png"
     json_path.write_text(result.model_dump_json(indent=2), encoding="utf-8")
     export_optimization_figure(result, output_path=fig_path)
     console.print(f"[bold green]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold green]")

@@ -1,17 +1,16 @@
-"""Gradient-guided, scoped-ISM search (`search/search_loop.py`).
+"""Gradient-guided search with scoped in-silico mutagenesis (`search/search_loop.py`).
 
-Implements the test-time compute split:
-1. **Gradients Propose (2 calls):** Calls `predict_interval_gradients` on Target `Sketch A`
-   and Healthy `Sketch A` to compute differential saliency across the 100-KB locus and
-   recover the exact GRCh38 reference DNA sequence.
-2. **PAM & Base-Editor Enumeration:** Scans top high-saliency regulatory peaks for valid
-   `ABE8e` and `CBE` protospacers.
-3. **Scoped ISM Verification:** Runs `score_ism_variants` strictly on compact <= 10 bp
-   windows around top candidate edits.
-4. **Search loop with accumulated constraints:** Evaluates candidates via the Two-Tier
-   Verifier (`Sketch A` -> held-out `Sketch B` + CURIE hazards). When a candidate fails a
-   tier check, the failure analysis records the failure mode (e.g. shared-lineage gradient
-   collateral or bystander collision) and re-ranks remaining candidates.
+The search splits the work so the expensive model call is spent only where it is needed:
+
+1. Input gradients on the target-state and healthy-state cell sketches show where in the locus the
+   model is sensitive, and recover the reference sequence.
+2. Every PAM-valid ABE8e and CBE edit in the scan region (the promoter by default) is listed and
+   ranked by saliency.
+3. In-silico mutagenesis runs on short windows around the top candidates to measure the direction of
+   effect, which the gradient sign alone does not give reliably.
+4. Candidates go through the two-tier verifier (held-out Sketch B for expression, reference
+   conditions for splice and methylation hazards). When one fails, the failure reason is recorded and
+   the remaining candidates are re-ranked with that constraint.
 """
 
 from __future__ import annotations
@@ -71,6 +70,7 @@ def run_gradient_ism_search(
     tissue_matched_curies: list[str] | None = None,
     run_off_tissue_panel_on_finalist: bool = True,
     data_provenance: dict[str, Any] | None = None,
+    scan_regions: list[tuple[int, int]] | None = None,
 ) -> OptimizationRunResult:
     # Step 1: Gradients Propose on Sketch A (Target vs. primary Healthy control)
     grad_target = backend.compute_interval_gradients(
@@ -95,21 +95,29 @@ def run_gradient_ism_search(
     signed_t = grad_target.signed_gradients_1bp
     rng = np.random.default_rng(random_seed)
 
-    # Step 2: Scan +/- 2,500 bp around the gene TSS (center of interval) for PAM-valid ABE8e/CBE candidates
+    # Step 2: Scan for PAM-valid ABE8e/CBE candidates. By default that is +/- 2,500 bp around the TSS
+    # (the promoter). `scan_regions` takes TSS-relative (start, end) offsets instead, so the search
+    # can be pointed at a distal element such as a published enhancer.
     mid = len(ref_seq) // 2
-    scan_half = 2500
-    scan_start_offset = max(0, mid - scan_half)
-    scan_end_offset = min(len(ref_seq), mid + scan_half)
-    sub_seq = ref_seq[scan_start_offset:scan_end_offset]
-    window_genomic_start = parent_iv.start + scan_start_offset
-
-    raw_candidates = enumerate_valid_base_edits(
-        chromosome=parent_iv.chromosome,
-        window_start_genomic=window_genomic_start,
-        window_sequence=sub_seq,
-        gene_symbol=gene_symbol,
-        pam_rule="NGG",
-    )
+    regions = scan_regions or [(-2500, 2500)]
+    raw_candidates = []
+    seen_ids: set[str] = set()
+    for lo_off, hi_off in regions:
+        scan_start_offset = max(0, mid + lo_off)
+        scan_end_offset = min(len(ref_seq), mid + hi_off)
+        if scan_end_offset - scan_start_offset < 24:
+            raise ValueError(f"Scan region {lo_off}:{hi_off} falls outside the {len(ref_seq)}-bp model interval.")
+        for cand in enumerate_valid_base_edits(
+            chromosome=parent_iv.chromosome,
+            window_start_genomic=parent_iv.start + scan_start_offset,
+            window_sequence=ref_seq[scan_start_offset:scan_end_offset],
+            gene_symbol=gene_symbol,
+            pam_rule="NGG",
+        ):
+            if cand.candidate_id not in seen_ids:
+                seen_ids.add(cand.candidate_id)
+                raw_candidates.append(cand)
+    data_provenance = {**(data_provenance or {}), "scan_regions_tss_relative_bp": [list(r) for r in regions]}
 
     # Annotate each candidate with Target Saliency, Healthy Saliency, and overlapping TF motifs
     candidate_healthy_grad: dict[str, float] = {}

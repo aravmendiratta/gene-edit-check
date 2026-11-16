@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gene-edit-check"
-version = "0.3.0"
+version = "0.3.1"
 description = "Computational-biology toolkit that checks whether a CRISPR base edit works only in the cells you want, using AlphaGenome 2 as the judge."
 readme = "README.md"
 requires-python = ">=3.11"

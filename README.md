@@ -46,7 +46,7 @@ safety limit allows. The closest miss was 0.146 against a limit of 0.12.
 ![Candidate scorecard](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_scorecard.png)
 
 **A pattern showed up underneath.** The more strongly an edit turned PD-1 down, the more it also shifted
-methylation. The same held at all six exhaustion-related genes we tried. It is a moderate link, not a precise
+methylation. The sign was the same at all six exhaustion-related genes we tried. It is a moderate link, not a precise
 one, and the data cannot yet say whether it is specific to methylation or something every strong edit does.
 
 ![Efficacy against hazard](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_coupling.png)
@@ -54,6 +54,15 @@ one, and the data cannot yet say whether it is specific to methylation or someth
 ![Correlation with its uncertainty](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_forest.png)
 
 ![The same pattern at six genes](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_loci.png)
+
+**A check against a lab screen.** A published CRISPRi screen in human T cells found PD-1 regulatory elements
+at +14.8 and +16.1 kb from the gene. We asked whether the model points at them. It recognises two elements
+near the promoter, but not the two +15 kb enhancers, and single-base edits there are predicted to do almost
+nothing. So every effective edit the search found sits in the promoter, which is also where the methylation
+damage is. That fits the pattern above, but it does not prove it. Details and caveats are in
+[docs/RESULTS.md](docs/RESULTS.md#checked-against-a-wet-lab-screen).
+
+![Model saliency at published elements, and edit effects at promoter versus enhancers](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_enhancers.png)
 
 **Why a negative result is useful.** It tells a lab which edits not to spend months on, and it points to the
 real obstacle (methylation at this gene) rather than leaving a vague sense that "it didn't work".
