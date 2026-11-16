@@ -34,7 +34,6 @@ def render_optimization_report(
         f"| Scoped ISM Variants: {prov.total_ism_variants_scored}\n",
         style="dim",
     )
-    header_text.append(prov.research_use_only_notice, style="italic dim")
     con.print(Panel(header_text, title=f"Scenario: {result.scenario_id} ({result.gene_symbol})", border_style="dim"))
 
     dp = result.data_provenance
@@ -213,7 +212,7 @@ def render_optimization_report(
                 f"\nNeighbour genes in interval ({len(t1s.neighbor_gene_lfcs)} scored, {flag}): {neigh}"
             )
 
-        con.print(Panel(summary, title="Selected Candidate gRNA Specification (Research-Use-Only)", border_style="#3fb596"))
+        con.print(Panel(summary, title="Selected Candidate gRNA Specification", border_style="#3fb596"))
 
         panel = sel.off_tissue_panel
         if panel:

@@ -67,7 +67,7 @@ def write_social_card() -> None:
     ax.text(end - 2, 300, "check", fontsize=62, color="#1f7a68", va="center", family=serif, style="italic")
     ax.text(96, 392, "Check a gene edit on a computer,\nbefore anyone spends weeks on it in a lab.", fontsize=23,
             color="#3d4742", va="top", linespacing=1.45)
-    ax.text(96, 556, "Built on AlphaGenome 2  ·  Research use only", fontsize=14, color="#7b837b", va="center")
+    ax.text(96, 556, "Built on AlphaGenome 2", fontsize=14, color="#7b837b", va="center")
     fig.savefig(OUT / "social-card.png", dpi=100, facecolor="#f4eee0")
     plt.close(fig)
 

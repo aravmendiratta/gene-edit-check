@@ -10,7 +10,6 @@
   <a href="https://pypi.org/project/gene-edit-check/"><img alt="PyPI" src="https://img.shields.io/pypi/v/gene-edit-check?color=1f7a68&labelColor=55534f"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-1f7a68?labelColor=55534f">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1f7a68?labelColor=55534f">
-  <img alt="Research use only" src="https://img.shields.io/badge/use-research%20only-e0502c?labelColor=55534f">
 </p>
 
 <p align="center"><sub>A computational-biology toolkit built on Google DeepMind's AlphaGenome 2.</sub></p>
@@ -94,8 +93,6 @@ real obstacle (methylation at this gene) rather than leaving a vague sense that 
 project claimed a much stronger link (a correlation of +0.94). A larger random comparison did not support it,
 so it was retracted, and the numbers above are the corrected ones. The full account, including what did not
 hold up, is in [docs/RESULTS.md](docs/RESULTS.md).
-
-> *Research use only. Nothing here is validated in a lab or fit for clinical, diagnostic or therapeutic use.*
 
 ### Plain-language glossary
 

@@ -2,8 +2,12 @@
 
 ## Unreleased
 
-- `scripts/make_launch_video.py` builds a 25-second silent launch video (`assets/launch.mp4`) from the project's own
-  figures. It needs `pillow` and `imageio-ffmpeg`, which are not project dependencies.
+- `scripts/make_launch_video.py` draws a 30-second motion-graphics launch video with synthesised sound
+  (`assets/launch.mp4`, not committed) from the saved results: kinetic type, a rotating DNA helix, counting
+  numbers, the check grid, the scatter and the lab-screen comparison. It needs `pycairo`, `imageio` and
+  `imageio-ffmpeg`, which are not project dependencies.
+- Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
+  non-commercial AlphaGenome terms stay in the README's Limits section.
 
 - Design language, `docs/DESIGN.md`: a drawn double-helix mark with one coral rung (the edited base), a deep
   teal, cream and coral palette, serif titles, and a small helix stamp on every figure. Figures ship in light
