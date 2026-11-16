@@ -28,7 +28,7 @@ jobs:
         run: |
           uv venv --python ${{ matrix.python }} .venv
           if [ "$RUNNER_OS" = Windows ]; then echo "BIN=.venv/Scripts" >> "$GITHUB_ENV"; else echo "BIN=.venv/bin" >> "$GITHUB_ENV"; fi
-          uv pip install --python "$([ "$RUNNER_OS" = Windows ] && echo .venv/Scripts/python || echo .venv/bin/python)" -e ".[scverse,dev]"
+          uv pip install --python "$([ "$RUNNER_OS" = Windows ] && echo .venv/Scripts/python.exe || echo .venv/bin/python)" -e ".[scverse,dev]"
       - name: Unit and determinism tests (offline simulator backend)
         run: $BIN/pytest -q
       - name: Smoke test the CLI (synthetic data and scripted simulator; never a result)
@@ -48,5 +48,5 @@ jobs:
         run: |
           uv venv --python ${{ matrix.python }} "$RUNNER_TEMP/fresh"
           if [ "$RUNNER_OS" = Windows ]; then FB="$RUNNER_TEMP/fresh/Scripts"; else FB="$RUNNER_TEMP/fresh/bin"; fi
-          uv pip install --python "$FB/python" dist/*.whl
+          uv pip install --python "$(ls "$FB"/python* | head -1)" dist/*.whl
           "$FB/gene-edit-check" conditions "CD8-positive" --limit 3

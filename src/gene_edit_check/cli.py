@@ -155,8 +155,9 @@ def cmd_optimize(
 
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = out_dir / f"report_{spec.scenario_id}{("-" + tag) if tag else ""}.json"
-    fig_path = out_dir / f"figure_{spec.scenario_id}{("-" + tag) if tag else ""}.png"
+    stem = f"{spec.scenario_id}-{tag}" if tag else spec.scenario_id
+    json_path = out_dir / f"report_{stem}.json"
+    fig_path = out_dir / f"figure_{stem}.png"
     json_path.write_text(result.model_dump_json(indent=2), encoding="utf-8")
     export_optimization_figure(result, output_path=fig_path)
     console.print(f"[bold green]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold green]")
