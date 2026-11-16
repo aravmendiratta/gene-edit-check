@@ -32,6 +32,11 @@ dependencies = [
     "python-dotenv>=1.0.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion"
+Issues = "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion/issues"
+Changelog = "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion/blob/main/CHANGELOG.md"
+
 [project.optional-dependencies]
 scverse = [
     "anndata>=0.10.0",

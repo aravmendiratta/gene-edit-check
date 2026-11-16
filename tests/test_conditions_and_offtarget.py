@@ -139,3 +139,36 @@ def test_mcp_tool_functions_work_without_the_mcp_package() -> None:
     assert hits and hits[0]["methylation"] == "observed"
     with pytest.raises(ValueError, match="Unknown scenario"):
         run_optimization_tool(scenario_id="nope")
+
+
+def test_installed_package_never_writes_into_site_packages(monkeypatch, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """Data and cache go to a per-user directory (or CRISPR_REFLEXION_HOME), never the install tree."""
+    from crispr_reflexion import paths
+
+    monkeypatch.setenv("CRISPR_REFLEXION_HOME", str(tmp_path))
+    assert paths.home() == tmp_path
+    assert paths.data_dir() == tmp_path / "data"
+    assert tmp_path in paths.api_cache_dir().parents
+
+
+def test_real_data_run_without_a_key_refuses_instead_of_faking(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    import typer
+    from crispr_reflexion.budget import RunBudgetTracker
+    from crispr_reflexion.cli import _resolve_backend
+
+    monkeypatch.delenv("ALPHAGENOME_API_KEY", raising=False)
+    with pytest.raises(typer.Exit):
+        _resolve_backend(use_simulator=False, budget=RunBudgetTracker(), require_live=True)
+    # An explicit --simulator and a synthetic scenario are still allowed (with the red warning).
+    assert _resolve_backend(use_simulator=True, budget=RunBudgetTracker(), require_live=True).backend_mode.value == "SURROGATE_SIMULATOR"
+    assert _resolve_backend(use_simulator=False, budget=RunBudgetTracker(), require_live=False).backend_mode.value == "SURROGATE_SIMULATOR"
+
+
+def test_doctor_runs_without_a_key(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from typer.testing import CliRunner
+    from crispr_reflexion.cli import app
+
+    monkeypatch.delenv("ALPHAGENOME_API_KEY", raising=False)
+    result = CliRunner().invoke(app, ["doctor"])
+    assert result.exit_code == 0
+    assert "setup check" in result.output

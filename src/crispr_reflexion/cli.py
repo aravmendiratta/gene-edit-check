@@ -19,11 +19,12 @@ import os
 from pathlib import Path
 
 import typer
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from crispr_reflexion import __version__, paths
 from crispr_reflexion.ag_backend.live_client import LiveAlphaGenomeBackend
 from crispr_reflexion.ag_backend.protocol import VerifierBackend
 from crispr_reflexion.ag_backend.simulator import SurrogateSimulatorBackend
@@ -46,7 +47,7 @@ from crispr_reflexion.scenarios.registry import (
 from crispr_reflexion.ui.plots import export_optimization_figure
 from crispr_reflexion.ui.terminal_hud import render_optimization_report
 
-load_dotenv()
+load_dotenv(find_dotenv(usecwd=True))
 
 DEFAULT_SCENARIO = "crc-pd1-exhaustion"
 
@@ -66,13 +67,34 @@ SIMULATOR_WARNING = (
 def _resolve_backend(
     use_simulator: bool,
     budget: RunBudgetTracker,
-    cache_dir: str = ".ag2_cache",
+    cache_dir: str | None = None,
     seed: int = 42,
+    require_live: bool = False,
 ) -> VerifierBackend:
+    """Pick the live AlphaGenome 2 backend, or the scripted simulator when explicitly allowed.
+
+    `require_live` is set for real-data runs. Without an API key those used to fall back to the
+    simulator and print an ordinary-looking report, which a newcomer could mistake for a result.
+    Now they stop and say what to do. The simulator is still available with `--simulator`.
+    """
     api_key = os.environ.get("ALPHAGENOME_API_KEY", "").strip()
     if not use_simulator and api_key:
-        cache = ContentAddressedCache(cache_dir=cache_dir)
+        cache = ContentAddressedCache(cache_dir=cache_dir or paths.api_cache_dir())
         return LiveAlphaGenomeBackend(api_key=api_key, budget=budget, cache=cache)
+    if not use_simulator and require_live:
+        console.print(
+            Panel(
+                "This run uses real data, so it needs the live AlphaGenome 2 model and no API key was found.\n\n"
+                "1. Get a free non-commercial key: https://deepmind.google.com/science/alphagenome\n"
+                "2. Set it:  export ALPHAGENOME_API_KEY=...   (PowerShell: $env:ALPHAGENOME_API_KEY='...')\n"
+                "   or put ALPHAGENOME_API_KEY=... in a .env file in this folder.\n"
+                "3. Check your setup any time with:  crispr-reflexion doctor\n\n"
+                "To exercise the plumbing without a key, add --simulator. Its output is scripted and is not a result.",
+                title="ALPHAGENOME_API_KEY not set",
+                border_style="yellow",
+            )
+        )
+        raise typer.Exit(code=2)
     console.print(Panel(SIMULATOR_WARNING, border_style="bold red", title="WARNING"))
     return SurrogateSimulatorBackend(budget=budget, seed=seed)
 
@@ -98,7 +120,7 @@ def cmd_optimize(
     """Run the full pipeline on a scenario and write a JSON report + figure."""
     spec = _get_spec(scenario)
     budget = RunBudgetTracker()
-    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed)
+    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed, require_live=spec.data_source != "synthetic")
     result = run_scenario(
         spec, backend, budget, sketch_size=sketch_size, max_iterations=max_iterations,
         seed=seed, pool_size=pool_size, null_n=null_n,
@@ -125,7 +147,7 @@ def cmd_ablate_sketch(
     """Compare facility-location coresets in AG2 latent space vs uniform random subsampling."""
     spec = _get_spec(scenario)
     budget = RunBudgetTracker()
-    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed)
+    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed, require_live=spec.data_source != "synthetic")
     cohort = load_cohort(spec, pool_size=pool_size, seed=seed)
     _, _, metrics = build_all_sketches(backend, spec, cohort, sketch_size, seed)
 
@@ -155,7 +177,7 @@ def cmd_validate_fidelity(
         console.print("[bold red]validate-fidelity needs a real-data scenario.[/bold red]")
         raise typer.Exit(code=1)
     budget = RunBudgetTracker(max_gradient_calls=2 * len(IMMUNE_ENSEMBL_PANEL) + 4)
-    backend = _resolve_backend(use_simulator=False, budget=budget, seed=seed)
+    backend = _resolve_backend(use_simulator=False, budget=budget, seed=seed, require_live=True)
     if backend.backend_mode != BackendMode.LIVE_ALPHAGENOME_V2:
         console.print("[bold red]Fidelity is only meaningful on the LIVE backend (set ALPHAGENOME_API_KEY).[/bold red]")
         raise typer.Exit(code=1)
@@ -223,7 +245,7 @@ def cmd_sweep_coupling(
         spec = SCENARIOS[scenario_id]
         console.rule(f"[bold cyan]{sym}[/bold cyan] ({spec.gene_id})")
         budget = RunBudgetTracker()
-        backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed)
+        backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed, require_live=spec.data_source != "synthetic")
         try:
             result = run_scenario(
                 spec, backend, budget, sketch_size=sketch_size, max_iterations=max_iterations,
@@ -316,6 +338,44 @@ def cmd_sweep_coupling(
     path = out / f"sweep_coupling_seed{seed}.json"
     path.write_text(json.dumps(rows, indent=2), encoding="utf-8")
     console.print(f"[bold green]Saved sweep -> {path}[/bold green]")
+
+
+@app.command("doctor")
+def cmd_doctor() -> None:
+    """Check your setup: version, API key, where data and cache live, and what is already downloaded."""
+    from crispr_reflexion.conditions import load_conditions_table
+    from crispr_reflexion.datasets import crc_pelka
+
+    key = os.environ.get("ALPHAGENOME_API_KEY", "").strip()
+    try:
+        n_cond = len(load_conditions_table())
+        cond = f"{n_cond:,} reference conditions shipped with the package"
+        cond_ok = True
+    except Exception as exc:  # pragma: no cover - means a broken install
+        cond, cond_ok = f"missing ({type(exc).__name__})", False
+    raw = crc_pelka.RAW_PATH
+    cache = paths.api_cache_dir()
+    cache_mb = sum(f.stat().st_size for f in cache.rglob("*") if f.is_file()) / 1e6 if cache.exists() else 0.0
+
+    ok, no, warn = "[green]ok[/green]", "[red]missing[/red]", "[yellow]not yet[/yellow]"
+    tbl = Table(title=f"crispr-reflexion {__version__}: setup check", show_header=False, show_lines=False)
+    tbl.add_column(style="bold")
+    tbl.add_column()
+    tbl.add_column()
+    tbl.add_row("API key", ok if key else no,
+                "ALPHAGENOME_API_KEY is set" if key else "needed for real runs; free key: https://deepmind.google.com/science/alphagenome")
+    tbl.add_row("Reference conditions", ok if cond_ok else no, cond)
+    tbl.add_row("Atlas download", ok if raw.exists() else warn,
+                str(raw) if raw.exists() else f"downloads on first real run (about 396 MB) to {raw}")
+    tbl.add_row("API response cache", ok if cache.exists() else warn, f"{cache} ({cache_mb:.0f} MB)")
+    tbl.add_row("Data / cache home", "", f"{paths.home()}  ({'source checkout' if paths.is_source_checkout() else 'per-user cache'}; override with CRISPR_REFLEXION_HOME)")
+    console.print(tbl)
+
+    if not key:
+        console.print("\n[bold]Without a key you can still:[/bold] run `crispr-reflexion conditions`, run the test suite, "
+                      "and try the plumbing with `--simulator` (scripted output, never a result).")
+    else:
+        console.print("\n[bold green]Ready.[/bold green] Try: crispr-reflexion optimize")
 
 
 @app.command("conditions")
@@ -436,7 +496,7 @@ def cmd_run_h5ad(
         ),
     )
     budget = RunBudgetTracker()
-    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed)
+    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed, require_live=True)
     result = run_scenario(
         spec,
         backend,
@@ -476,7 +536,7 @@ def cmd_sweep_universality(
     report = run_multiseed_and_context_invariance(
         scenario_specs=SCENARIOS,
         backend_factory=lambda budget, seed: _resolve_backend(
-            use_simulator=simulator, budget=budget, seed=seed
+            use_simulator=simulator, budget=budget, seed=seed, require_live=True
         ),
         run_scenario_fn=run_scenario,
         load_cohort_fn=load_cohort,

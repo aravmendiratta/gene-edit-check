@@ -5,6 +5,6 @@
   "description": "AlphaGenome 2 single-cell conditioning (`encode_cells`, `cell_conditioning`), donor-stratified coreset sketching, and two-tier CRISPR base-editing verification skill compatible with google-deepmind/science-skills.",
   "license": "MIT",
   "name": "crispr-reflexion",
-  "repository": "https://github.com/aravmendiratta/crispr-reflexion",
+  "repository": "https://github.com/YOUR_GITHUB_USERNAME/crispr-reflexion",
   "version": "0.3.0"
 }

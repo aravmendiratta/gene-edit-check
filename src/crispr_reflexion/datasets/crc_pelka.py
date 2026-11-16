@@ -25,9 +25,10 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-RAW_PATH = PROJECT_ROOT / "data" / "raw" / "crc_tnk.h5ad"
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+from crispr_reflexion import paths
+
+RAW_PATH = paths.data_dir() / "raw" / "crc_tnk.h5ad"
+PROCESSED_DIR = paths.data_dir() / "processed"
 
 COLLECTION_ID = "4d82bd8e-8827-410b-8fc7-685b7dd92585"
 DATASET_ID = "7674f8f4-7200-4f08-8412-eb114016a66f"
@@ -57,7 +58,10 @@ def ensure_raw_download(path: Path = RAW_PATH) -> Path:
     if path.exists() and path.stat().st_size > 1e8:
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
-    urlretrieve(ASSET_URL, path)
+    print(f"Downloading the Pelka et al. 2021 atlas (about 396 MB, one time) to {path} ...", flush=True)
+    part = path.with_suffix(path.suffix + ".part")
+    urlretrieve(ASSET_URL, part)
+    part.replace(path)  # only a complete download ever carries the final name
     return path
 
 

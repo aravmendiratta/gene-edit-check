@@ -1,0 +1,48 @@
+name: Release
+
+# Publishes to PyPI when you push a version tag such as v0.3.0.
+# One-time setup (see docs/RELEASING.md): add this repository as a "trusted publisher" on PyPI,
+# using workflow file release.yml and environment name pypi. No API token is stored anywhere.
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      - name: Refuse to publish with unreplaced placeholders
+        run: |
+          if grep -rIl "YOUR_GITHUB_USERNAME" README.md pyproject.toml CITATION.cff plugin.json; then
+            echo "Replace YOUR_GITHUB_USERNAME with your GitHub username before releasing."; exit 1
+          fi
+      - name: Tag matches the package version
+        run: |
+          v=$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)
+          [ "v$v" = "${GITHUB_REF_NAME}" ] || { echo "Tag ${GITHUB_REF_NAME} does not match pyproject version v$v"; exit 1; }
+      - name: Build sdist and wheel
+        run: uv build
+      - name: The reference-condition table must be inside the wheel
+        run: unzip -l dist/*.whl | grep -q ag2_supported_conditions.tsv.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write   # trusted publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

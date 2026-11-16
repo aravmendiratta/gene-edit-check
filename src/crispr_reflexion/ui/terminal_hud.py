@@ -12,6 +12,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from crispr_reflexion import __version__
 from crispr_reflexion.models import BackendMode, OptimizationRunResult
 
 
@@ -25,7 +26,7 @@ def render_optimization_report(
     badge_color = "bold green" if is_live else "bold yellow"
 
     header_text = Text()
-    header_text.append("CRISPR-REFLEXION v0.2 ", style="bold cyan")
+    header_text.append(f"CRISPR-REFLEXION v{__version__} ", style="bold cyan")
     header_text.append(f"[{prov.backend_mode.value}] ", style=badge_color)
     header_text.append(
         f"| Model: {prov.model_version} | Seed: {prov.random_seed} "

@@ -6,7 +6,9 @@ The tool functions below are plain Python so they can be tested and reused witho
 
 from __future__ import annotations
 
-from dotenv import load_dotenv
+import os
+
+from dotenv import find_dotenv, load_dotenv
 
 from crispr_reflexion.budget import RunBudgetTracker
 from crispr_reflexion.cli import DEFAULT_SCENARIO, _resolve_backend
@@ -14,7 +16,7 @@ from crispr_reflexion.conditions import search_conditions
 from crispr_reflexion.pipeline import run_scenario
 from crispr_reflexion.scenarios.registry import SCENARIOS
 
-load_dotenv()
+load_dotenv(find_dotenv(usecwd=True))
 
 
 def run_optimization_tool(
@@ -34,6 +36,11 @@ def run_optimization_tool(
     if scenario_id not in SCENARIOS:
         raise ValueError(f"Unknown scenario '{scenario_id}'. Available: {sorted(SCENARIOS)}")
     spec = SCENARIOS[scenario_id]
+    if not use_simulator and spec.data_source != "synthetic" and not os.environ.get("ALPHAGENOME_API_KEY", "").strip():
+        raise RuntimeError(
+            "ALPHAGENOME_API_KEY is not set. Real-data runs need the live model; get a free key at "
+            "https://deepmind.google.com/science/alphagenome. use_simulator=True gives scripted output for plumbing tests only."
+        )
     budget = RunBudgetTracker()
     backend = _resolve_backend(use_simulator=use_simulator, budget=budget, seed=seed)
     result = run_scenario(

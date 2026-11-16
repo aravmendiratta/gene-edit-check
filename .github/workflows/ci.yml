@@ -26,3 +26,14 @@ jobs:
           .venv/bin/crispr-reflexion optimize --scenario pd1-exhaustion --simulator --sketch-size 16 --pool-size 96 --max-iterations 4
       - name: Reference-condition table is shipped and queryable (offline, no API key)
         run: .venv/bin/crispr-reflexion conditions "CD8-positive" --modality methylation --limit 5
+      - name: Setup check runs without an API key
+        run: .venv/bin/crispr-reflexion doctor
+      - name: Build the package and confirm the reference table ships inside it
+        run: |
+          uv build
+          unzip -l dist/*.whl | grep ag2_supported_conditions.tsv.gz
+      - name: A fresh install of the wheel works with no extras
+        run: |
+          uv venv --python 3.12 /tmp/fresh
+          uv pip install --python /tmp/fresh/bin/python dist/*.whl
+          /tmp/fresh/bin/crispr-reflexion conditions "CD8-positive" --limit 3
