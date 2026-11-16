@@ -33,9 +33,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check"
-Issues = "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/issues"
-Changelog = "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/aravmendiratta/gene-edit-check"
+Issues = "https://github.com/aravmendiratta/gene-edit-check/issues"
+Changelog = "https://github.com/aravmendiratta/gene-edit-check/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 scverse = [

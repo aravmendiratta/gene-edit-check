@@ -5,9 +5,9 @@ How to publish a new version. Do the one-time setup once; after that a release i
 ## One-time setup
 
 1. **Create the GitHub repository** and push this project to it.
-2. **Replace the placeholder.** Search for `YOUR_GITHUB_USERNAME` and replace it with your GitHub username in
-   `README.md`, `pyproject.toml`, `CITATION.cff` and `plugin.json`. The release workflow refuses to run
-   while any placeholder is left.
+2. **Check the URLs.** The repository URL is `https://github.com/aravmendiratta/gene-edit-check`; it appears in
+   `README.md`, `pyproject.toml`, `CITATION.cff` and `plugin.json`. The release workflow refuses to run if the
+   old placeholder text ever comes back.
 3. **Make the figure visible.** The README shows `outputs/figure_crc-pd1-exhaustion.png` from the `main`
    branch, so it must be committed (it is) and pushed.
 4. **Register on PyPI** at https://pypi.org, then go to *Publishing* and add a **pending trusted publisher**:

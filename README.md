@@ -5,7 +5,7 @@
 Give it a gene and two cell states. It searches for single base edits that turn the gene down in one state and
 leave the other alone, and uses Google DeepMind's AlphaGenome 2 as the judge.
 
-[![CI](https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check/actions/workflows/ci.yml)
+[![CI](https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml/badge.svg)](https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/gene-edit-check)](https://pypi.org/project/gene-edit-check/)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -15,7 +15,7 @@ Worked example: turn **PD-1 (*PDCD1*)** down in the exhausted T cells inside rea
 leaving normal-colon T cells alone. The search finds no edit that passes every safety check, and the
 project reports exactly why.
 
-![Summary figure](https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/gene-edit-check/main/outputs/figure_crc-pd1-exhaustion.png)
+![Summary figure](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/figure_crc-pd1-exhaustion.png)
 
 > *Research use only. Everything here is a computational prediction from the AlphaGenome 2 API. It is not
 > validated in a lab and is not for clinical, diagnostic or therapeutic use.*
@@ -30,7 +30,7 @@ pipx install gene-edit-check                # same, in its own isolated environm
 pip install "gene-edit-check[mcp]"          # also adds the server for AI coding agents
 ```
 
-Needs Python 3.11 or newer. From source: `pip install git+https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check`.
+Needs Python 3.11 or newer. From source: `pip install git+https://github.com/aravmendiratta/gene-edit-check`.
 
 ## What happens when you install it
 
@@ -147,7 +147,7 @@ How each stage works and why: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
 ## Develop
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check && cd gene-edit-check
+git clone https://github.com/aravmendiratta/gene-edit-check && cd gene-edit-check
 uv venv --python 3.12 .venv && uv pip install --python .venv/Scripts/python.exe -e ".[dev,mcp]"
 pytest                    # offline: no API key and no download needed
 ```

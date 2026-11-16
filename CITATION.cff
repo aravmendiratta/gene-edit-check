@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Mendiratta
     given-names: Arav
-repository-code: "https://github.com/YOUR_GITHUB_USERNAME/gene-edit-check"
+repository-code: "https://github.com/aravmendiratta/gene-edit-check"
 license: MIT
 version: 0.3.0
 date-released: "2026-11-16"
