@@ -1,0 +1,35 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Python & Virtualenvs
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# Local caches
+.ag2_cache/
+*.sqlite
+*.db
+
+# Raw single-cell data (396 MB; re-downloaded automatically on first run)
+data/
+
+# Scratch and superseded runs
+outputs/_old_synthetic_run/
+outputs/report_pd1-exhaustion.json
+outputs/figure_pd1-exhaustion.png
+phase0_probe_results.json
+
+# Committed on purpose: the published run's figure, report and sweep, so the results in
+# README.md are reproducible and visible without an API key.
+!outputs/figure_crc-pd1-exhaustion.png
+!outputs/report_crc-pd1-exhaustion.json
+!outputs/sweep_coupling_seed42.json

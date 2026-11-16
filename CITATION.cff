@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: "CRISPR-Reflexion: verifier-guided search for cell-state-selective CRISPR base edits"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: Mendiratta
+    given-names: Arav
+repository-code: "https://github.com/aravmendiratta/crispr-reflexion"
+license: MIT
+version: 0.3.0
+date-released: "2026-11-16"
+keywords:
+  - AlphaGenome
+  - CRISPR base editing
+  - single-cell genomics
+  - T-cell exhaustion
+  - regulatory genomics
+abstract: >-
+  A verifier-guided search for cell-state-selective CRISPR base edits that uses Google DeepMind's
+  AlphaGenome 2 as the judge. Applied to PDCD1 (PD-1) silencing in exhausted tumour-infiltrating
+  CD8 T cells from colorectal cancer (Pelka et al., Cell 2021), it finds that edit efficacy and
+  CpG methylation disruption are tightly coupled at the PDCD1 and LAG3 loci (Spearman rho = +0.94
+  and +0.82), a coupling that survives a random-edit control and is absent for splicing and for
+  the transcription factor TOX.
+references:
+  - type: article
+    authors:
+      - family-names: Pelka
+        given-names: Karin
+    title: "Spatially organized multicellular immune hubs in human colorectal cancer"
+    journal: Cell
+    year: 2021
+    doi: 10.1016/j.cell.2021.08.003
