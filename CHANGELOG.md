@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-- Design language: documented in `docs/DESIGN.md` and held in one palette table in code. Every README figure now
-  ships in light and dark (`fig_x.png`, `fig_x-dark.png`), a logo, banner and social card were added
-  (`scripts/make_brand.py`), and the terminal output uses the same two hues.
+- Design language, `docs/DESIGN.md`: a drawn double-helix mark with one coral rung (the edited base), a deep
+  teal, cream and coral palette, serif titles, and a small helix stamp on every figure. Figures ship in light
+  and dark (`fig_x.png`, `fig_x-dark.png`), with a logo, banners and a social card (`scripts/make_brand.py`).
+  The terminal output uses the same two hues.
 
 ## 0.3.1
 

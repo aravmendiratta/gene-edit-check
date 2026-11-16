@@ -32,19 +32,21 @@ from gene_edit_check.models import OptimizationRunResult
 # One palette per surface. `use_mode()` rebinds the module-level names below, so every drawing
 # function reads the active palette at call time. The language is documented in docs/DESIGN.md.
 PALETTES: dict[str, dict[str, str]] = {
+    # BLUE is the accent (deep teal) and ORANGE the failure colour (coral); the names are kept so the
+    # drawing code reads the same, the hues are the brand's.
     "light": {
-        "SURFACE": "#ffffff", "PANEL": "#f7f7f5",
-        "INK": "#111111", "INK_2": "#55534f", "INK_3": "#8a8985",
-        "GRID": "#ebebe8", "NEUTRAL": "#b9b8b3", "NEUTRAL_SOFT": "#e4e3df",
-        "BLUE": "#2a78d6", "BLUE_SOFT": "#cde2fb", "ORANGE": "#eb6834", "ORANGE_SOFT": "#fbe1d6",
-        "ON_ACCENT": "#ffffff",
+        "SURFACE": "#fbf8f1", "PANEL": "#f3eee2",
+        "INK": "#1b2622", "INK_2": "#505a54", "INK_3": "#84897f",
+        "GRID": "#e8e2d3", "NEUTRAL": "#bdb6a6", "NEUTRAL_SOFT": "#e4dece",
+        "BLUE": "#1f7a68", "BLUE_SOFT": "#cfe6dc", "ORANGE": "#e0502c", "ORANGE_SOFT": "#f8dccf",
+        "ON_ACCENT": "#fbf8f1",
     },
     "dark": {
-        "SURFACE": "#0d1117", "PANEL": "#151b23",
-        "INK": "#f2f2f0", "INK_2": "#b4b3ae", "INK_3": "#8a8e96",
-        "GRID": "#262c35", "NEUTRAL": "#5d626b", "NEUTRAL_SOFT": "#303640",
-        "BLUE": "#5aa0f2", "BLUE_SOFT": "#1c3b63", "ORANGE": "#f08457", "ORANGE_SOFT": "#4a2b20",
-        "ON_ACCENT": "#0d1117",
+        "SURFACE": "#0e1714", "PANEL": "#15211d",
+        "INK": "#efe9dc", "INK_2": "#b5b8ad", "INK_3": "#868c83",
+        "GRID": "#24322d", "NEUTRAL": "#5b665f", "NEUTRAL_SOFT": "#2d3b35",
+        "BLUE": "#4fbf9f", "BLUE_SOFT": "#1b4a3e", "ORANGE": "#ff7a4d", "ORANGE_SOFT": "#4d2a1d",
+        "ON_ACCENT": "#0e1714",
     },
 }
 SURFACE = PANEL = INK = INK_2 = INK_3 = GRID = NEUTRAL = NEUTRAL_SOFT = ""
@@ -63,6 +65,7 @@ def use_mode(mode: str = "light") -> None:
 
 use_mode("light")
 
+_SERIF = ["Iowan Old Style", "Source Serif 4", "Palatino Linotype", "Georgia", "DejaVu Serif"]
 _FONT = ["Inter", "SF Pro Display", "Segoe UI", "Helvetica Neue", "Arial", "DejaVu Sans"]
 _DPI = 200
 
@@ -101,11 +104,25 @@ def _clean_axes(ax: Any, grid_axis: str = "y") -> None:
     ax.set_axisbelow(True)
 
 
+def _brand_mark(fig: Any) -> None:
+    """The helix mark, small, in the top-right corner."""
+    from gene_edit_check.ui.brand import draw_mark
+
+    w, h = fig.get_size_inches()
+    size_in = 0.46
+    ax = fig.add_axes([1 - (size_in + 0.2) / w, 1 - (size_in + 0.16) / h, size_in / w, size_in / h], zorder=20)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(100, 0)
+    ax.axis("off")
+    draw_mark(ax, 0, 0, 100)
+
+
 def _title(fig: Any, title: str, subtitle: str = "", x: float = 0.04) -> None:
     """Left-aligned title block. Spacing is set in inches so it holds at any figure height."""
     h = fig.get_figheight()
     top = 1 - 0.22 / h
-    fig.text(x, top, title, fontsize=15, fontweight="semibold", color=INK, va="top", ha="left")
+    fig.text(x, top, title, fontsize=16.5, color=INK, va="top", ha="left", family=_SERIF)
+    _brand_mark(fig)
     if subtitle:
         fig.text(x, top - 0.36 / h, subtitle, fontsize=9.8, color=INK_2, va="top", ha="left")
 

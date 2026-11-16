@@ -7,10 +7,10 @@
 
 <p align="center">
   <a href="https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://pypi.org/project/gene-edit-check/"><img alt="PyPI" src="https://img.shields.io/pypi/v/gene-edit-check?color=2a78d6&labelColor=55534f"></a>
-  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-2a78d6?labelColor=55534f">
-  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-2a78d6?labelColor=55534f">
-  <img alt="Research use only" src="https://img.shields.io/badge/use-research%20only-eb6834?labelColor=55534f">
+  <a href="https://pypi.org/project/gene-edit-check/"><img alt="PyPI" src="https://img.shields.io/pypi/v/gene-edit-check?color=1f7a68&labelColor=55534f"></a>
+  <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-1f7a68?labelColor=55534f">
+  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1f7a68?labelColor=55534f">
+  <img alt="Research use only" src="https://img.shields.io/badge/use-research%20only-e0502c?labelColor=55534f">
 </p>
 
 <p align="center"><sub>A computational-biology toolkit built on Google DeepMind's AlphaGenome 2.</sub></p>

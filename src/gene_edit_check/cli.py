@@ -101,17 +101,17 @@ def _resolve_backend(
                 "3. Check your setup any time with:  gene-edit-check doctor\n\n"
                 "To exercise the plumbing without a key, add --simulator. Its output is scripted and is not a result.",
                 title="ALPHAGENOME_API_KEY not set",
-                border_style="#eb6834",
+                border_style="#ff7a4d",
             )
         )
         raise typer.Exit(code=2)
-    console.print(Panel(SIMULATOR_WARNING, border_style="bold #eb6834", title="WARNING"))
+    console.print(Panel(SIMULATOR_WARNING, border_style="bold #ff7a4d", title="WARNING"))
     return SurrogateSimulatorBackend(budget=budget, seed=seed)
 
 
 def _get_spec(scenario: str):  # type: ignore[no-untyped-def]
     if scenario not in SCENARIOS:
-        console.print(f"[bold #eb6834]Unknown scenario '{scenario}'. Available: {list(SCENARIOS)}[/bold #eb6834]")
+        console.print(f"[bold #ff7a4d]Unknown scenario '{scenario}'. Available: {list(SCENARIOS)}[/bold #ff7a4d]")
         raise typer.Exit(code=1)
     return SCENARIOS[scenario]
 
@@ -170,7 +170,7 @@ def cmd_optimize(
     fig_path = out_dir / f"figure_{stem}.png"
     json_path.write_text(result.model_dump_json(indent=2), encoding="utf-8")
     export_optimization_figure(result, output_path=fig_path)
-    console.print(f"[bold #4a90e2]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold #4a90e2]")
+    console.print(f"[bold #3fb596]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold #3fb596]")
 
 
 @app.command("ablate-sketch")
@@ -211,12 +211,12 @@ def cmd_validate_fidelity(
     """Predicted vs observed tumor-vs-normal fold-change across a fixed 24-gene immune panel."""
     spec = _get_spec(scenario)
     if spec.data_source != "real":
-        console.print("[bold #eb6834]validate-fidelity needs a real-data scenario.[/bold #eb6834]")
+        console.print("[bold #ff7a4d]validate-fidelity needs a real-data scenario.[/bold #ff7a4d]")
         raise typer.Exit(code=1)
     budget = RunBudgetTracker(max_gradient_calls=2 * len(IMMUNE_ENSEMBL_PANEL) + 4)
     backend = _resolve_backend(use_simulator=False, budget=budget, seed=seed, require_live=True)
     if backend.backend_mode != BackendMode.LIVE_ALPHAGENOME_V2:
-        console.print("[bold #eb6834]Fidelity is only meaningful on the LIVE backend (set ALPHAGENOME_API_KEY).[/bold #eb6834]")
+        console.print("[bold #ff7a4d]Fidelity is only meaningful on the LIVE backend (set ALPHAGENOME_API_KEY).[/bold #ff7a4d]")
         raise typer.Exit(code=1)
 
     cohort = load_cohort(spec, pool_size=pool_size, seed=seed)
@@ -277,10 +277,10 @@ def cmd_sweep_coupling(
     for sym in symbols:
         scenario_id = SWEEP_SCENARIO_IDS.get(sym)
         if scenario_id is None:
-            console.print(f"[#eb6834]Skipping unknown gene '{sym}'.[/#eb6834]")
+            console.print(f"[#ff7a4d]Skipping unknown gene '{sym}'.[/#ff7a4d]")
             continue
         spec = SCENARIOS[scenario_id]
-        console.rule(f"[bold #4a90e2]{sym}[/bold #4a90e2] ({spec.gene_id})")
+        console.rule(f"[bold #3fb596]{sym}[/bold #3fb596] ({spec.gene_id})")
         budget = RunBudgetTracker()
         backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed, require_live=spec.data_source != "synthetic")
         try:
@@ -290,7 +290,7 @@ def cmd_sweep_coupling(
                 ism_prescreen_windows=prescreen_windows, off_tissue_panel=False,
             )
         except Exception as exc:  # one failing locus must not lose the whole sweep
-            console.print(f"[bold #eb6834]{sym} failed: {type(exc).__name__}: {exc}[/bold #eb6834]")
+            console.print(f"[bold #ff7a4d]{sym} failed: {type(exc).__name__}: {exc}[/bold #ff7a4d]")
             rows.append({"gene": sym, "error": f"{type(exc).__name__}: {exc}"})
             continue
 
@@ -346,12 +346,12 @@ def cmd_sweep_coupling(
         tbl.add_column(col, justify="right")
     for r in rows:
         if r.get("error"):
-            tbl.add_row(str(r["gene"]), "[#eb6834]error[/#eb6834]", str(r["error"])[:40], "", "", "", "", "", "", "")
+            tbl.add_row(str(r["gene"]), "[#ff7a4d]error[/#ff7a4d]", str(r["error"])[:40], "", "", "", "", "", "", "")
             continue
         cls = str(r.get("coupling_class") or "-")
         cls_style = {
-            "methylation_specific": "bold #4a90e2",
-            "generic_hazard_coupling": "#eb6834",
+            "methylation_specific": "bold #3fb596",
+            "generic_hazard_coupling": "#ff7a4d",
             "uncoupled": "dim",
         }.get(cls, "dim")
         rho = r["meth_rho"]
@@ -374,7 +374,7 @@ def cmd_sweep_coupling(
     out.mkdir(parents=True, exist_ok=True)
     path = out / f"sweep_coupling_seed{seed}.json"
     path.write_text(json.dumps(rows, indent=2), encoding="utf-8")
-    console.print(f"[bold #4a90e2]Saved sweep -> {path}[/bold #4a90e2]")
+    console.print(f"[bold #3fb596]Saved sweep -> {path}[/bold #3fb596]")
 
 
 @app.command("doctor")
@@ -394,7 +394,7 @@ def cmd_doctor() -> None:
     cache = paths.api_cache_dir()
     cache_mb = sum(f.stat().st_size for f in cache.rglob("*") if f.is_file()) / 1e6 if cache.exists() else 0.0
 
-    ok, no, warn = "[#4a90e2]ok[/#4a90e2]", "[#eb6834]missing[/#eb6834]", "[#eb6834]not yet[/#eb6834]"
+    ok, no, warn = "[#3fb596]ok[/#3fb596]", "[#ff7a4d]missing[/#ff7a4d]", "[#ff7a4d]not yet[/#ff7a4d]"
     tbl = Table(title=f"gene-edit-check {__version__}: setup check", show_header=False, show_lines=False)
     tbl.add_column(style="bold")
     tbl.add_column()
@@ -412,7 +412,7 @@ def cmd_doctor() -> None:
         console.print("\n[bold]Without a key you can still:[/bold] run `gene-edit-check conditions`, run the test suite, "
                       "and try the plumbing with `--simulator` (scripted output, never a result).")
     else:
-        console.print("\n[bold #4a90e2]Ready.[/bold #4a90e2] Try: gene-edit-check optimize")
+        console.print("\n[bold #3fb596]Ready.[/bold #3fb596] Try: gene-edit-check optimize")
 
 
 @app.command("conditions")
@@ -434,22 +434,22 @@ def cmd_conditions(
     if refresh:
         api_key = os.environ.get("ALPHAGENOME_API_KEY", "").strip()
         if not api_key:
-            console.print("[bold #eb6834]--refresh needs ALPHAGENOME_API_KEY.[/bold #eb6834]")
+            console.print("[bold #ff7a4d]--refresh needs ALPHAGENOME_API_KEY.[/bold #ff7a4d]")
             raise typer.Exit(code=1)
         path = refresh_conditions_table(api_key)
-        console.print(f"[#4a90e2]Refreshed {path}[/#4a90e2]")
+        console.print(f"[#3fb596]Refreshed {path}[/#3fb596]")
 
     hits = search_conditions(query, modality=modality)
     if hits.empty:
-        console.print(f"[#eb6834]No conditions matched '{query}'.[/#eb6834]")
+        console.print(f"[#ff7a4d]No conditions matched '{query}'.[/#ff7a4d]")
         raise typer.Exit(code=0)
 
-    style = {"observed": "bold #4a90e2", "imputed_supported": "#eb6834", "imputed_exploratory": "dim #eb6834"}
+    style = {"observed": "bold #3fb596", "imputed_supported": "#ff7a4d", "imputed_exploratory": "dim #ff7a4d"}
     tbl = Table(
         title=f"AlphaGenome 2 reference conditions matching '{query}' ({len(hits)} hits, sorted by {modality} evidence)",
         show_lines=False,
     )
-    tbl.add_column("CURIE", style="#4a90e2")
+    tbl.add_column("CURIE", style="#3fb596")
     tbl.add_column("Biosample")
     shown = ("methylation", "splice_junctions", "rna_seq", "chip_tf", "sc_atac")
     for m in shown:
@@ -552,7 +552,7 @@ def cmd_run_h5ad(
     fig_path = out_dir / f"figure_{safe_sid}.png"
     json_path.write_text(result.model_dump_json(indent=2), encoding="utf-8")
     export_optimization_figure(result, output_path=fig_path)
-    console.print(f"[bold #4a90e2]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold #4a90e2]")
+    console.print(f"[bold #3fb596]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold #3fb596]")
 
 
 @app.command("sweep-universality")
@@ -653,7 +653,7 @@ def cmd_sweep_universality(
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "universality_report.json"
     out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
-    console.print(f"[bold #4a90e2]Saved universality report -> {out_path}[/bold #4a90e2]")
+    console.print(f"[bold #3fb596]Saved universality report -> {out_path}[/bold #3fb596]")
 
 
 if __name__ == "__main__":

@@ -5,34 +5,45 @@ product. The tokens live in code (`src/gene_edit_check/ui/plots.py`, `PALETTES`)
 
 ## Principles
 
-1. **Quiet by default.** White or near-black surface, grey for everything that is context, one accent for the
-   thing being discussed. If everything is coloured, nothing is.
-2. **Colour has one job.** Blue is the subject. Orange means a check failed or a limit was crossed. Nothing else
-   is orange. There is no green and no red.
-3. **Shape before colour.** A pass is a tick and a fail is a cross, so the figures read in greyscale and for
+1. **Feel drawn, not generated.** A warm paper surface, a serif for titles and a mark with a pulse of life in
+   it. The product is biology, so it should look closer to a field guide than to a dashboard.
+2. **One accent, one warning.** Deep teal is the subject. Coral means a check failed or a limit was crossed,
+   and it is also the colour of the edited base in the logo. Nothing else is coral. There is no green and no red.
+3. **Shape before colour.** A pass is a tick and a fail is a cross, so figures read in greyscale and for
    colour-blind readers.
 4. **Say the finding.** Titles state the result ("No candidate passed every check"), subtitles say how to read
    the chart, and only the few points that matter get a label.
 5. **Honest by construction.** Every figure footer says "model predictions, not lab measurements", and
    uncertainty is drawn when it exists.
 
+## The mark
+
+A double helix, leaning and half-turned, with one rung in coral: the base being edited. The ribbons swell and
+thin as each strand turns toward the viewer, and the colour drifts from cream to mint along the length, so it
+reads as a single drawn object and not a flat icon. It sits on a deep forest tile for use as an app icon and
+as a small stamp in the corner of every figure.
+
+- Built in code, once, in `src/gene_edit_check/ui/brand.py`; drawn as SVG (`assets/logo.svg`, the banners) and
+  as matplotlib patches (figures, social card).
+- The wordmark is set in a serif: `gene-edit-` upright in ink, `check` in italic teal.
+
 ## Palette
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| Surface | `#ffffff` | `#0d1117` | Page and figure background |
-| Panel | `#f7f7f5` | `#151b23` | Cards and banded rows |
-| Ink | `#111111` | `#f2f2f0` | Titles and values |
-| Ink 2 | `#55534f` | `#b4b3ae` | Subtitles, axis labels |
-| Ink 3 | `#8a8985` | `#8a8e96` | Footers, tick labels |
-| Hairline | `#ebebe8` | `#262c35` | Grid and borders |
-| Neutral | `#b9b8b3` | `#5d626b` | Context marks |
-| Blue | `#2a78d6` | `#5aa0f2` | Accent: the subject |
-| Orange | `#eb6834` | `#f08457` | Failure or limit |
+| Surface | `#fbf8f1` | `#0e1714` | Page and figure background (warm paper, deep forest) |
+| Panel | `#f3eee2` | `#15211d` | Cards and banded rows |
+| Ink | `#1b2622` | `#efe9dc` | Titles and values |
+| Ink 2 | `#505a54` | `#b5b8ad` | Subtitles, axis labels |
+| Ink 3 | `#84897f` | `#868c83` | Footers, tick labels |
+| Hairline | `#e8e2d3` | `#24322d` | Grid and borders |
+| Neutral | `#bdb6a6` | `#5b665f` | Context marks |
+| Teal | `#1f7a68` | `#4fbf9f` | Accent: the subject |
+| Coral | `#e0502c` | `#ff7a4d` | Failure or limit |
+| Forest | `#12453b` | same | Icon tile |
 
-The two accent hues are separated by a Delta E of 15 or more under colour-blind simulation (checked with the
-dataviz palette validator). The grey is context, not a data series, so it is exempt from the lightness band.
-The dark values are lighter steps of the same hues, not an inversion.
+The two accent hues are teal and coral; the grey is context, not a data series. The dark values are lighter
+steps of the same hues, not an inversion.
 
 ## Marks
 
@@ -43,16 +54,14 @@ The dark values are lighter steps of the same hues, not an inversion.
 
 ## Type
 
-Inter, then SF Pro Display, Segoe UI, Helvetica Neue, Arial. Titles are semibold at 15 pt, subtitles regular at
-about 10 pt in Ink 2, footers 7.6 pt in Ink 3. Spacing around titles is set in inches so it holds at any height.
+Titles: Iowan Old Style, Source Serif 4, Palatino, Georgia, then the system serif, regular at 16.5 pt.
+Everything else: Inter, SF Pro, Segoe UI, Helvetica Neue, Arial. Subtitles about 10 pt in Ink 2, footers
+7.6 pt in Ink 3. Spacing around titles is set in inches so it holds at any figure height.
 
-## Brand
+## Brand files
 
-- **Mark:** a rounded blue square holding a white tick. `assets/logo.svg`.
-- **Wordmark:** `gene-edit-` in Ink, `check` in Blue, semibold.
-- **Banner and social card:** `assets/banner.svg` and `banner-dark.svg` and
-  `assets/social-card.png` (1280 x 640, for the GitHub social preview).
-- Regenerate with `python scripts/make_brand.py`.
+`assets/logo.svg` (icon), `assets/banner.svg` and `banner-dark.svg`, `assets/social-card.png` (1280 x 640, upload
+it under repository Settings, Social preview). Regenerate with `python scripts/make_brand.py`.
 
 ## Light and dark
 
