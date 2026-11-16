@@ -106,6 +106,12 @@ Across six checkpoint loci this pattern is specific rather than universal — me
 crispr-reflexion sweep-coupling
 ```
 
+Across three random seeds (`42, 7, 99`, mean CpG ρ = `+0.906 ± 0.037`), CRC MMRd/MMRp subtypes (`+0.729`, `+0.886`), CD4+ CXCL13+ (`+0.689`) and γδ (`+0.718`) T-cell lineages, and an independent **Triple-Negative Breast Cancer** cohort (Wu et al. 2020, `+0.804`, splice `−0.455`), *PDCD1* classifies identically as `methylation_specific` / `target_constrained`:
+
+```bash
+crispr-reflexion sweep-universality
+```
+
 ## Caveat
 
 Every number above is a prediction from one model, with no wet-lab validation. The coupling is a

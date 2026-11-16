@@ -26,6 +26,7 @@ away.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import functools
 from enum import IntEnum
 from pathlib import Path
@@ -161,4 +162,71 @@ def weakest_hazard_tier(curie: str) -> EvidenceTier:
     return min(
         (evidence_for(curie, m) for m in ("methylation", "splice_junctions")),
         default=EvidenceTier.UNKNOWN,
+    )
+
+
+@dataclass(frozen=True)
+class ResolvedReferencePair:
+    """Evidence-ranked primary hazard reference and optional tissue-matched concordance check."""
+
+    primary_curies: tuple[str, ...]
+    primary_biosample_name: str
+    primary_evidence_tiers: dict[str, str]
+    primary_limiting_tier: str
+    tissue_matched_curies: tuple[str, ...] = ()
+    tissue_matched_biosample_name: str = ""
+    tissue_matched_limiting_tier: str = ""
+
+
+def _split_curies(condition_id: str) -> tuple[str, ...]:
+    """Split a composite AlphaGenome condition ID (`UBERON:x_CL:y`) into CURIE components."""
+    return tuple(part for part in str(condition_id).split("_") if part)
+
+
+def resolve_reference_pair(
+    cell_type_query: str,
+    tissue_query: str | None = None,
+    modalities: tuple[str, ...] = ("methylation", "splice_junctions", "rna_seq"),
+) -> ResolvedReferencePair:
+    """Resolve the strongest-evidence Tier 2 reference condition for a cell type.
+
+    Searches `supported_conditions()` for biosamples matching `cell_type_query`, ranks them by
+    evidence across `modalities` (`observed > imputed_supported > imputed_exploratory`), and
+    returns the top condition as `primary_curies`. If `tissue_query` is given, also finds the
+    best condition matching both `cell_type_query` and `tissue_query` for a concordance cross-check.
+    """
+    hits = search_conditions(cell_type_query)
+    if hits.empty:
+        # Fallback to generic primary immune/blood or whole-table ranking if query matches nothing
+        df = load_conditions_table()
+        candidates = df["condition"].astype(str).tolist()
+    else:
+        candidates = hits["condition"].astype(str).tolist()
+
+    ranked = rank_by_evidence(candidates, modalities=modalities)
+    primary_id, _score, prof = ranked[0]
+    primary_limiting = weakest_hazard_tier(primary_id).label
+
+    tm_curies: tuple[str, ...] = ()
+    tm_name = ""
+    tm_limiting = ""
+    if tissue_query and not hits.empty:
+        tm_mask = hits["biosample_name"].str.contains(tissue_query, case=False, na=False, regex=True)
+        tm_hits = hits.loc[tm_mask]
+        if not tm_hits.empty:
+            tm_ranked = rank_by_evidence(tm_hits["condition"].astype(str).tolist(), modalities=modalities)
+            tm_id = tm_ranked[0][0]
+            if tm_id != primary_id:
+                tm_curies = _split_curies(tm_id)
+                tm_name = describe_condition(tm_id)
+                tm_limiting = weakest_hazard_tier(tm_id).label
+
+    return ResolvedReferencePair(
+        primary_curies=_split_curies(primary_id),
+        primary_biosample_name=describe_condition(primary_id),
+        primary_evidence_tiers=prof,
+        primary_limiting_tier=primary_limiting,
+        tissue_matched_curies=tm_curies,
+        tissue_matched_biosample_name=tm_name,
+        tissue_matched_limiting_tier=tm_limiting,
     )

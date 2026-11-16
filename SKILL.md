@@ -80,7 +80,20 @@ uv run crispr-reflexion sweep-coupling           # PDCD1, CTLA4, HAVCR2, LAG3, T
 ```
 Runs the identical pipeline (same cells, sketches, thresholds, references) across six checkpoint loci and compares efficacy-vs-hazard coupling at each. Last run: methylation-specific at **PDCD1** (rho=+0.92, splice -0.30) and **LAG3** (+0.82, splice +0.10); generic hazard coupling at CTLA4/HAVCR2/TIGIT; uncoupled at TOX (+0.30, ns).
 
-### 5. Inspect reference-condition evidence (`conditions`)
+### 5. Prove invariance across seeds, subtypes, lineages & cancers (`sweep-universality`)
+```bash
+uv run crispr-reflexion sweep-universality
+```
+Evaluates multi-seed stability (seeds 42/7/99, mean CpG rho = +0.906 +/- 0.037), CRC MMRd vs MMRp subtypes, CD4+ CXCL13+ helper TILs, PDCD1+ gamma-delta TILs, Triple-Negative Breast Cancer CD8+ TILs (Wu et al. 2020, CpG rho = +0.804), and physical GRCh38 CpG architecture across all 6 loci (`outputs/universality_report.json`).
+
+### 6. Run dataset-agnostic on any `.h5ad` (`run-h5ad`)
+```bash
+uv run crispr-reflexion run-h5ad --h5ad path/or/url.h5ad --gene-id ENSG... --gene-symbol SYMBOL \
+  --target-query "..." --healthy-query "..." --cell-type "CD8-positive"
+```
+Supports `.raw.X`, `.layers["counts"]`, and `.X`, auto-detects donor columns and Ensembl IDs, supports `expr_<GENE>` count predicates inside queries, and automatically resolves the strongest-evidence Tier 2 reference condition via `resolve_reference_pair()`.
+
+### 7. Inspect reference-condition evidence (`conditions`)
 ```bash
 uv run crispr-reflexion conditions "CD8-positive" --modality methylation
 uv run crispr-reflexion conditions --refresh      # re-download the shipped table

@@ -28,16 +28,20 @@ from crispr_reflexion.ag_backend.live_client import LiveAlphaGenomeBackend
 from crispr_reflexion.ag_backend.protocol import VerifierBackend
 from crispr_reflexion.ag_backend.simulator import SurrogateSimulatorBackend
 from crispr_reflexion.benchmarks.state_fidelity import run_state_fidelity
+from crispr_reflexion.benchmarks.universality import run_multiseed_and_context_invariance
 from crispr_reflexion.budget import RunBudgetTracker
 from crispr_reflexion.cache import ContentAddressedCache
-from crispr_reflexion.conditions import refresh_conditions_table, search_conditions
+from crispr_reflexion.conditions import refresh_conditions_table, resolve_reference_pair, search_conditions
+from crispr_reflexion.datasets.generic_h5ad import GenericH5adSpec
 from crispr_reflexion.models import BackendMode
-from crispr_reflexion.pipeline import build_all_sketches, load_cohort, run_scenario
+from crispr_reflexion.pipeline import build_all_sketches, load_cohort, resolve_scenario_references, run_scenario
 from crispr_reflexion.scenarios.registry import (
     COUPLING_SWEEP_GENES,
     IMMUNE_ENSEMBL_PANEL,
     SCENARIOS,
     SWEEP_SCENARIO_IDS,
+    UNIVERSALITY_CONTEXT_LABELS,
+    ScenarioSpec,
 )
 from crispr_reflexion.ui.plots import export_optimization_figure
 from crispr_reflexion.ui.terminal_hud import render_optimization_report
@@ -365,6 +369,194 @@ def cmd_conditions(
         "[dim]observed = real training tracks | imp_supported = validated imputation | "
         "imp_exploratory = unvalidated imputation (weakest evidence)[/dim]"
     )
+
+
+@app.command("run-h5ad")
+def cmd_run_h5ad(
+    h5ad: str = typer.Option(..., "--h5ad", help="Local path or HTTP(S) URL to any .h5ad file."),
+    gene_id: str = typer.Option(..., "--gene-id", help="Target Ensembl gene ID (e.g. ENSG00000188389)."),
+    gene_symbol: str = typer.Option(..., "--gene-symbol", help="Target gene symbol (e.g. PDCD1)."),
+    target_query: str = typer.Option(
+        ..., "--target-query", help="Pandas .obs.query(...) expression (or expr_<GENE> predicate) for target cells."
+    ),
+    healthy_query: str = typer.Option(
+        ..., "--healthy-query", help="Pandas .obs.query(...) expression (or expr_<GENE> predicate) for control cells."
+    ),
+    target_name: str = typer.Option("Target_State", "--target-name"),
+    healthy_name: str = typer.Option("Healthy_State", "--healthy-name"),
+    dataset_name: str = typer.Option("Custom_SingleCell_Cohort", "--dataset-name"),
+    donor_col: str | None = typer.Option(None, "--donor-col", help="Donor/batch column in .obs (auto-detected if omitted)."),
+    ensembl_col: str | None = typer.Option(None, "--ensembl-col", help="Ensembl column in .var (auto-detected if omitted)."),
+    cell_type: str = typer.Option("T cell", "--cell-type", help="Cell-type query for evidence-ranked Tier 2 reference."),
+    tissue: str | None = typer.Option(None, "--tissue", help="Optional tissue query for anatomical cross-check."),
+    desired_direction: str = typer.Option("down", "--desired-direction", help="'down' or 'up'."),
+    sketch_size: int = typer.Option(128, min=4, max=256),
+    pool_size: int = typer.Option(600, min=40),
+    max_iterations: int = typer.Option(6, min=1, max=12),
+    null_n: int = typer.Option(12, min=0),
+    seed: int = typer.Option(42),
+    simulator: bool = typer.Option(False, "--simulator"),
+    output_dir: str = typer.Option("outputs"),
+) -> None:
+    """Dataset-agnostic runner: execute the full Two-Tier CRISPR-Reflexion pipeline on any `.h5ad` file."""
+    resolved_ref = resolve_reference_pair(cell_type, tissue)
+    console.print(
+        f"[cyan]Auto-selected Tier 2 primary reference:[/cyan] {resolved_ref.primary_biosample_name} "
+        f"({list(resolved_ref.primary_curies)}, limiting tier: [bold]{resolved_ref.primary_limiting_tier}[/bold])"
+    )
+    if resolved_ref.tissue_matched_curies:
+        console.print(
+            f"[cyan]Auto-selected tissue-matched cross-check:[/cyan] {resolved_ref.tissue_matched_biosample_name} "
+            f"({list(resolved_ref.tissue_matched_curies)}, limiting tier: {resolved_ref.tissue_matched_limiting_tier})"
+        )
+
+    safe_sid = f"custom-{gene_symbol.lower()}-h5ad"
+    spec = ScenarioSpec(
+        scenario_id=safe_sid,
+        title=f"{gene_symbol} ({desired_direction}-regulate) on {dataset_name}",
+        gene_id=gene_id,
+        gene_symbol=gene_symbol,
+        target_state_name=target_name,
+        healthy_state_names=(healthy_name,),
+        reference_curies=resolved_ref.primary_curies,
+        tissue_matched_curies=resolved_ref.tissue_matched_curies,
+        data_source="generic",
+        desired_direction=desired_direction,
+        cell_type_query=cell_type,
+        tissue_query=tissue,
+        generic_h5ad_spec=GenericH5adSpec(
+            h5ad_path_or_url=h5ad,
+            dataset_name=dataset_name,
+            target_state_name=target_name,
+            healthy_state_name=healthy_name,
+            target_obs_query=target_query,
+            healthy_obs_query=healthy_query,
+            donor_col=donor_col,
+            ensembl_var_col=ensembl_col,
+        ),
+    )
+    budget = RunBudgetTracker()
+    backend = _resolve_backend(use_simulator=simulator, budget=budget, seed=seed)
+    result = run_scenario(
+        spec,
+        backend,
+        budget,
+        sketch_size=sketch_size,
+        max_iterations=max_iterations,
+        seed=seed,
+        pool_size=pool_size,
+        null_n=null_n,
+    )
+    render_optimization_report(result, console=console)
+
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / f"report_{safe_sid}.json"
+    fig_path = out_dir / f"figure_{safe_sid}.png"
+    json_path.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    export_optimization_figure(result, output_path=fig_path)
+    console.print(f"[bold green]Saved JSON report -> {json_path} | Figure -> {fig_path}[/bold green]")
+
+
+@app.command("sweep-universality")
+def cmd_sweep_universality(
+    seeds: str = typer.Option("42,7,99", help="Comma-separated random seeds for multi-seed stability."),
+    sketch_size: int = typer.Option(128, min=4, max=256),
+    pool_size: int = typer.Option(600, min=40),
+    max_iterations: int = typer.Option(5, min=1, max=12),
+    null_n: int = typer.Option(10, min=0),
+    prescreen_windows: int = typer.Option(6, min=0),
+    simulator: bool = typer.Option(False, "--simulator"),
+    output_dir: str = typer.Option("outputs"),
+) -> None:
+    """Prove invariance across seeds, tumor subtypes, T-cell lineages, an independent breast cancer cohort, and GRCh38 CpG architecture."""
+    seed_tuple = tuple(int(s.strip()) for s in seeds.split(",") if s.strip())
+    sweep_triples = tuple((gid, sym, SWEEP_SCENARIO_IDS[sym]) for gid, sym in COUPLING_SWEEP_GENES)
+
+    report = run_multiseed_and_context_invariance(
+        scenario_specs=SCENARIOS,
+        backend_factory=lambda budget, seed: _resolve_backend(
+            use_simulator=simulator, budget=budget, seed=seed
+        ),
+        run_scenario_fn=run_scenario,
+        load_cohort_fn=load_cohort,
+        build_sketches_fn=build_all_sketches,
+        primary_scenario_id=DEFAULT_SCENARIO,
+        context_labels=UNIVERSALITY_CONTEXT_LABELS,
+        sweep_genes=sweep_triples,
+        seeds=seed_tuple,
+        sketch_size=sketch_size,
+        pool_size=pool_size,
+        max_iterations=max_iterations,
+        null_n=null_n,
+        prescreen_windows=prescreen_windows,
+    )
+
+    t_seed = Table(
+        title=f"Part A: Multi-Seed Stability on {DEFAULT_SCENARIO} (mean CpG rho = {report.seed_meth_rho_mean} +/- {report.seed_meth_rho_sd})",
+        show_lines=False,
+    )
+    for col in ("Seed", "CpG rho", "CpG p", "Random-null rho", "Splice rho", "Gap", "Grad Sign Agree", "Class", "Verdict"):
+        t_seed.add_column(col, justify="right")
+    for sr in report.seed_summaries:
+        t_seed.add_row(
+            str(sr.seed),
+            f"{sr.meth_rho:+.3f}" if sr.meth_rho is not None else "-",
+            f"{sr.meth_p:.2g}" if sr.meth_p is not None else "-",
+            f"{sr.meth_rho_null_only:+.3f}" if sr.meth_rho_null_only is not None else "-",
+            f"{sr.splice_rho:+.3f}" if sr.splice_rho is not None else "-",
+            f"{sr.meth_minus_splice_rho:+.3f}" if sr.meth_minus_splice_rho is not None else "-",
+            f"{sr.gradient_sign_agreement:.0%}" if sr.gradient_sign_agreement is not None else "-",
+            sr.coupling_class.replace("_", " "),
+            sr.verdict.replace("_", " "),
+        )
+    console.print(t_seed)
+
+    t_ctx = Table(
+        title="Part B: Cross-Cancer, Cross-Subtype & Cross-Lineage Invariance (PDCD1)",
+        show_lines=False,
+    )
+    for col in ("Context", "Dataset", "Cells", "Tier 2 Ref [Tier]", "CpG rho", "CpG p", "Null rho", "Splice rho", "Gap", "Class"):
+        t_ctx.add_column(col, justify="right")
+    for cr in report.context_summaries:
+        t_ctx.add_row(
+            cr.context_label,
+            cr.dataset_name[:34],
+            f"{cr.target_cells_full:,}",
+            f"{cr.primary_reference[:24]} [{cr.primary_evidence_tier}]",
+            f"{cr.meth_rho:+.3f}" if cr.meth_rho is not None else "-",
+            f"{cr.meth_p:.2g}" if cr.meth_p is not None else "-",
+            f"{cr.meth_rho_null_only:+.3f}" if cr.meth_rho_null_only is not None else "-",
+            f"{cr.splice_rho:+.3f}" if cr.splice_rho is not None else "-",
+            f"{cr.meth_minus_splice_rho:+.3f}" if cr.meth_minus_splice_rho is not None else "-",
+            cr.coupling_class.replace("_", " "),
+        )
+    console.print(t_ctx)
+
+    t_arch = Table(
+        title="Part C: Physical GRCh38 Sequence CpG Architecture (+/-2.5 kb cis-window) vs AlphaGenome Coupling",
+        show_lines=False,
+    )
+    for col in ("Gene", "GC%", "CpG count", "CpG/100bp", "CpG Obs/Exp", "Local +-50bp CpG vs Meth rho", "Efficacy vs CpG rho", "Class"):
+        t_arch.add_column(col, justify="right")
+    for ar in report.locus_cpg_architecture:
+        t_arch.add_row(
+            str(ar["gene_symbol"]),
+            f"{100.0 * float(ar['gc_fraction']):.1f}%",
+            str(ar["cpg_dinucleotide_count"]),
+            f"{float(ar['cpg_per_100bp']):.2f}",
+            f"{float(ar['cpg_observed_over_expected']):.3f}",
+            f"{ar['local_cpg_vs_methylation_rho']:+.2f}" if ar.get("local_cpg_vs_methylation_rho") is not None else "-",
+            f"{ar['efficacy_vs_cpg_rho']:+.2f}" if ar.get("efficacy_vs_cpg_rho") is not None else "-",
+            str(ar.get("coupling_class") or "-").replace("_", " "),
+        )
+    console.print(t_arch)
+
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "universality_report.json"
+    out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    console.print(f"[bold green]Saved universality report -> {out_path}[/bold green]")
 
 
 if __name__ == "__main__":

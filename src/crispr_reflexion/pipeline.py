@@ -10,7 +10,9 @@ from crispr_reflexion.ag_backend.protocol import VerifierBackend
 from crispr_reflexion.agent.reflexion_loop import run_gradient_ism_reflexion_optimization
 from crispr_reflexion.benchmarks.hazard_coupling import analyze_hazard_coupling
 from crispr_reflexion.budget import RunBudgetTracker
+from crispr_reflexion.conditions import resolve_reference_pair
 from crispr_reflexion.datasets import crc_pelka
+from crispr_reflexion.datasets.generic_h5ad import build_generic_cohort
 from crispr_reflexion.models import OptimizationRunResult, SketchQualityMetrics
 from crispr_reflexion.sc_sketch.coreset import DisjointCellSketches
 from crispr_reflexion.sc_sketch.sketch_variance import build_disjoint_sketches_and_ablation
@@ -34,6 +36,15 @@ class Cohort:
 
 
 def load_cohort(spec: ScenarioSpec, pool_size: int, seed: int) -> Cohort:
+    if spec.generic_h5ad_spec is not None or spec.data_source == "generic":
+        assert spec.generic_h5ad_spec is not None
+        real = build_generic_cohort(
+            spec.generic_h5ad_spec,
+            pool_size=pool_size,
+            seed=seed,
+            marker_gene_ids=tuple(g for g, _ in IMMUNE_ENSEMBL_PANEL),
+        )
+        return Cohort(real.states, real.provenance, real.observed_cp10k)
     if spec.data_source == "real":
         real = crc_pelka.build_cohort(
             pool_size=pool_size,
@@ -43,6 +54,14 @@ def load_cohort(spec: ScenarioSpec, pool_size: int, seed: int) -> Cohort:
         return Cohort(real.states, real.provenance, real.observed_cp10k)
     states = build_til_cohort_anndata(n_cells_per_state=pool_size, seed=seed)
     return Cohort(states, {"data_source": SYNTHETIC_NOTICE}, None)
+
+
+def resolve_scenario_references(spec: ScenarioSpec) -> tuple[list[str], list[str] | None]:
+    """Return `(primary_curies, tissue_matched_curies)` using evidence-ranking when unset."""
+    if spec.reference_curies:
+        return list(spec.reference_curies), (list(spec.tissue_matched_curies) or None)
+    resolved = resolve_reference_pair(spec.cell_type_query, spec.tissue_query)
+    return list(resolved.primary_curies), (list(resolved.tissue_matched_curies) or None)
 
 
 def build_all_sketches(
@@ -82,6 +101,7 @@ def run_scenario(
 ) -> OptimizationRunResult:
     cohort = load_cohort(spec, pool_size=pool_size, seed=seed)
     target, healthy, metrics = build_all_sketches(backend, spec, cohort, sketch_size, seed)
+    primary_curies, tissue_curies = resolve_scenario_references(spec)
     result = run_gradient_ism_reflexion_optimization(
         scenario_id=spec.scenario_id,
         gene_id=spec.gene_id,
@@ -91,8 +111,8 @@ def run_scenario(
         target_sketches=target,
         healthy_sketches_map=healthy,
         sketch_metrics=metrics,
-        reference_curies=list(spec.reference_curies),
-        tissue_matched_curies=list(spec.tissue_matched_curies) or None,
+        reference_curies=primary_curies,
+        tissue_matched_curies=tissue_curies,
         max_iterations=max_iterations,
         random_seed=seed,
         desired_direction=spec.desired_direction,

@@ -159,13 +159,68 @@ uv venv --python 3.12 .venv
 uv pip install --python .venv/Scripts/python.exe -e ".[scverse,dev]"
 cp .env.example .env            # add ALPHAGENOME_API_KEY (free, non-commercial)
 
-crispr-reflexion optimize                  # the main run: real data, live API
-crispr-reflexion sweep-coupling            # the six-locus comparison above
+crispr-reflexion optimize                  # main run: Pelka CRC real data, live API
+crispr-reflexion sweep-coupling            # 6 checkpoint loci comparison
+crispr-reflexion sweep-universality        # multi-seed, subtypes, lineages, TNBC, CpG architecture
 crispr-reflexion validate-fidelity         # predicted vs observed fold-changes
 crispr-reflexion ablate-sketch             # coreset vs random subsampling
 crispr-reflexion conditions "CD8-positive" # evidence tiers per reference condition
-pytest                                     # 45 offline tests (no API, no download)
+pytest                                     # 53 offline tests (no API, no download)
 ```
+
+### Bring your own single-cell atlas (`run-h5ad`)
+
+The verifier is dataset-, cancer-, and lineage-agnostic. Point it at any local `.h5ad` file or CZ CELLxGENE Discover URL containing raw integer UMI counts (`.raw.X`, `.layers["counts"]`, or `.X`), select your target/control populations via pandas queries (including optional `expr_<GENE>` count predicates), and it automatically picks the highest-evidence Tier 2 reference condition for your `--cell-type`:
+
+```bash
+crispr-reflexion run-h5ad \
+  --h5ad https://datasets.cellxgene.cziscience.com/4d036b2c-6135-4515-9c44-a5aa7a2e32e5.h5ad \
+  --gene-id ENSG00000188389 --gene-symbol PDCD1 \
+  --target-query "celltype_final == 'CD8+ T-cells' and (expr_LAG3 > 0 or expr_HAVCR2 > 0 or expr_CXCL13 > 0)" \
+  --healthy-query "celltype_final == 'CD8+ T-cells' and expr_LAG3 == 0 and expr_HAVCR2 == 0 and expr_CXCL13 == 0 and (expr_IL7R > 0 or expr_CCR7 > 0)" \
+  --cell-type "CD8-positive" --tissue "breast"
+```
+
+---
+
+## Multi-seed, cross-cancer & cross-lineage invariance (`sweep-universality`)
+
+To test whether the *PDCD1* finding is an artifact of one seed, one colorectal cancer cohort, or one T-cell subtype, `crispr-reflexion sweep-universality` evaluates multi-seed splits, colorectal tumor mismatch-repair subtypes (`MMRd` vs `MMRp`), distinct T-cell lineages (`CD8+`, `CD4+ CXCL13+`, `PDCD1+ γδ`), and an independent **Triple-Negative Breast Carcinoma** atlas (**Wu et al., *EMBO J* 2020**, 24,271 cells, CELLxGENE `4d036b2c`)—auto-resolving Tier 2 hazard references via `resolve_reference_pair()` (`outputs/universality_report.json`):
+
+### 1. Multi-seed stability (CRC CD8+ TILs, independent patient splits & null draws)
+
+| Seed | CpG ρ | CpG p | Random-only ρ | Splice ρ | Gap (CpG − Splice) | Grad Sign Agree | Class |
+|---|---|---|---|---|---|---|---|
+| `42` | **+0.921** | 1.1×10⁻⁶ | +0.746 | −0.661 | +1.583 | 68% | **methylation-specific** |
+| `7` | **+0.932** | 4.2×10⁻⁷ | +0.770 | −0.500 | +1.432 | 65% | **methylation-specific** |
+| `99` | **+0.864** | 3.2×10⁻⁵ | +0.551 | −0.083 | +0.947 | 66% | **methylation-specific** |
+| **Mean ± SD** | **+0.906 ± 0.037** | — | **+0.689** | — | — | — | **3/3 invariant** |
+
+### 2. Cross-cancer, cross-subtype & cross-lineage consistency (*PDCD1*)
+
+The overall CpG correlation is positive and significant in all six contexts. The **random-edit-only control** (the one that rules out selection bias) is **not**: it holds in 3 of 6 and is near zero in the other 3. Read the last column before the first.
+
+| Context | Cohort (target cells) | Auto-resolved Tier 2 ref [tier] | CpG ρ | CpG p | Splice ρ | Gap | Class | Random-edit-only ρ |
+|---|---|---|---|---|---|---|---|---|
+| CRC All CD8+ TILs | Pelka 2021 (12,738) | blood CD8 [observed] | **+0.921** | 1.1×10⁻⁶ | −0.661 | +1.58 | **methylation-specific** | +0.75 (holds) |
+| CRC MMRd / MSI-H CD8+ | Pelka 2021 (10,582) | blood CD8 [observed] | **+0.729** | 2.1×10⁻³ | +0.012 | +0.72 | **methylation-specific** | +0.08 (fails) |
+| CRC MMRp / MSS CD8+ | Pelka 2021 (2,156) | blood CD8 [observed] | **+0.886** | 1.1×10⁻⁵ | −0.704 | +1.59 | **methylation-specific** | +0.64 (holds) |
+| CRC CD4+ CXCL13+ Helper TILs | Pelka 2021 (2,135) | blood CD4 [observed] | **+0.689** | 4.5×10⁻³ | +0.105 | +0.58 | **methylation-specific** | +0.01 (fails) |
+| CRC PDCD1+ γδ TILs | Pelka 2021 (3,204) | blood γδ T [imp_exploratory] | **+0.718** | 2.6×10⁻³ | −0.344 | +1.06 | **methylation-specific** | +0.05 (fails) |
+| **Breast Cancer (TNBC) CD8+** | **Wu 2020 (2,162)** | **blood CD8 [observed]** | **+0.804** | **3.1×10⁻⁴** | **−0.455** | **+1.26** | **methylation-specific** | +0.35 (weak) |
+
+### 3. Physical GRCh38 CpG architecture (±2.5 kb cis-window around TSS)
+
+| Gene | GC% | CpG count | CpG / 100 bp | CpG Obs/Exp | Efficacy vs CpG ρ | Class |
+|---|---|---|---|---|---|---|
+| **PDCD1** | **61.4%** | **143** | **2.86** | 0.303 | **+0.92** | **methylation-specific** |
+| **LAG3** | **60.6%** | **151** | **3.02** | 0.330 | **+0.79** | **methylation-specific** |
+| HAVCR2 | 42.6% | 60 | 1.20 | 0.266 | +0.89 | generic hazard coupling |
+| CTLA4 | 41.3% | 32 | 0.64 | 0.150 | +0.76 | generic hazard coupling |
+| TIGIT | 46.6% | 35 | 0.70 | 0.130 | +0.62 | generic hazard coupling |
+| TOX | 52.3% | 240 | 4.80 | 0.702 | +0.30 (ns) | uncoupled |
+
+Notice the structural split on physical GRCh38 DNA sequence alone (zero dependence on model output heads): **`PDCD1` and `LAG3` share ~61% GC and ~3.0 CpGs/100 bp** with methylation-specific coupling, whereas `CTLA4`/`HAVCR2`/`TIGIT` are AT-rich / CpG-sparse (`0.64–1.20 CpGs/100 bp`, generic hazard coupling). Meanwhile **`TOX` carries a classic CpG island** (`Obs/Exp = 0.702 > 0.60`), yet remains **`uncoupled`**—showing CpG island presence alone is not sufficient for coupling.
 
 ---
 
@@ -195,7 +250,11 @@ pytest                                     # 45 offline tests (no API, no downlo
 - Tier 2 hazards use a **blood** CD8 reference, because the colon one is exploratory-imputed. The
   tissue-matched cross-check disagrees on the finalist.
 - The healthy comparator is normal-colon CD8 T cells — mostly IL7R⁺/GZMK⁺ memory-like, not naive.
-- One dataset, one seed, one cancer type. The six-locus sweep shares all of these.
+- Tested across two independent solid-tumour cohorts (Pelka et al. 2021 CRC, 62 patients; Wu et al. 2020 TNBC, 5 patients), three random seeds, and three T-cell lineages, but still does not include blood malignancies or healthy non-epithelial organs beyond reference conditions; the six-locus sweep remains CRC-anchored.
+- **Unresolved discrepancy:** the universality report gives splice ρ = −0.66 for PDCD1 seed 42; re-running the identical scenario and settings from cache gives −0.30. The CpG numbers match exactly. Until that is explained, treat the splice column as unverified.
+- **TNBC is not patient-disjoint.** It has 5 patients, below the 6 needed for a donor split, so Sketch A/B were split by cell and the held-out-by-patient guarantee does not apply to that row. Its target/healthy groups are also defined by marker expression, and the healthy group is non-exhausted tumour T cells, not normal tissue.
+- The γδ row uses an `imputed_exploratory` reference, the weakest evidence tier.
+- Note that the random-edit-only correlation reaches nominal p < 0.05 primarily in larger/all-donor CD8 cohorts (`ρ = +0.73..+0.77`) and drops when conditioned on smaller single-lineage or 5-donor subsets (`ρ = +0.01..+0.35`, n = 10 random edits), even as the full 15-variant coupling stays significant (`p ≤ 0.0045`) everywhere.
 
 ## Citation
 
