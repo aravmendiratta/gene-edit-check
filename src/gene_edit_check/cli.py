@@ -16,7 +16,17 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
+
+# Windows consoles and redirected output often use a legacy code page that cannot encode the arrows
+# and box characters in the tables. Switch the streams to UTF-8 and replace anything unencodable
+# instead of crashing mid-report.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+    except (AttributeError, ValueError):
+        pass
 
 import typer
 from dotenv import find_dotenv, load_dotenv

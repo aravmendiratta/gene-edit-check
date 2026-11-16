@@ -12,6 +12,8 @@
 - Renamed the search loop away from LLM-agent terms: `agent/reflexion_loop.py` is now `search/search_loop.py`,
   and the report fields `critic_diagnosis` and `episodic_memory_rule_added` are now `diagnosis` and
   `constraint_added`. Reports saved by 0.3.0 need those two keys renamed to load.
+- Fixed: the CLI crashed on Windows consoles and redirected output that use a legacy code page, because the
+  tables contain non-ASCII characters. Output is now UTF-8 with replacement. Found by the new Windows CI job.
 - CI now runs on Linux (Python 3.11 and 3.12), macOS and Windows.
 
 - Renamed the project to `gene-edit-check`.
