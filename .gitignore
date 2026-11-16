@@ -31,6 +31,7 @@ phase0_probe_results.json
 # Committed on purpose: the published run's figure, report and sweep, so the results in
 # README.md are reproducible and visible without an API key.
 !outputs/figure_crc-pd1-exhaustion.png
+!outputs/fig_*.png
 !outputs/report_crc-pd1-exhaustion.json
 !outputs/sweep_coupling_seed42.json
 !outputs/universality_report.json

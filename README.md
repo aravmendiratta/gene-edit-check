@@ -1,9 +1,6 @@
 # gene-edit-check
 
-**A computational-biology toolkit that checks whether a gene edit works only in the cells you want.**
-
-Give it a gene and two cell states. It searches for single base edits that turn the gene down in one state and
-leave the other alone, and uses Google DeepMind's AlphaGenome 2 as the judge.
+**Checks, on a computer, whether a gene edit works only in the cells you want, before anyone spends weeks testing it in a lab.**
 
 [![CI](https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml/badge.svg)](https://github.com/aravmendiratta/gene-edit-check/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/gene-edit-check)](https://pypi.org/project/gene-edit-check/)
@@ -11,14 +8,73 @@ leave the other alone, and uses Google DeepMind's AlphaGenome 2 as the judge.
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Use](https://img.shields.io/badge/use-research%20only-orange)
 
-Worked example: turn **PD-1 (*PDCD1*)** down in the exhausted T cells inside real colorectal tumours while
-leaving normal-colon T cells alone. The search finds no edit that passes every safety check, and the
-project reports exactly why.
+A computational-biology toolkit built on Google DeepMind's AlphaGenome 2.
 
-![Summary figure](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/figure_crc-pd1-exhaustion.png)
+---
 
-> *Research use only. Everything here is a computational prediction from the AlphaGenome 2 API. It is not
-> validated in a lab and is not for clinical, diagnostic or therapeutic use.*
+## The problem
+
+Gene-editing tools can now change a single letter of DNA. That makes a precise kind of treatment possible: turn
+one gene down in the cells that cause trouble, and leave every other cell alone.
+
+The hard part is knowing, in advance, whether a given edit will do that. Testing each candidate in a lab takes
+weeks. And an edit can look good where you aimed it while quietly doing damage elsewhere: in healthy cells, in
+the genes next door, or in the chemical tags that keep DNA working properly.
+
+**gene-edit-check does that homework on a computer first.** You give it a gene and two kinds of cell, the ones
+you want to change and the ones you want to leave alone. It proposes single-letter edits, predicts what each
+one would do in both, and runs the survivors through a set of safety checks. What comes out is a short list of
+edits worth taking to a lab, or a clear reason why there isn't one.
+
+![How a candidate edit is judged](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_pipeline.png)
+
+The part that keeps it honest: the patients' cells used to *propose* an edit are never the ones used to *judge*
+it, and every claim of "it works" has to beat a crowd of random edits first.
+
+## What it found
+
+The worked example is **PD-1**. Many tumours switch off the immune system's T cells by leaning on a protein
+called PD-1, so turning PD-1 down in tumour T cells is a real strategy. The catch is that T cells in healthy
+tissue also use PD-1, so the edit has to be selective. We used real single-cell data from colorectal cancer
+(62 patients, [Pelka et al., *Cell* 2021](https://doi.org/10.1016/j.cell.2021.08.003)) and let AlphaGenome 2 play
+the judge.
+
+**No edit passed every check.** Eight single-letter edits were tested against six safety checks. Seven of the
+eight disturbed DNA methylation, the chemical tags that help control which genes are active, more than the
+safety limit allows. The closest miss was 0.146 against a limit of 0.12.
+
+![Candidate scorecard](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_scorecard.png)
+
+**A pattern showed up underneath.** The more strongly an edit turned PD-1 down, the more it also shifted
+methylation. The same held at all six exhaustion-related genes we tried. It is a moderate link, not a precise
+one, and the data cannot yet say whether it is specific to methylation or something every strong edit does.
+
+![Efficacy against hazard](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_coupling.png)
+
+![Correlation with its uncertainty](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_forest.png)
+
+![The same pattern at six genes](https://raw.githubusercontent.com/aravmendiratta/gene-edit-check/main/outputs/fig_loci.png)
+
+**Why a negative result is useful.** It tells a lab which edits not to spend months on, and it points to the
+real obstacle (methylation at this gene) rather than leaving a vague sense that "it didn't work".
+
+**What it does not mean.** These are predictions from a model, not lab measurements. An earlier draft of this
+project claimed a much stronger link (a correlation of +0.94). A larger random comparison did not support it,
+so it was retracted, and the numbers above are the corrected ones. The full account, including what did not
+hold up, is in [docs/RESULTS.md](docs/RESULTS.md).
+
+> *Research use only. Nothing here is validated in a lab or fit for clinical, diagnostic or therapeutic use.*
+
+### Plain-language glossary
+
+| Term | What it means here |
+|---|---|
+| **Base edit** | Changing one letter of DNA (for example A to G) without cutting the strand. |
+| **Cell state** | A kind of cell in a particular condition, such as "exhausted T cell inside a tumour". |
+| **Methylation** | Chemical tags on DNA that help switch genes on and off. Disturbing them can have wide effects. |
+| **Splicing** | How a gene's raw copy is cut and joined into a finished message. Edits can break it. |
+| **AlphaGenome 2** | A DeepMind AI model that predicts what a DNA change does in different cells. |
+| **Random null** | A crowd of random edits tried first, so a "good" edit has to beat chance, not just look good. |
 
 ---
 
@@ -63,7 +119,7 @@ AlphaGenome calls and caches every response, so repeating a run is fast and free
 
 - a **terminal report**: the candidate edits, each check it passed or failed, and why
 - `outputs/report_crc-pd1-exhaustion.json`: the full machine-readable record
-- `outputs/figure_crc-pd1-exhaustion.png`: a four-panel summary
+- `outputs/figure_crc-pd1-exhaustion.png`: a one-page summary: the scorecard, the efficacy-versus-hazard chart and its confidence intervals
 
 Without a key, a real-data run stops and tells you how to get one. It will not quietly substitute fake output.
 
@@ -114,18 +170,6 @@ The full pipeline is `gene_edit_check.pipeline.run_scenario`. The scripted simul
   report results honestly.
 - **MCP server.** `gene-edit-check-mcp` exposes `run_optimization_tool`, `list_scenarios_tool` and
   `search_conditions_tool` to any MCP-capable agent.
-
-## What it found
-
-Of 8 candidate edits at *PDCD1*, 7 were blocked by the CpG-methylation check, and the closest near miss fails
-it at 0.146 against a limit of 0.12. Across 48 scored variants, efficacy and methylation shift are positively
-associated (Spearman ρ = +0.57, 95% bootstrap CI +0.28 to +0.77, reproduced across three seeds, six cohorts and six checkpoint genes). The
-association is moderate, and the controls do not show it is specific to methylation. An earlier, stronger claim
-(ρ = +0.94) was retracted after a larger random null did not support it.
-
-Details, tables and the parts that did not hold up: [docs/RESULTS.md](docs/RESULTS.md).
-How each stage works and why: [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md).
-What already exists and what is new here: [docs/RELATED_WORK.md](docs/RELATED_WORK.md).
 
 ## Where files go
 
