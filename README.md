@@ -42,7 +42,7 @@ it, and every claim of "it works" has to beat a crowd of random edits first.
 
 The worked example is **PD-1**. Many tumours switch off the immune system's T cells by leaning on a protein
 called PD-1, so turning PD-1 down in tumour T cells is a real strategy. The catch is that T cells in healthy
-tissue also use PD-1, so the edit has to be selective. We used real single-cell data from colorectal cancer
+tissue also use PD-1, so the edit has to be selective. I used real single-cell data from colorectal cancer
 (62 patients, [Pelka et al., *Cell* 2021](https://doi.org/10.1016/j.cell.2021.08.003)) and let AlphaGenome 2 play
 the judge.
 
@@ -56,7 +56,7 @@ safety limit allows. The closest miss was 0.146 against a limit of 0.12.
 </picture>
 
 **A pattern showed up underneath.** The more strongly an edit turned PD-1 down, the more it also shifted
-methylation. The sign was the same at all six exhaustion-related genes we tried. It is a moderate link, not a precise
+methylation. The sign was the same at all six exhaustion-related genes I tried. It is a moderate link, not a precise
 one, and the data cannot yet say whether it is specific to methylation or something every strong edit does.
 
 <picture>
@@ -75,7 +75,7 @@ one, and the data cannot yet say whether it is specific to methylation or someth
 </picture>
 
 **A check against a lab screen.** A published CRISPRi screen in human T cells found PD-1 regulatory elements
-at +14.8 and +16.1 kb from the gene. We asked whether the model points at them. It recognises two elements
+at +14.8 and +16.1 kb from the gene. I asked whether the model points at them. It recognises two elements
 near the promoter, but not the two +15 kb enhancers, and single-base edits there are predicted to do almost
 nothing. So every effective edit the search found sits in the promoter, which is also where the methylation
 damage is. That fits the pattern above, but it does not prove it. Details and caveats are in
