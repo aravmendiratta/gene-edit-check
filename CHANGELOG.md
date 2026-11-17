@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-- `scripts/make_launch_video.py` draws a 30-second motion-graphics launch video with synthesised sound
-  (`assets/launch.mp4`, not committed) from the saved results: kinetic type, a rotating DNA helix, counting
-  numbers, the check grid, the scatter and the lab-screen comparison. It needs `pycairo`, `imageio` and
-  `imageio-ffmpeg`, which are not project dependencies.
+- `scripts/make_launch_video.py` draws a 30-second launch video about what the tool does (chaotic cold open, then
+  propose, predict, stress-test, the random-edit null, a few real numbers, bring-your-own-data and the install
+  line), with a synthesised 128 BPM soundtrack. Audio and video are muxed in one pass with the index first, so it
+  streams without stalling. It needs `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`, which are not project
+  dependencies; the output (`assets/launch.mp4`) is not committed.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
   non-commercial AlphaGenome terms stay in the README's Limits section.
 
