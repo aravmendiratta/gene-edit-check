@@ -2,14 +2,17 @@
 
 ## Unreleased
 
-- `scripts/make_launch_video.py` draws and scores a 107-second launch film: a Neo-Bauhaus explainer built from
-  circles, squares and rules in primary red, blue and yellow, running title, problem, use case, benefits, outro.
-  Each chapter is several animated beats and a different geometric transition. The soundtrack is synthesised
-  (108 BPM bed plus 242 sound effects keyed to the animations; `build_events()` and the draw calls both read
-  the schedules in `TIMING` and the beat table in `BEATS`, so picture and sound cannot drift apart). The
-  geometry carries a light biology layer: bases on the strand, a DNA ladder inside the gene, nuclei in the
-  cells. Rendered at 720p, H.264 Main with the index first so it streams without stalling. Needs `pycairo`,
-  `imageio-ffmpeg`, `numpy` and `scipy`, which are not project dependencies; `assets/*.mp4` is gitignored.
+- `scripts/make_launch_video.py` draws and scores a 109-second launch film. A Bauhaus vocabulary (circle,
+  square, rule; primary red, blue and yellow) is used to draw real biology: a turning double helix, strands
+  that unwind, a base editor clamping onto one base, cells with membranes and nuclei whose chromatin marks
+  stand for gene activity. The flow is title, why single-letter edits need checking at all, the problem, how
+  gene-edit-check works, what you get, and how to get it; a faint scrolling strand runs under the middle
+  chapters as connective tissue, arrows and leader lines name every mark, and headlines name their subject.
+  The industry attrition figure cited is Wong, Siah & Lo, Biostatistics 2019, labelled as not this project's
+  data. The soundtrack is synthesised (108 BPM bed plus 261 sound effects); `build_events()` and the draw
+  calls both read `TIMING` and `BEATS`, so picture and sound cannot drift. Rendered at 720p, H.264 Main with
+  the index first so it streams without stalling. Needs `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`,
+  which are not project dependencies; `assets/*.mp4` is gitignored.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
   non-commercial AlphaGenome terms stay in the README's Limits section.
 
