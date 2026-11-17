@@ -1,7 +1,7 @@
 """The gene-edit-check launch film: a Neo-Bauhaus explainer, drawn and scored entirely in code.
 
     pip install pycairo imageio-ffmpeg numpy scipy
-    PYTHONPATH=src python scripts/make_launch_video.py            # writes assets/launch.mp4 (1280x720)
+    PYTHONPATH=src python scripts/make_launch_video.py            # writes assets/launch.mp4 (1080p60)
     PYTHONPATH=src python scripts/make_launch_video.py --preview out.png 12 34 56
 
 Design: a Bauhaus vocabulary (circle, square, rule, primary red/blue/yellow on paper or near-black) used to
@@ -28,8 +28,8 @@ from pathlib import Path
 import cairo
 import numpy as np
 
-W, H = 1920, 1080            # layout grid
-OW, OH, FPS = 1280, 720, 30  # render size
+W, H = 1920, 1080             # layout grid
+OW, OH, FPS = 1920, 1080, 60  # render size: native, so the picture is never resampled
 BPM = 108
 BEAT = 60 / BPM
 BAR = BEAT * 4
@@ -1458,8 +1458,8 @@ def main(out: str = "assets/launch.mp4") -> None:
         w.writeframes(make_music().tobytes())
     cmd = [imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error",
            "-f", "rawvideo", "-pix_fmt", "bgra", "-s", f"{OW}x{OH}", "-r", str(FPS), "-i", "-", "-i", str(wav),
-           "-c:v", "libx264", "-profile:v", "main", "-level", "4.0", "-preset", "slow", "-crf", "21",
-           "-maxrate", "3M", "-bufsize", "6M", "-bf", "0", "-g", str(FPS), "-keyint_min", str(FPS),
+           "-c:v", "libx264", "-profile:v", "main", "-level", "4.2", "-preset", "medium", "-crf", "19",
+           "-maxrate", "14M", "-bufsize", "28M", "-bf", "0", "-g", str(FPS), "-keyint_min", str(FPS),
            "-sc_threshold", "0", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
            "-c:a", "aac", "-b:a", "160k", "-ar", str(SR), "-shortest", out]
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)

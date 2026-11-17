@@ -14,7 +14,8 @@
   timeline with text-box recording switched on and reports any two text runs that collide, so layout is
   checked by measurement; it currently reports none. The soundtrack is synthesised (108 BPM bed plus 289
   sound effects); `build_events()` and the draw calls both read `TIMING` and `BEATS`, so picture and sound
-  cannot drift. Rendered at 720p, H.264 Main with the index first so it streams without stalling. Needs
+  cannot drift. Rendered at 1080p60 (the drawing grid is 1920x1080, so the picture is never resampled), H.264 Main
+  with the index at the front so it streams without stalling. Needs
   `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`, which are not project dependencies; `assets/*.mp4` is
   gitignored.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
