@@ -2,11 +2,12 @@
 
 ## Unreleased
 
-- `scripts/make_launch_video.py` draws a 41-second explainer: each step of the pipeline gets its own animation
-  (where an edit could work, what it does to each cell type, the six stress tests, judging on held-out patients
-  and beating a random-edit null), then the real numbers, bring-your-own-data and the install line. The
-  soundtrack is synthesised (100 BPM pads and bells). Rendered at 720p, H.264 Main with the index first so it
-  streams without stalling. Needs `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`, which are not project
+- `scripts/make_launch_video.py` draws a 90-second explainer. It opens by introducing the tool, then gives each
+  step of the pipeline a heading with two to four animated beats under it (finding reachable sites, predicting
+  the effect in each cell type, the six stress tests, the patient-disjoint split and the random-edit null),
+  then the real numbers and a detailed walk through installing and running it on your own data. The soundtrack
+  is synthesised (112 BPM pads, bells and a light pulse). Rendered at 720p, H.264 Main with the index first so
+  it streams without stalling. Needs `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`, which are not project
   dependencies; `assets/*.mp4` is gitignored.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
   non-commercial AlphaGenome terms stay in the README's Limits section.
