@@ -2,13 +2,12 @@
 
 ## Unreleased
 
-- `scripts/make_launch_video.py` draws a 90-second explainer. It opens by introducing the tool, then gives each
-  step of the pipeline a heading with two to four animated beats under it (finding reachable sites, predicting
-  the effect in each cell type, the six stress tests, the patient-disjoint split and the random-edit null),
-  then the real numbers and a detailed walk through installing and running it on your own data. The soundtrack
-  is synthesised (112 BPM pads, bells and a light pulse). Rendered at 720p, H.264 Main with the index first so
-  it streams without stalling. Needs `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`, which are not project
-  dependencies; `assets/*.mp4` is gitignored.
+- `scripts/make_launch_video.py` draws and scores a 107-second launch film: a Neo-Bauhaus explainer built from
+  circles, squares and rules in primary red, blue and yellow, running title, problem, use case, benefits, outro.
+  Each chapter is several animated beats and a different geometric transition. The soundtrack is synthesised
+  (108 BPM bed plus 242 sound effects keyed to the animations; `build_events()` mirrors the schedules in
+  `TIMING`). Rendered at 720p, H.264 Main with the index first so it streams without stalling. Needs `pycairo`,
+  `imageio-ffmpeg`, `numpy` and `scipy`, which are not project dependencies; `assets/*.mp4` is gitignored.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
   non-commercial AlphaGenome terms stay in the README's Limits section.
 
