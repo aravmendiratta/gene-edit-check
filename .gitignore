@@ -36,3 +36,4 @@ phase0_probe_results.json
 !outputs/sweep_coupling_seed42.json
 !outputs/universality_report.json
 assets/launch.mp4
+assets/*.mp4
