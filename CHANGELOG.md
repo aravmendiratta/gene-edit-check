@@ -5,7 +5,8 @@
 - `scripts/make_launch_video.py` draws and scores a 116-second launch film. A Bauhaus vocabulary (circle,
   square, rule; primary red, blue and yellow) is used to draw real biology: a turning double helix, strands
   that unwind, a base editor clamping onto one base, cells with membranes and nuclei whose chromatin marks
-  stand for gene activity. The chapters run title, why single-letter edits need checking, the problem, using
+  stand for gene activity. The title lands in about four seconds so the opening does not cost a scroll. The chapters run
+  title, why single-letter edits need checking, the problem (paced to be read), using
   it (what data you need, the one command, what lands on disk), what happens inside, why to trust it, and who
   it is for. A faint scrolling strand ties the middle chapters together, arrows and leader lines name every
   mark, and headlines name their subject. The attrition figure cited is Wong, Siah & Lo, Biostatistics 2019,

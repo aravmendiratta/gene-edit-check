@@ -47,7 +47,7 @@ GREY_D = (0.420, 0.424, 0.447)
 DISPLAY, LABEL, MONO = "Century Gothic", "Arial", "Consolas"
 
 SCENES = [  # name, bars, paper background?
-    ("title", 4, True), ("context", 8, False), ("problem", 7, True), ("work", 10, False),
+    ("title", 2, True), ("context", 8, False), ("problem", 9, True), ("work", 10, False),
     ("how", 8, False), ("gain", 8, True), ("outro", 4, False), ("end", 3, True),
 ]
 STARTS = np.cumsum([0.0] + [b * BAR for _, b, _ in SCENES])
@@ -58,13 +58,13 @@ DATA: dict = {}
 
 # Every schedule the picture and the sound share. Times are seconds inside their own beat.
 TIMING = {
-    "title": {"helix": 0.15, "square": 0.7, "halfdisc": 0.95, "rule": 1.25, "word": 1.6, "sub": 2.3, "cells": 2.9},
+    "title": {"helix": 0.1, "square": 0.4, "halfdisc": 0.6, "rule": 0.85, "word": 1.15, "sub": 1.75, "cells": 2.3},
     "c1": {"helix": 0.3, "bud0": 1.5, "bud_step": 0.35, "bud_n": 4, "read": 3.3},
     "c2": {"strand": 0.3, "editor": 1.4, "flip": 2.4, "label": 3.2},
     "c3": {"cell1": 0.4, "cell2": 0.9, "dim": 1.9, "bad": 3.3},
-    "p1": {"strand": 0.3, "pin0": 1.1, "pin_step": 0.16, "pin_n": 8, "count": 2.8},
-    "p2": {"seg0": 0.35, "seg_step": 0.14, "seg_n": 12, "grid": 2.4, "grid_step": 0.022, "grid_n": 60},
-    "p3": {"sq0": 0.4, "sq_step": 0.014, "sq_n": 100, "kill": 2.3, "label": 3.4},
+    "p1": {"strand": 0.3, "pin0": 1.1, "pin_step": 0.22, "pin_n": 8, "count": 3.2},
+    "p2": {"seg0": 0.35, "seg_step": 0.19, "seg_n": 12, "grid": 3.1, "grid_step": 0.028, "grid_n": 60},
+    "p3": {"sq0": 0.4, "sq_step": 0.017, "sq_n": 100, "kill": 2.7, "label": 3.8},
     "w1": {"card0": 0.4, "card_step": 0.75, "card_n": 3, "note": 3.3},
     "w2": {"type0": 0.4, "type_rate": 40.0, "note0": 2.0, "note_step": 0.4, "note_n": 3,
            "stage0": 3.9, "stage_step": 0.75, "stage_n": 3, "done": 6.3},
@@ -410,8 +410,8 @@ def load_data() -> dict:
 # ================================================================================================
 def scene_title(c, t, dur, paper):
     T = TIMING["title"]
-    p = out_cubic(fade(t, T["helix"], 1.0))
-    helix(c, 330, 560, 760 * p, 170, 0.4 + t * 0.7, n=20, grow=p, alpha=p, rail=BLACK, dot=15)
+    p = out_cubic(fade(t, T["helix"], 0.7))
+    helix(c, 330, 560, 760 * p, 170, 0.4 + t * 0.9, n=20, grow=p, alpha=p, rail=BLACK, dot=15)
     p = out_cubic(fade(t, T["square"], 0.6))
     rect(c, 1470, lerp(-220, 150, p), 190, 190, YELLOW)
     p = out_cubic(fade(t, T["halfdisc"], 0.7))
@@ -569,7 +569,7 @@ def _p2(c, t):
             continue
         rect(c, 240 + (i % cols) * (s + gap), 740 + (i // cols) * (s + gap), s * min(p, 1.0), s * min(p, 1.0), BLACK)
     text(c, "years of bench work to rule them out one at a time", 1180, 800, 32, BLACK,
-         alpha=fade(t, T["grid"] + 1.3) * 0.9, family=LABEL, bold=False)
+         alpha=fade(t, T["grid"] + 1.6) * 0.9, family=LABEL, bold=False)
     headline(c, t, "weeks for every candidate", 150, 250, 92, BLACK, t0=0.1,
              sub="and the list does not get shorter by itself")
 
@@ -1029,7 +1029,7 @@ def scene_end(c, t, dur, paper):
 # (key, draw function, seconds). A scene's length above must equal the sum of its beats.
 BEATS = {
     "context": [("c1", _c1, 5.9), ("c2", _c2, 5.9), ("c3", _c3, 5.98)],
-    "problem": [("p1", _p1, 5.18), ("p2", _p2, 5.18), ("p3", _p3, 5.2)],
+    "problem": [("p1", _p1, 6.66), ("p2", _p2, 6.66), ("p3", _p3, 6.68)],
     "work": [("w1", _w1, 7.4), ("w2", _w2, 7.4), ("w3", _w3, 7.42)],
     "how": [("h2", _h2, 5.9), ("h3", _h3, 5.9), ("h4", _h4, 5.98)],
     "gain": [("g1", _g1, 5.9), ("g2", _g2, 5.9), ("g3", _g3, 5.98)],
