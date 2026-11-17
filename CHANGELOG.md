@@ -5,8 +5,10 @@
 - `scripts/make_launch_video.py` draws and scores a 107-second launch film: a Neo-Bauhaus explainer built from
   circles, squares and rules in primary red, blue and yellow, running title, problem, use case, benefits, outro.
   Each chapter is several animated beats and a different geometric transition. The soundtrack is synthesised
-  (108 BPM bed plus 242 sound effects keyed to the animations; `build_events()` mirrors the schedules in
-  `TIMING`). Rendered at 720p, H.264 Main with the index first so it streams without stalling. Needs `pycairo`,
+  (108 BPM bed plus 242 sound effects keyed to the animations; `build_events()` and the draw calls both read
+  the schedules in `TIMING` and the beat table in `BEATS`, so picture and sound cannot drift apart). The
+  geometry carries a light biology layer: bases on the strand, a DNA ladder inside the gene, nuclei in the
+  cells. Rendered at 720p, H.264 Main with the index first so it streams without stalling. Needs `pycairo`,
   `imageio-ffmpeg`, `numpy` and `scipy`, which are not project dependencies; `assets/*.mp4` is gitignored.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
   non-commercial AlphaGenome terms stay in the README's Limits section.

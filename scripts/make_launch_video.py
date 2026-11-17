@@ -43,8 +43,8 @@ GREY_D = (0.420, 0.424, 0.447)
 DISPLAY, LABEL, MONO = "Century Gothic", "Arial", "Consolas"
 
 SCENES = [  # name, bars, paper background?
-    ("title", 4, True), ("problem", 11, False), ("usecase", 12, True),
-    ("benefits", 10, False), ("outro", 8, True), ("end", 3, False),
+    ("title", 4, True), ("problem", 9, False), ("usecase", 11, True),
+    ("benefits", 9, False), ("outro", 7, True), ("end", 3, False),
 ]
 STARTS = np.cumsum([0.0] + [b * BAR for _, b, _ in SCENES])
 TOTAL = float(STARTS[-1])
@@ -53,22 +53,27 @@ DATA: dict = {}
 
 # Every schedule the picture and the sound share. Times are seconds inside their own beat.
 TIMING = {
-    "title": {"circle": 0.25, "square": 0.75, "halfdisc": 1.05, "rule": 1.45, "word": 1.95, "sub": 2.7, "mark": 3.3},
-    "p1": {"row0": 0.45, "row_step": 0.045, "row_n": 30, "flip": 2.5, "gene": 3.3, "drop": 4.1},
-    "p2": {"c1": 0.4, "c2": 0.8, "arrow": 1.8, "shrink": 2.5, "bad": 4.2},
-    "p3": {"seg0": 0.5, "seg_step": 0.22, "seg_n": 12, "grid": 3.8, "grid_step": 0.035, "grid_n": 60, "out": 6.4},
-    "u1": {"gene": 0.4, "c1": 1.0, "c2": 1.5, "rule": 2.2},
-    "u2": {"bar0": 0.5, "bar_step": 0.035, "bar_n": 44, "pin0": 2.4, "pin_step": 0.18, "pin_n": 6, "count": 4.0},
-    "u3": {"row0": 0.5, "row_step": 0.42, "row_n": 5, "note": 3.2},
-    "u4": {"sq0": 0.4, "sq_step": 0.3, "sq_n": 6, "verdict": 3.4},
-    "b1": {"bar0": 0.5, "bar_step": 0.09, "bar_n": 26, "dot": 3.6, "label": 4.2},
-    "b2": {"dots": 0.4, "split": 1.7, "pick": 3.1, "travel": 4.0},
-    "b3": {"n0": 0.6, "n_step": 0.055, "n_n": 40, "bar": 3.3, "cand0": 4.1, "cand_step": 0.16},
-    "o1": {"type0": 0.5, "type_rate": 26.0, "panel0": 2.6, "panel_step": 0.3, "panel_n": 4},
-    "o2": {"type0": 0.4, "type_rate": 30.0, "note0": 2.2, "note_step": 0.45, "note_n": 3},
-    "o3": {"card0": 0.4, "card_step": 0.55, "card_n": 3, "item_step": 0.16},
-    "end": {"circle": 0.3, "word": 0.9, "rule": 1.5, "pip": 2.1, "url": 3.0},
+    "title": {"circle": 0.2, "square": 0.6, "halfdisc": 0.85, "rule": 1.15, "word": 1.55, "sub": 2.15, "mark": 2.7},
+    "p1": {"row0": 0.3, "row_step": 0.035, "row_n": 30, "flip": 1.9, "gene": 2.6, "drop": 3.3},
+    "p2": {"c1": 0.3, "c2": 0.65, "arrow": 1.4, "shrink": 2.1, "bad": 3.5},
+    "p3": {"seg0": 0.35, "seg_step": 0.16, "seg_n": 12, "grid": 2.8, "grid_step": 0.025, "grid_n": 60, "out": 4.8},
+    "u1": {"gene": 0.3, "c1": 0.8, "c2": 1.2, "rule": 1.8},
+    "u2": {"bar0": 0.35, "bar_step": 0.028, "bar_n": 44, "pin0": 1.8, "pin_step": 0.14, "pin_n": 6, "count": 3.1},
+    "u3": {"row0": 0.35, "row_step": 0.34, "row_n": 5, "note": 2.5},
+    "u4": {"sq0": 0.3, "sq_step": 0.24, "sq_n": 6, "verdict": 2.7},
+    "b1": {"bar0": 0.35, "bar_step": 0.07, "bar_n": 26, "dot": 2.7, "label": 3.3},
+    "b2": {"dots": 0.3, "split": 1.3, "pick": 2.5, "travel": 3.3},
+    "b3": {"n0": 0.45, "n_step": 0.042, "n_n": 40, "bar": 2.6, "cand0": 3.2, "cand_step": 0.13},
+    "o1": {"type0": 0.35, "type_rate": 32.0, "panel0": 2.1, "panel_step": 0.24, "panel_n": 4},
+    "o2": {"type0": 0.3, "type_rate": 38.0, "note0": 1.8, "note_step": 0.38, "note_n": 3},
+    "o3": {"card0": 0.3, "card_step": 0.45, "card_n": 3, "item_step": 0.13},
+    "end": {"circle": 0.25, "word": 0.75, "rule": 1.2, "pip": 1.7, "url": 2.4},
 }
+
+# The terminal lines live here so the typing animation and its keystroke sounds count the same characters.
+O1_LINES = ("$ pip install gene-edit-check", "$ gene-edit-check doctor")
+O2_LINES = ("$ gene-edit-check run-h5ad \\", "   --h5ad my_cells.h5ad \\",
+            "   --gene-symbol PDCD1 \\", "   --target-query \"state == 'exhausted'\"")
 
 
 # ---- easing --------------------------------------------------------------------------------------
@@ -184,6 +189,37 @@ def rule(c, x0, y0, x1, y1, w, color, alpha=1.0, cap=cairo.LINE_CAP_BUTT):
     c.stroke()
 
 
+_BASES = "ATCGGCTAACGTTGCAGCTAACGTGGCATCGGATCCGTAAGGCTTCAGGACCTGGATGCAAGGTCAGTACG"
+
+
+def base_strip(c, x0, x1, y, size, color, alpha=1.0, n=None, reveal=1.0):
+    """A quiet row of A/T/C/G, so the geometry is clearly standing in for DNA."""
+    n = n or max(int((x1 - x0) / (size * 1.3)), 2)
+    step = (x1 - x0) / (n - 1)
+    for i in range(n):
+        if i / n > reveal:
+            break
+        text(c, _BASES[i % len(_BASES)], x0 + i * step, y, size, color, align="center",
+             alpha=alpha, family=MONO, bold=False, fit=False)
+
+
+def cell_mark(c, x, y, r, col, alpha=1.0, nuc=PAPER):
+    """A disc with an offset square for a nucleus: a cell, in the language of the film."""
+    disc(c, x, y, r, col, alpha)
+    if r > 36:
+        s = r * 0.24
+        rect(c, x - r * 0.46, y - r * 0.40, s, s, nuc, alpha * 0.85)
+
+
+def ladder(c, x, y, w, h, col, alpha=1.0, rungs=5, lw=5.0):
+    """Two rails and a few rungs: DNA, reduced to rules."""
+    rule(c, x, y, x, y + h, lw, col, alpha)
+    rule(c, x + w, y, x + w, y + h, lw, col, alpha)
+    for i in range(rungs):
+        yy = y + h * (i + 0.5) / rungs
+        rule(c, x, yy, x + w, yy, lw * 0.8, col, alpha)
+
+
 def slash(c, x, y, r, color, w, alpha=1.0):
     rule(c, x - r * 0.7, y + r * 0.7, x + r * 0.7, y - r * 0.7, w, color, alpha, cairo.LINE_CAP_ROUND)
 
@@ -295,7 +331,11 @@ def _p1(c, t):
             continue
         flipped = i == 19 and t > T["flip"]
         sz = s * p * (1.45 if flipped and t < T["flip"] + 0.3 else 1.0)
-        rect(c, x0 + i * (s + gap) + (s - sz) / 2, y - sz / 2, sz, sz, RED if flipped else PAPER)
+        bx = x0 + i * (s + gap) + (s - sz) / 2
+        rect(c, bx, y - sz / 2, sz, sz, RED if flipped else PAPER)
+        if p > 0.85:
+            text(c, "T" if flipped else _BASES[i % len(_BASES)], bx + sz / 2, y, 19,
+                 PAPER if flipped else BLACK, align="center", family=MONO, bold=False, fit=False)
     if t > T["flip"]:
         pr = clamp((t - T["flip"]) / 0.8)
         ring(c, x0 + 19 * (s + gap) + s / 2, y, 30 + 120 * pr, RED, 4, 1 - pr)
@@ -313,8 +353,8 @@ def _p2(c, t):
     """The same edit lands in the cells you wanted to protect."""
     T = TIMING["p2"]
     sh = out_cubic((t - T["shrink"]) / 1.5)
-    disc(c, 620, 700, 210 * out_back(fade(t, T["c1"], 0.5)) * lerp(1.0, 0.55, sh), RED)
-    disc(c, 1380, 700, 210 * out_back(fade(t, T["c2"], 0.5)) * lerp(1.0, 0.62, sh), BLUE)
+    cell_mark(c, 620, 700, 210 * out_back(fade(t, T["c1"], 0.5)) * lerp(1.0, 0.55, sh), RED)
+    cell_mark(c, 1380, 700, 210 * out_back(fade(t, T["c2"], 0.5)) * lerp(1.0, 0.62, sh), BLUE)
     text(c, "cells to change", 620, 980, 28, PAPER, align="center", alpha=fade(t, T["c1"] + 0.3) * 0.7,
          family=LABEL, bold=False, track=4)
     text(c, "cells to protect", 1380, 980, 28, PAPER, align="center", alpha=fade(t, T["c2"] + 0.3) * 0.7,
@@ -360,7 +400,7 @@ def _p3(c, t):
 
 def scene_problem(c, t, dur, paper):
     chapter(c, t, "01", "PROBLEM", PAPER)
-    stage(c, t, [(8.0, _p1), (8.2, _p2), (8.2, _p3)])
+    stage(c, t, [(d, fn) for _, fn, d in BEATS["problem"]])
 
 
 # ================================================================================================
@@ -371,10 +411,12 @@ def _u1(c, t):
     T = TIMING["u1"]
     p = out_back(fade(t, T["gene"], 0.5))
     rect(c, 230, 560 - 110 * p, 220 * p, 220 * p, YELLOW)
+    if p > 0.6:
+        ladder(c, 300, 500, 80, 120, BLACK, (p - 0.6) / 0.4, rungs=4, lw=5)
     text(c, "a gene", 340, 730, 28, BLACK, align="center", alpha=fade(t, T["gene"] + 0.3) * 0.7,
          family=LABEL, bold=False, track=4)
-    disc(c, 1120, 470, 130 * out_back(fade(t, T["c1"], 0.5)), RED)
-    disc(c, 1120, 770, 130 * out_back(fade(t, T["c2"], 0.5)), BLUE)
+    cell_mark(c, 1120, 470, 130 * out_back(fade(t, T["c1"], 0.5)), RED)
+    cell_mark(c, 1120, 770, 130 * out_back(fade(t, T["c2"], 0.5)), BLUE)
     text(c, "cells to change", 1300, 470, 32, BLACK, alpha=fade(t, T["c1"] + 0.3) * 0.75, family=LABEL, bold=False)
     text(c, "cells to protect", 1300, 770, 32, BLACK, alpha=fade(t, T["c2"] + 0.3) * 0.75, family=LABEL, bold=False)
     pr = out_cubic(fade(t, T["rule"], 0.8))
@@ -413,6 +455,9 @@ def _u2(c, t):
         h = _U2_H[i] * 420
         rule(c, x, base - h - 10, x, base - h - 58, 4, RED, p)
         disc(c, x, base - h - 76, 15 * p, RED)
+    rule(c, x0, base + 14, x0 + T["bar_n"] * (bw + 4) - 4, base + 14, 3, BLACK, fade(t, 0.5) * 0.3)
+    base_strip(c, x0 + 8, x0 + T["bar_n"] * (bw + 4) - 12, base + 58, 22, BLACK,
+               fade(t, 0.8) * 0.45, n=T["bar_n"], reveal=out_cubic((t - 0.6) / 1.4))
     a = fade(t, T["count"], 0.6)
     text(c, f"{int(60 * out_cubic((t - T['count']) / 1.0))}", 1810, 350, 130, RED, align="right",
          alpha=a, family=DISPLAY)
@@ -482,7 +527,7 @@ def _u4(c, t):
 
 def scene_usecase(c, t, dur, paper):
     chapter(c, t, "02", "USE CASE", BLACK)
-    stage(c, t, [(6.6, _u1), (6.7, _u2), (6.7, _u3), (6.6, _u4)])
+    stage(c, t, [(d, fn) for _, fn, d in BEATS["usecase"]])
 
 
 # ================================================================================================
@@ -573,7 +618,7 @@ def _b3(c, t):
 
 def scene_benefits(c, t, dur, paper):
     chapter(c, t, "03", "WHAT YOU GET", PAPER)
-    stage(c, t, [(7.4, _b1), (7.4, _b2), (7.4, _b3)])
+    stage(c, t, [(d, fn) for _, fn, d in BEATS["benefits"]])
 
 
 # ================================================================================================
@@ -586,7 +631,7 @@ def _o1(c, t):
     rule(c, 150, 430, 150, 720, 8, BLACK, fade(t, 0.15))
     shown = int(max(0.0, t - T["type0"]) * T["type_rate"])
     y = 510
-    for s in ("$ pip install gene-edit-check", "$ gene-edit-check doctor"):
+    for s in O1_LINES:
         n = min(len(s), shown)
         shown -= max(n, 0)
         if n <= 0:
@@ -610,8 +655,7 @@ def _o2(c, t):
     rule(c, 150, 420, 150, 780, 8, BLACK, fade(t, 0.15))
     shown = int(max(0.0, t - T["type0"]) * T["type_rate"])
     y = 490
-    for s in ("$ gene-edit-check run-h5ad \\", "   --h5ad my_cells.h5ad \\",
-              "   --gene-symbol PDCD1 \\", "   --target-query \"state == 'exhausted'\""):
+    for s in O2_LINES:
         n = min(len(s), shown)
         shown -= max(n, 0)
         if n <= 0:
@@ -661,12 +705,15 @@ def _o3(c, t):
 
 def scene_outro(c, t, dur, paper):
     chapter(c, t, "04", "GET IT", BLACK)
-    stage(c, t, [(5.9, _o1), (5.9, _o2), (6.0, _o3)])
+    stage(c, t, [(d, fn) for _, fn, d in BEATS["outro"]])
 
 
 def scene_end(c, t, dur, paper):
     T = TIMING["end"]
-    disc(c, 1640, 300, 300 * out_back(fade(t, T["circle"], 0.7), 1.3), BLUE)
+    cr = 300 * out_back(fade(t, T["circle"], 0.7), 1.3)
+    disc(c, 1640, 300, cr, BLUE)
+    if cr > 240:
+        ladder(c, 1585, 190, 110, 220, PAPER, fade(t, T["circle"] + 0.5, 0.6) * 0.5, rungs=5, lw=6)
     half_disc(c, 1320, H, 210 * out_cubic(fade(t, T["circle"] + 0.3, 0.7)), YELLOW, math.pi)
     a = fade(t, T["word"], 0.6)
     dx = (1 - out_cubic((t - T["word"]) / 0.8)) * 40
@@ -680,6 +727,226 @@ def scene_end(c, t, dur, paper):
          family=LABEL, bold=False)
     for i, col in enumerate((RED, BLUE, YELLOW)):
         rect(c, 150 + i * 56, 840, 40, 40, col, a)
+
+
+# (key, draw function, seconds). A scene's length above must equal the sum of its beats.
+BEATS = {
+    "problem": [("p1", _p1, 6.6), ("p2", _p2, 6.7), ("p3", _p3, 6.7)],
+    "usecase": [("u1", _u1, 6.1), ("u2", _u2, 6.1), ("u3", _u3, 6.1), ("u4", _u4, 6.1)],
+    "benefits": [("b1", _b1, 6.65), ("b2", _b2, 6.65), ("b3", _b3, 6.7)],
+    "outro": [("o1", _o1, 5.18), ("o2", _o2, 5.18), ("o3", _o3, 5.2)],
+}
+
+
+def beat_at(scene: str, key: str) -> float:
+    """Seconds from the start of `scene` to the start of beat `key`."""
+    off = 0.0
+    for k, _, d in BEATS[scene]:
+        if k == key:
+            return off
+        off += d
+    raise KeyError(f"{scene}/{key}")
+
+
+SCENE_FN = {"title": scene_title, "problem": scene_problem, "usecase": scene_usecase,
+            "benefits": scene_benefits, "outro": scene_outro, "end": scene_end}
+
+
+# ---- transitions ---------------------------------------------------------------------------------
+def clip_shape(c, kind, p):
+    """Clip to the shape that reveals the incoming chapter."""
+    c.new_path()
+    if kind == "circle":
+        c.arc(1420, 360, math.hypot(W, H) * 1.05 * in_out(p), 0, 2 * math.pi)
+    elif kind == "columns":
+        n = 9
+        for i in range(n):
+            h = H * in_out(clamp((p - (i % 3) * 0.09) / 0.72))
+            c.rectangle(i * W / n, 0 if i % 2 == 0 else H - h, W / n + 1, h)
+    elif kind == "diagonal":
+        q = in_out(p) * (W + H) * 1.1
+        c.move_to(-H, 0)
+        c.line_to(-H + q, 0)
+        c.line_to(q, H)
+        c.line_to(-H, H)
+        c.close_path()
+    elif kind == "blocks":
+        cols, rows_ = 8, 5
+        bw, bh = W / cols, H / rows_
+        for i in range(cols):
+            for j in range(rows_):
+                s = out_back(clamp((p - ((i + j) % 5) * 0.07) / 0.68), 1.4)
+                if s <= 0:
+                    continue
+                c.rectangle(i * bw + bw * (1 - s) / 2, j * bh + bh * (1 - s) / 2, bw * s + 1, bh * s + 1)
+    else:  # bars
+        n = 7
+        for i in range(n):
+            w = W * in_out(clamp((p - i * 0.06) / 0.7))
+            c.rectangle(0 if i % 2 == 0 else W - w, i * H / n, w, H / n + 1)
+    c.clip()
+
+
+def draw_scene(c, idx, t):
+    name, bars, paper = SCENES[idx]
+    c.set_source_rgb(*(PAPER if paper else BLACK))
+    c.paint()
+    SCENE_FN[name](c, t, bars * BAR, paper)
+
+
+TRANS_DUR = 0.75
+
+
+def render(t, surf):
+    c = cairo.Context(surf)
+    c.scale(OW / W, OH / H)
+    idx = max(i for i in range(len(SCENES)) if STARTS[i] <= t + 1e-9)
+    local = t - STARTS[idx]
+    if idx > 0 and local < TRANS_DUR:
+        draw_scene(c, idx - 1, SCENES[idx - 1][1] * BAR + local)
+        c.save()
+        clip_shape(c, TRANSITIONS[(idx - 1) % len(TRANSITIONS)], local / TRANS_DUR)
+        draw_scene(c, idx, local)
+        c.restore()
+    else:
+        draw_scene(c, idx, local)
+
+
+# ================================================================================================
+# sound
+# ================================================================================================
+SR = 44100
+SCALE = [220.00, 261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25]  # A minor
+
+
+def build_events() -> list[tuple[float, str, float]]:
+    """Every sound effect, mirroring the animation schedules in TIMING."""
+    ev: list[tuple[float, str, float]] = []
+    S = {name: float(STARTS[i]) for i, (name, _, _) in enumerate(SCENES)}
+
+    def add(scene, t, kind, pitch=0.0):
+        ev.append((S[scene] + t, kind, pitch))
+
+    T = TIMING["title"]
+    for k, key in enumerate(("circle", "square", "halfdisc")):
+        add("title", T[key], "thunk", SCALE[k])
+    add("title", T["rule"], "whoosh")
+    add("title", T["word"], "chime", SCALE[5])
+    add("title", T["sub"], "bop", SCALE[2])
+    add("title", T["mark"], "beep", SCALE[6])
+
+    b, T = beat_at("problem", "p1"), TIMING["p1"]
+    for i in range(T["row_n"]):
+        add("problem", b + T["row0"] + i * T["row_step"], "tick", SCALE[i % 4] * 2)
+    add("problem", b + T["flip"], "beep", SCALE[6])
+    add("problem", b + T["gene"], "bop", SCALE[3])
+    add("problem", b + T["drop"], "fall", SCALE[1])
+    b, T = beat_at("problem", "p2"), TIMING["p2"]
+    add("problem", b + T["c1"], "thunk", SCALE[2])
+    add("problem", b + T["c2"], "thunk", SCALE[0])
+    add("problem", b + T["arrow"], "whoosh")
+    add("problem", b + T["shrink"], "fall", SCALE[2])
+    add("problem", b + T["bad"], "alarm", SCALE[1])
+    b, T = beat_at("problem", "p3"), TIMING["p3"]
+    for i in range(T["seg_n"]):
+        add("problem", b + T["seg0"] + i * T["seg_step"], "bop", SCALE[i % 5] / 2)
+    for i in range(0, T["grid_n"], 4):
+        add("problem", b + T["grid"] + i * T["grid_step"], "tick", SCALE[(i // 4) % 6] * 2)
+    add("problem", b + T["out"], "chime", SCALE[4])
+
+    b, T = beat_at("usecase", "u1"), TIMING["u1"]
+    add("usecase", b + T["gene"], "thunk", SCALE[4])
+    add("usecase", b + T["c1"], "thunk", SCALE[2])
+    add("usecase", b + T["c2"], "thunk", SCALE[0])
+    add("usecase", b + T["rule"], "whoosh")
+    b, T = beat_at("usecase", "u2"), TIMING["u2"]
+    for i in range(0, T["bar_n"], 2):
+        add("usecase", b + T["bar0"] + i * T["bar_step"], "tick", SCALE[i % 7] * 2)
+    for k in range(T["pin_n"]):
+        add("usecase", b + T["pin0"] + k * T["pin_step"], "beep", SCALE[k % 6] * 2)
+    add("usecase", b + T["count"], "chime", SCALE[5])
+    b, T = beat_at("usecase", "u3"), TIMING["u3"]
+    for i in range(T["row_n"]):
+        add("usecase", b + T["row0"] + i * T["row_step"], "swipe", SCALE[i % 5])
+    add("usecase", b + T["note"], "bop", SCALE[3])
+    b, T = beat_at("usecase", "u4"), TIMING["u4"]
+    for i in range(T["sq_n"]):
+        add("usecase", b + T["sq0"] + i * T["sq_step"], "bop", SCALE[i % 6])
+        add("usecase", b + T["sq0"] + i * T["sq_step"] + 0.25, "fill", SCALE[i % 6] * 2)
+    add("usecase", b + T["verdict"], "alarm", SCALE[0])
+
+    b, T = beat_at("benefits", "b1"), TIMING["b1"]
+    for i in range(0, T["bar_n"], 2):
+        add("benefits", b + T["bar0"] + i * T["bar_step"], "tick", SCALE[i % 6] * 2)
+    add("benefits", b + T["dot"], "thunk", SCALE[4])
+    add("benefits", b + T["label"], "chime", SCALE[6])
+    b, T = beat_at("benefits", "b2"), TIMING["b2"]
+    for i in range(0, 44, 4):
+        add("benefits", b + T["dots"] + i * 0.016, "tick", SCALE[(i // 4) % 7] * 2)
+    add("benefits", b + T["split"], "whoosh")
+    add("benefits", b + T["pick"], "beep", SCALE[5])
+    add("benefits", b + T["travel"], "swipe", SCALE[3])
+    add("benefits", b + T["travel"] + 1.33, "chime", SCALE[6])
+    b, T = beat_at("benefits", "b3"), TIMING["b3"]
+    for i in range(0, T["n_n"], 3):
+        add("benefits", b + T["n0"] + i * T["n_step"], "tick", SCALE[(i // 3) % 7] * 2)
+    add("benefits", b + T["bar"], "thunk", SCALE[4])
+    for i in range(8):
+        add("benefits", b + T["cand0"] + i * T["cand_step"], "bop", SCALE[i % 6])
+
+    b, T = beat_at("outro", "o1"), TIMING["o1"]
+    for i in range(int(sum(len(x) for x in O1_LINES) / T["type_rate"] / 0.1)):
+        add("outro", b + T["type0"] + i * 0.1, "key", SCALE[i % 5] * 2)
+    for i in range(T["panel_n"]):
+        add("outro", b + T["panel0"] + i * T["panel_step"], "bop", SCALE[i % 5])
+    b, T = beat_at("outro", "o2"), TIMING["o2"]
+    for i in range(int(sum(len(x) for x in O2_LINES) / T["type_rate"] / 0.1)):
+        add("outro", b + T["type0"] + i * 0.1, "key", SCALE[i % 5] * 2)
+    for i in range(T["note_n"]):
+        add("outro", b + T["note0"] + i * T["note_step"], "swipe", SCALE[i % 5])
+    b, T = beat_at("outro", "o3"), TIMING["o3"]
+    for i in range(T["card_n"]):
+        add("outro", b + T["card0"] + i * T["card_step"], "thunk", SCALE[i % 5])
+        for j in range(3):
+            add("outro", b + T["card0"] + i * T["card_step"] + 0.3 + j * T["item_step"], "tick", SCALE[(i + j) % 7] * 2)
+
+    T = TIMING["end"]
+    cr = 300 * out_back(fade(t, T["circle"], 0.7), 1.3)
+    disc(c, 1640, 300, cr, BLUE)
+    if cr > 240:
+        ladder(c, 1585, 190, 110, 220, PAPER, fade(t, T["circle"] + 0.5, 0.6) * 0.5, rungs=5, lw=6)
+    half_disc(c, 1320, H, 210 * out_cubic(fade(t, T["circle"] + 0.3, 0.7)), YELLOW, math.pi)
+    a = fade(t, T["word"], 0.6)
+    dx = (1 - out_cubic((t - T["word"]) / 0.8)) * 40
+    w = text(c, "gene-edit-", 150 - dx, 470, 108, PAPER, alpha=a, family=DISPLAY)
+    text(c, "check", 150 - dx + w, 470, 108, RED, alpha=a, family=DISPLAY)
+    rule(c, 150, 560, lerp(150, 1180, out_cubic(fade(t, T["rule"], 0.7))), 560, 8, PAPER)
+    text(c, "pip install gene-edit-check", 150, 652, 44, YELLOW, alpha=fade(t, T["pip"], 0.6),
+         family=MONO, bold=False)
+    a = fade(t, T["url"], 0.6)
+    text(c, "github.com/aravmendiratta/gene-edit-check", 150, 742, 32, PAPER, alpha=a * 0.75,
+         family=LABEL, bold=False)
+    for i, col in enumerate((RED, BLUE, YELLOW)):
+        rect(c, 150 + i * 56, 840, 40, 40, col, a)
+
+
+# (key, draw function, seconds). A scene's length above must equal the sum of its beats.
+BEATS = {
+    "problem": [("p1", _p1, 6.6), ("p2", _p2, 6.7), ("p3", _p3, 6.7)],
+    "usecase": [("u1", _u1, 6.1), ("u2", _u2, 6.1), ("u3", _u3, 6.1), ("u4", _u4, 6.1)],
+    "benefits": [("b1", _b1, 6.65), ("b2", _b2, 6.65), ("b3", _b3, 6.7)],
+    "outro": [("o1", _o1, 5.18), ("o2", _o2, 5.18), ("o3", _o3, 5.2)],
+}
+
+
+def beat_at(scene: str, key: str) -> float:
+    """Seconds from the start of `scene` to the start of beat `key`."""
+    off = 0.0
+    for k, _, d in BEATS[scene]:
+        if k == key:
+            return off
+        off += d
+    raise KeyError(f"{scene}/{key}")
 
 
 SCENE_FN = {"title": scene_title, "problem": scene_problem, "usecase": scene_usecase,
