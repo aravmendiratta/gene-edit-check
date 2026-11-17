@@ -47,13 +47,13 @@ GREY_D = (0.420, 0.424, 0.447)
 DISPLAY, LABEL, MONO = "Century Gothic", "Arial", "Consolas"
 
 SCENES = [  # name, bars, paper background?
-    ("title", 4, True), ("context", 9, False), ("problem", 8, True),
-    ("how", 11, False), ("gain", 8, True), ("outro", 6, False), ("end", 3, True),
+    ("title", 4, True), ("context", 8, False), ("problem", 7, True), ("work", 10, False),
+    ("how", 8, False), ("gain", 8, True), ("outro", 4, False), ("end", 3, True),
 ]
 STARTS = np.cumsum([0.0] + [b * BAR for _, b, _ in SCENES])
 TOTAL = float(STARTS[-1])
-TRANSITIONS = ["circle", "columns", "diagonal", "blocks", "bars", "circle"]
-SPINE_SCENES = {"context", "problem", "how"}  # the chapters the connective strand runs under
+TRANSITIONS = ["circle", "columns", "diagonal", "blocks", "bars", "circle", "columns"]
+SPINE_SCENES = {"context", "problem", "work", "how"}  # the chapters the connective strand runs under
 DATA: dict = {}
 
 # Every schedule the picture and the sound share. Times are seconds inside their own beat.
@@ -65,7 +65,11 @@ TIMING = {
     "p1": {"strand": 0.3, "pin0": 1.1, "pin_step": 0.16, "pin_n": 8, "count": 2.8},
     "p2": {"seg0": 0.35, "seg_step": 0.14, "seg_n": 12, "grid": 2.4, "grid_step": 0.022, "grid_n": 60},
     "p3": {"sq0": 0.4, "sq_step": 0.014, "sq_n": 100, "kill": 2.3, "label": 3.4},
-    "h1": {"gene": 0.3, "c1": 0.8, "c2": 1.2, "arrow": 1.8, "box": 2.5},
+    "w1": {"card0": 0.4, "card_step": 0.75, "card_n": 3, "note": 3.3},
+    "w2": {"type0": 0.4, "type_rate": 40.0, "note0": 2.0, "note_step": 0.4, "note_n": 3,
+           "stage0": 3.9, "stage_step": 0.75, "stage_n": 3, "done": 6.3},
+    "w3": {"card0": 0.4, "card_step": 0.55, "card_n": 3, "item_step": 0.12, "verdict": 3.8},
+    "o4": {"row0": 0.4, "row_step": 0.42, "row_n": 3, "chip0": 2.0, "chip_step": 0.22, "chip_n": 4},
     "h2": {"bar0": 0.35, "bar_step": 0.026, "bar_n": 44, "pin0": 1.8, "pin_step": 0.13, "pin_n": 6, "count": 3.0},
     "h3": {"row0": 0.35, "row_step": 0.32, "row_n": 5, "note": 2.4},
     "h4": {"sq0": 0.3, "sq_step": 0.22, "sq_n": 6, "fatal": 2.4, "stat": 3.6},
@@ -112,9 +116,17 @@ def fade(t: float, t0: float, dur: float = 0.5) -> float:
 
 
 # ---- primitives ----------------------------------------------------------------------------------
+AUDIT = False
+TEXT_BOXES: list = []
+
+
 def text(c, s, x, y, size, color, *, align="left", alpha=1.0, family=LABEL, bold=True,
          dy=0.0, rot=0.0, track=0.0, fit=True):
-    """Draw text with its optical centre on y. `track` adds letter spacing, which the small labels want."""
+    """Draw text with its optical centre on y. `track` adds letter spacing, which the small labels want.
+
+    With `AUDIT` on, every visible run records its box in `TEXT_BOXES` so `audit_overlaps()` can find
+    collisions by measurement instead of by eye.
+    """
     if alpha <= 0.004 or not s:
         return 0.0
     c.save()
@@ -138,6 +150,10 @@ def text(c, s, x, y, size, color, *, align="left", alpha=1.0, family=LABEL, bold
         c.show_text(ch)
         cx += adv
     c.restore()
+    if AUDIT and alpha > 0.25 and rot == 0.0 and total > 0:
+        base = y + dy + size * 0.35 * sc
+        bx = x + ox * sc
+        TEXT_BOXES.append((bx, base - 0.72 * size * sc, bx + total * sc, base + 0.21 * size * sc, s))
     return total * sc
 
 
@@ -424,7 +440,7 @@ def _c1(c, t):
     """One genome, read differently by every kind of cell."""
     T = TIMING["c1"]
     p = out_cubic(fade(t, T["helix"], 1.1))
-    helix(c, 440, 600, 580 * p, 140, 0.2 + t * 0.6, n=18, grow=p, alpha=p, rail=PAPER, dot=13)
+    helix(c, 440, 640, 520 * p, 140, 0.2 + t * 0.6, n=18, grow=p, alpha=p, rail=PAPER, dot=13)
     text(c, "one genome", 440, 950, 30, PAPER, align="center", alpha=fade(t, T["helix"] + 0.9) * 0.85,
          family=LABEL, bold=False, track=3)
     names, cols, lv = ["skin", "muscle", "nerve", "T cell"], [YELLOW, RED, BLUE, RED], [0.25, 0.55, 0.9, 1.0]
@@ -433,7 +449,7 @@ def _c1(c, t):
         if a <= 0:
             continue
         x, y = 1090 + (k % 2) * 400, 440 + (k // 2) * 290
-        arrow(c, 640, 600, x - 118, y, 4, PAPER, a * 0.3, 16)
+        arrow(c, 640, 640, x - 118, y, 4, PAPER, a * 0.3, 16)
         cell(c, x, y, 100 * a, cols[k], alpha=a, t=t, seed=k, level=lv[k])
         text(c, names[k], x, y + 142, 28, PAPER, align="center", alpha=a * 0.75,
              family=LABEL, bold=False, track=3)
@@ -595,38 +611,125 @@ def scene_problem(c, t, dur, paper):
 # ================================================================================================
 # 03  HOW GENE-EDIT-CHECK WORKS
 # ================================================================================================
-def _h1(c, t):
-    """Two inputs go in, one verdict comes out."""
-    T = TIMING["h1"]
-    p = min(out_back(fade(t, T["gene"], 0.5)), 1.0)
-    rect(c, 170, 612 - 95 * p, 190 * p, 190 * p, YELLOW)
-    if p > 0.6:
-        helix(c, 265, 612, 126, 34, 0.4 + t * 1.1, n=7, alpha=(p - 0.6) / 0.4, rail=BLACK, dot=6)
-    text(c, "the gene", 265, 752, 28, PAPER, align="center", alpha=fade(t, T["gene"] + 0.3) * 0.85,
-         family=LABEL, bold=False, track=3)
-    a1 = min(out_back(fade(t, T["c1"], 0.5), 1.6), 1.0)
-    a2 = min(out_back(fade(t, T["c2"], 0.5), 1.6), 1.0)
-    cell(c, 620, 482, 100 * a1, RED, alpha=a1, t=t, seed=1)
-    cell(c, 620, 752, 100 * a2, BLUE, alpha=a2, t=t, seed=2)
-    text(c, "cells to change", 752, 482, 30, PAPER, alpha=a1 * 0.85, family=LABEL, bold=False)
-    text(c, "cells to protect", 752, 752, 30, PAPER, alpha=a2 * 0.85, family=LABEL, bold=False)
-    pa = out_cubic(fade(t, T["arrow"], 0.7))
-    if pa > 0:
-        arrow(c, 1080, 482, lerp(1080, 1290, pa), 482, 5, PAPER, pa * 0.8, 18)
-        arrow(c, 1080, 752, lerp(1080, 1290, pa), 752, 5, PAPER, pa * 0.8, 18)
-        arrow(c, 380, 612, lerp(380, 560, pa), 612, 5, PAPER, pa * 0.8, 18)
-    pb = out_cubic(fade(t, T["box"], 0.6))
-    if pb > 0:
-        rect(c, 1310, 470, 420, 300, PAPER, pb * 0.08)
-        rect(c, 1310, 470, 420, 300, PAPER, pb * 0.85, stroke=5)
-        text(c, "gene-edit-check", 1520, 598, 36, PAPER, align="center", alpha=pb, family=DISPLAY)
-        text(c, "three steps, one verdict", 1520, 656, 26, PAPER, align="center", alpha=pb * 0.72,
-             family=LABEL, bold=False)
-        arrow(c, 1520, 790, 1520, lerp(790, 905, pb), 5, YELLOW, pb, 20)
-        text(c, "a shortlist, or a reason there is none", 1520, 962, 30, YELLOW, align="center",
-             alpha=fade(t, T["box"] + 0.5) * 0.95, family=LABEL, bold=False)
-    headline(c, t, "gene-edit-check takes two inputs", 150, 250, 82, PAPER, t0=0.1,
-             sub="a gene, and the two cell states that must be told apart")
+def _w1(c, t):
+    """What a person actually has to supply."""
+    T = TIMING["w1"]
+    cw, gap = 480, 70
+    x0 = (W - (3 * cw + 2 * gap)) / 2
+    for i in range(T["card_n"]):
+        p = out_cubic(fade(t, T["card0"] + i * T["card_step"], 0.6))
+        if p <= 0:
+            continue
+        x, y = x0 + i * (cw + gap), 400 + (1 - p) * 50
+        rect(c, x, y, cw, 68, (RED, YELLOW, BLUE)[i], p)
+        text(c, ["single-cell data", "a gene", "two cell labels"][i], x + 26, y + 34, 32,
+             PAPER if i != 1 else BLACK, alpha=p, family=DISPLAY)
+        rect(c, x, y + 68, cw, 300, PAPER, p * 0.07)
+        if i == 0:
+            for r in range(4):
+                a2 = fade(t, T["card0"] + 0.35 + r * 0.09, 0.3)
+                rect(c, x + 30, y + 120 + r * 48, 250, 30, PAPER, a2 * 0.22)
+                rect(c, x + 296, y + 120 + r * 48, 150, 30, (RED, BLUE)[r % 2], a2 * 0.75)
+            text(c, "one row per cell, one label column", x + 26, y + 338, 22, PAPER,
+                 alpha=fade(t, T["card0"] + 0.9) * 0.75, family=LABEL, bold=False, fit=False)
+        elif i == 1:
+            helix(c, x + cw / 2, y + 196, 160, 44, 0.3 + t * 0.9, n=9,
+                  alpha=fade(t, T["card0"] + T["card_step"] + 0.3), rail=PAPER, dot=8)
+            text(c, "PDCD1", x + cw / 2, y + 310, 34, YELLOW, align="center",
+                 alpha=fade(t, T["card0"] + T["card_step"] + 0.5), family=MONO, bold=False)
+        else:
+            tb = T["card0"] + 2 * T["card_step"]
+            cell(c, x + 150, y + 180, 72, RED, alpha=fade(t, tb + 0.3), t=t, seed=7)
+            cell(c, x + 330, y + 180, 72, BLUE, alpha=fade(t, tb + 0.45), t=t, seed=8)
+            text(c, "to change", x + 150, y + 290, 26, PAPER, align="center",
+                 alpha=fade(t, tb + 0.5) * 0.8, family=LABEL, bold=False, fit=False)
+            text(c, "to protect", x + 330, y + 290, 26, PAPER, align="center",
+                 alpha=fade(t, tb + 0.6) * 0.8, family=LABEL, bold=False, fit=False)
+    text(c, "a public atlas works. so does an experiment of your own.", W / 2, 856, 32, PAPER,
+         align="center", alpha=fade(t, T["note"], 0.7) * 0.9, family=LABEL, bold=False)
+    text(c, "no reference genome to prepare, no training to run", W / 2, 906, 28, PAPER,
+         align="center", alpha=fade(t, T["note"] + 0.4, 0.7) * 0.65, family=LABEL, bold=False)
+    headline(c, t, "what you need to start", 150, 250, 86, PAPER, t0=0.1,
+             sub="three things, and two of them are just names")
+
+
+def _w2(c, t):
+    """The one command, and what it spends its time on."""
+    T = TIMING["w2"]
+    rect(c, 170, 400, 1000, 300, PAPER, fade(t, 0.15) * 0.07)
+    rule(c, 170, 400, 170, 700, 8, PAPER, fade(t, 0.15))
+    shown = int(max(0.0, t - T["type0"]) * T["type_rate"])
+    y = 462
+    for s_ in O2_LINES:
+        n = min(len(s_), shown)
+        shown -= max(n, 0)
+        if n <= 0:
+            break
+        text(c, s_[:n], 214, y, 30, PAPER, family=MONO, bold=False, fit=False)
+        y += 68
+    for i, (lab, col) in enumerate((("your file", YELLOW), ("your gene", RED), ("your two labels", BLUE))):
+        p = out_cubic(fade(t, T["note0"] + i * T["note_step"], 0.5))
+        if p <= 0:
+            continue
+        y2 = 530 + i * 68
+        rule(c, 1190, y2, lerp(1190, 1260, p), y2, 5, col)
+        text(c, lab, 1280, y2, 28, PAPER, alpha=p * 0.9, family=LABEL, bold=False, fit=False)
+    stages = ["find the reachable edits", "predict both cell states", "run the six checks"]
+    for i in range(T["stage_n"]):
+        p = out_cubic(fade(t, T["stage0"] + i * T["stage_step"], 0.55))
+        if p <= 0:
+            continue
+        bw, bx = 500, 180 + i * 540
+        rect(c, bx, 790, bw, 22, PAPER, 0.16)
+        rect(c, bx, 790, bw * p, 22, (RED, YELLOW, BLUE)[i])
+        text(c, stages[i], bx, 852, 26, PAPER, alpha=min(p * 1.4, 1.0) * 0.85, family=LABEL,
+             bold=False, fit=False)
+    a = fade(t, T["done"], 0.6)
+    text(c, "minutes on one laptop and one free API key", W / 2, 940, 30, YELLOW, align="center",
+         alpha=a * 0.95, family=LABEL, bold=False)
+    headline(c, t, "one command does the run", 150, 250, 86, PAPER, t0=0.1,
+             sub="no code to write, and nothing hard-coded to one gene")
+
+
+def _w3(c, t):
+    """What lands on disk, and the decision it supports."""
+    T = TIMING["w3"]
+    cards = [("a report", ["every candidate", "every check", "the thresholds used"], RED),
+             ("the figures", None, BLUE),
+             ("a guide to order", ["chr2:241,859,845", "A to G  ·  ABE8e", "protospacer + PAM"], YELLOW)]
+    cw, gap = 470, 56
+    x0 = (W - (3 * cw + 2 * gap)) / 2
+    for i, (title_, rows, col) in enumerate(cards):
+        p = out_cubic(fade(t, T["card0"] + i * T["card_step"], 0.5))
+        if p <= 0:
+            continue
+        x, y = x0 + i * (cw + gap), 390 + (1 - p) * 50
+        rect(c, x, y, cw, 64, col, p)
+        text(c, title_, x + 24, y + 32, 30, PAPER if i != 2 else BLACK, alpha=p, family=DISPLAY)
+        rect(c, x, y + 64, cw, 268, PAPER, p * 0.07)
+        if rows:
+            for j, r in enumerate(rows):
+                a2 = fade(t, T["card0"] + i * T["card_step"] + 0.28 + j * T["item_step"], 0.35)
+                rect(c, x + 24, y + 118 + j * 66 - 9, 16, 16, col, a2)
+                text(c, r, x + 58, y + 118 + j * 66, 26, PAPER, alpha=a2 * 0.85, family=LABEL,
+                     bold=False, fit=False)
+        else:
+            for j in range(3):
+                for k in range(4):
+                    a2 = fade(t, T["card0"] + i * T["card_step"] + 0.28 + (j * 4 + k) * 0.04, 0.3)
+                    rect(c, x + 42 + k * 98, y + 108 + j * 78, 62, 62,
+                         RED if (k == 2 and j != 1) else BLUE, a2 * 0.9)
+    a = fade(t, T["verdict"], 0.7)
+    arrow(c, W / 2, 770, W / 2, 840, 6, YELLOW, a, 22)
+    text(c, "a shortlist worth bench time, or a reason there is none", W / 2, 902, 34, YELLOW,
+         align="center", alpha=a, family=LABEL, bold=False)
+    headline(c, t, "what lands on disk", 150, 250, 86, PAPER, t0=0.1,
+             sub="the evidence, not just a verdict you have to trust")
+
+
+def scene_work(c, t, dur, paper):
+    chapter(c, t, "03", "USING IT", PAPER)
+    stage(c, t, [(d, fn) for _, fn, d in BEATS["work"]])
 
 
 _H2_H = [0.14, 0.2, 0.33, 0.25, 0.18, 0.4, 0.62, 0.48, 0.3, 0.22, 0.35, 0.55, 0.78, 0.95, 0.72, 0.5,
@@ -672,7 +775,7 @@ def _h2(c, t):
     a = fade(t, T["count"], 0.6)
     text(c, f"{int(60 * out_cubic((t - T['count']) / 1.0))}", 1810, 900, 100, RED, align="right",
          alpha=a, family=DISPLAY)
-    text(c, "candidates to score", 1810, 960, 28, PAPER, align="right", alpha=a * 0.8,
+    text(c, "candidates to score", 1810, 978, 28, PAPER, align="right", alpha=a * 0.8,
          family=LABEL, bold=False)
     headline(c, t, "step one  ·  find the reachable edits", 150, 250, 82, PAPER, t0=0.1,
              sub="the model's own gradients say where this gene is sensitive")
@@ -742,7 +845,7 @@ def _h4(c, t):
 
 
 def scene_how(c, t, dur, paper):
-    chapter(c, t, "03", "HOW IT WORKS", PAPER)
+    chapter(c, t, "04", "INSIDE", PAPER)
     stage(c, t, [(d, fn) for _, fn, d in BEATS["how"]])
 
 
@@ -839,7 +942,7 @@ def _g3(c, t):
 
 
 def scene_gain(c, t, dur, paper):
-    chapter(c, t, "04", "WHAT YOU GET", BLACK)
+    chapter(c, t, "05", "WHY TRUST IT", BLACK)
     stage(c, t, [(d, fn) for _, fn, d in BEATS["gain"]])
 
 
@@ -871,62 +974,36 @@ def _o1(c, t):
              sub="one command, then it reports whatever is missing")
 
 
-def _o2(c, t):
-    T = TIMING["o2"]
-    disc(c, 250, H + 120, 290 * out_cubic(fade(t, 0.3, 0.9)), RED)
-    rect(c, 170, 410, 1020, 350, PAPER, fade(t, 0.15) * 0.07)
-    rule(c, 170, 410, 170, 760, 8, PAPER, fade(t, 0.15))
-    shown = int(max(0.0, t - T["type0"]) * T["type_rate"])
-    y = 478
-    for s in O2_LINES:
-        n = min(len(s), shown)
-        shown -= max(n, 0)
-        if n <= 0:
-            break
-        text(c, s[:n], 218, y, 32, PAPER, family=MONO, bold=False, fit=False)
-        y += 74
-    for i, (s, col) in enumerate((("your own cells", YELLOW), ("any gene", RED), ("which cells to change", BLUE))):
-        p = out_cubic(fade(t, T["note0"] + i * T["note_step"], 0.5))
+def _o4(c, t):
+    """Who the tool is for, and what it costs to try."""
+    T = TIMING["o4"]
+    rows = [("computational biologists", "with a single-cell dataset already in hand", RED),
+            ("gene-editing teams", "deciding which candidate is worth a bench", YELLOW),
+            ("anyone screening a locus", "who needs the reasoning written down", BLUE)]
+    for i, (who, why, col) in enumerate(rows):
+        p = out_cubic(fade(t, T["row0"] + i * T["row_step"], 0.6))
         if p <= 0:
             continue
-        y2 = 552 + i * 74
-        rule(c, 1220, y2, lerp(1220, 1300, p), y2, 5, col)
-        text(c, s, 1320, y2, 30, PAPER, alpha=p * 0.85, family=LABEL, bold=False)
-    headline(c, t, "point it at your own cells", 150, 250, 86, PAPER, t0=0.1,
-             sub="any gene, any single-cell dataset, nothing hard-coded")
-
-
-def _o3(c, t):
-    T = TIMING["o3"]
-    cards = [("a report", ["every candidate", "every check", "the thresholds"], RED),
-             ("the figures", None, BLUE),
-             ("a candidate", ["position", "editor and guide", "atlas link"], YELLOW)]
-    cw, gap = 470, 56
-    x0 = (W - (3 * cw + 2 * gap)) / 2
-    for i, (title_, rows, col) in enumerate(cards):
-        p = out_cubic(fade(t, T["card0"] + i * T["card_step"], 0.5))
+        y = 420 + i * 120 + (1 - p) * 30
+        rect(c, 180, y - 26, 52, 52, col, p)
+        text(c, who, 266, y - 10, 36, PAPER, alpha=p, family=DISPLAY)
+        text(c, why, 266, y + 36, 27, PAPER, alpha=p * 0.7, family=LABEL, bold=False)
+    for i, chip in enumerate(("macOS", "Linux", "Windows", "MIT licensed")):
+        p = min(out_back(fade(t, T["chip0"] + i * T["chip_step"], 0.4), 1.8), 1.0)
         if p <= 0:
             continue
-        x, y = x0 + i * (cw + gap), 430 + (1 - p) * 60
-        rect(c, x, y, cw, 66, col, p)
-        text(c, title_, x + 26, y + 33, 32, PAPER if i != 2 else BLACK, alpha=p, family=DISPLAY)
-        rect(c, x, y + 66, cw, 300, PAPER, p * 0.07)
-        if rows:
-            for j, r in enumerate(rows):
-                a = fade(t, T["card0"] + i * T["card_step"] + 0.28 + j * T["item_step"], 0.35)
-                rect(c, x + 26, y + 126 + j * 72 - 9, 18, 18, col, a)
-                text(c, r, x + 62, y + 126 + j * 72, 28, PAPER, alpha=a * 0.85, family=LABEL, bold=False)
-        else:
-            for j in range(3):
-                for k in range(4):
-                    a = fade(t, T["card0"] + i * T["card_step"] + 0.28 + (j * 4 + k) * 0.045, 0.3)
-                    rect(c, x + 44 + k * 98, y + 118 + j * 86, 64, 64, RED if (k == 2 and j != 1) else BLUE, a * 0.9)
-    headline(c, t, "the evidence comes with it", 150, 250, 86, PAPER, t0=0.1,
-             sub="seeds, thresholds and model version, written down every run")
+        x = 1240 + (i % 2) * 300
+        y = 430 + (i // 2) * 120
+        rect(c, x, y, 260 * p, 78 * p, PAPER, p * 0.9, stroke=3)
+        text(c, chip, x + 130, y + 39, 28, PAPER, align="center", alpha=p, fit=False)
+    text(c, "free to run. the model needs a free non-commercial key.", 1240, 760, 28, PAPER,
+         alpha=fade(t, T["chip0"] + 1.0) * 0.75, family=LABEL, bold=False)
+    headline(c, t, "who this is for", 150, 250, 86, PAPER, t0=0.1,
+             sub="anyone who has to choose which edit deserves a bench")
 
 
 def scene_outro(c, t, dur, paper):
-    chapter(c, t, "05", "GET IT", PAPER)
+    chapter(c, t, "06", "GET IT", PAPER)
     stage(c, t, [(d, fn) for _, fn, d in BEATS["outro"]])
 
 
@@ -951,11 +1028,12 @@ def scene_end(c, t, dur, paper):
 
 # (key, draw function, seconds). A scene's length above must equal the sum of its beats.
 BEATS = {
-    "context": [("c1", _c1, 6.6), ("c2", _c2, 6.7), ("c3", _c3, 6.7)],
-    "problem": [("p1", _p1, 5.9), ("p2", _p2, 5.9), ("p3", _p3, 5.98)],
-    "how": [("h1", _h1, 6.1), ("h2", _h2, 6.1), ("h3", _h3, 6.1), ("h4", _h4, 6.14)],
+    "context": [("c1", _c1, 5.9), ("c2", _c2, 5.9), ("c3", _c3, 5.98)],
+    "problem": [("p1", _p1, 5.18), ("p2", _p2, 5.18), ("p3", _p3, 5.2)],
+    "work": [("w1", _w1, 7.4), ("w2", _w2, 7.4), ("w3", _w3, 7.42)],
+    "how": [("h2", _h2, 5.9), ("h3", _h3, 5.9), ("h4", _h4, 5.98)],
     "gain": [("g1", _g1, 5.9), ("g2", _g2, 5.9), ("g3", _g3, 5.98)],
-    "outro": [("o1", _o1, 4.44), ("o2", _o2, 4.44), ("o3", _o3, 4.45)],
+    "outro": [("o1", _o1, 4.44), ("o4", _o4, 4.45)],
 }
 
 
@@ -970,7 +1048,8 @@ def beat_at(scene: str, key: str) -> float:
 
 
 SCENE_FN = {"title": scene_title, "context": scene_context, "problem": scene_problem,
-            "how": scene_how, "gain": scene_gain, "outro": scene_outro, "end": scene_end}
+            "work": scene_work, "how": scene_how, "gain": scene_gain, "outro": scene_outro,
+            "end": scene_end}
 
 
 # ---- transitions ---------------------------------------------------------------------------------
@@ -1093,12 +1172,28 @@ def build_events() -> list[tuple[float, str, float]]:
     add("problem", b + T["kill"], "fall", SCALE[0])
     add("problem", b + T["label"], "chime", SCALE[3])
 
-    b, T = beat_at("how", "h1"), TIMING["h1"]
-    add("how", b + T["gene"], "thunk", SCALE[4])
-    add("how", b + T["c1"], "thunk", SCALE[2])
-    add("how", b + T["c2"], "thunk", SCALE[0])
-    add("how", b + T["arrow"], "swipe", SCALE[3])
-    add("how", b + T["box"], "chime", SCALE[5])
+    b, T = beat_at("work", "w1"), TIMING["w1"]
+    for i in range(T["card_n"]):
+        add("work", b + T["card0"] + i * T["card_step"], "thunk", SCALE[i % 5])
+        for j in range(3):
+            add("work", b + T["card0"] + i * T["card_step"] + 0.35 + j * 0.09, "tick", SCALE[(i + j) % 7] * 2)
+    add("work", b + T["note"], "bop", SCALE[4])
+    b, T = beat_at("work", "w2"), TIMING["w2"]
+    for i in range(int(sum(len(x) for x in O2_LINES) / T["type_rate"] / 0.1)):
+        add("work", b + T["type0"] + i * 0.1, "key", SCALE[i % 5] * 2)
+    for i in range(T["note_n"]):
+        add("work", b + T["note0"] + i * T["note_step"], "swipe", SCALE[i % 5])
+    for i in range(T["stage_n"]):
+        add("work", b + T["stage0"] + i * T["stage_step"], "fill", SCALE[i % 6] * 2)
+        add("work", b + T["stage0"] + i * T["stage_step"] + 0.5, "beep", SCALE[(i + 3) % 6] * 2)
+    add("work", b + T["done"], "chime", SCALE[5])
+    b, T = beat_at("work", "w3"), TIMING["w3"]
+    for i in range(T["card_n"]):
+        add("work", b + T["card0"] + i * T["card_step"], "thunk", SCALE[i % 5])
+        for j in range(3):
+            add("work", b + T["card0"] + i * T["card_step"] + 0.28 + j * T["item_step"], "tick", SCALE[(i + j) % 7] * 2)
+    add("work", b + T["verdict"], "chime", SCALE[6])
+
     b, T = beat_at("how", "h2"), TIMING["h2"]
     for i in range(0, T["bar_n"], 2):
         add("how", b + T["bar0"] + i * T["bar_step"], "tick", SCALE[i % 7] * 2)
@@ -1140,16 +1235,11 @@ def build_events() -> list[tuple[float, str, float]]:
         add("outro", b + T["type0"] + i * 0.1, "key", SCALE[i % 5] * 2)
     for i in range(T["panel_n"]):
         add("outro", b + T["panel0"] + i * T["panel_step"], "bop", SCALE[i % 5])
-    b, T = beat_at("outro", "o2"), TIMING["o2"]
-    for i in range(int(sum(len(x) for x in O2_LINES) / T["type_rate"] / 0.1)):
-        add("outro", b + T["type0"] + i * 0.1, "key", SCALE[i % 5] * 2)
-    for i in range(T["note_n"]):
-        add("outro", b + T["note0"] + i * T["note_step"], "swipe", SCALE[i % 5])
-    b, T = beat_at("outro", "o3"), TIMING["o3"]
-    for i in range(T["card_n"]):
-        add("outro", b + T["card0"] + i * T["card_step"], "thunk", SCALE[i % 5])
-        for j in range(3):
-            add("outro", b + T["card0"] + i * T["card_step"] + 0.28 + j * T["item_step"], "tick", SCALE[(i + j) % 7] * 2)
+    b, T = beat_at("outro", "o4"), TIMING["o4"]
+    for i in range(T["row_n"]):
+        add("outro", b + T["row0"] + i * T["row_step"], "bop", SCALE[i % 5])
+    for i in range(T["chip_n"]):
+        add("outro", b + T["chip0"] + i * T["chip_step"], "tick", SCALE[i % 6] * 2)
 
     T = TIMING["end"]
     add("end", T["helix"], "sweep")
@@ -1163,6 +1253,50 @@ def build_events() -> list[tuple[float, str, float]]:
         ev.append((t0 - TRANS_DUR, "sweep", 0.0))
         ev.append((t0, "impact", 0.0))
     return [e for e in ev if 0 <= e[0] < TOTAL]
+
+
+def audit_overlaps(step: float = 0.12, min_frac: float = 0.10) -> list[tuple[float, str, str, float]]:
+    """Sample the film and report pairs of text runs whose boxes overlap, so collisions are measured.
+
+    Samples skip the crossfades between beats and the transitions between chapters, where two scenes are
+    deliberately on screen at once.
+    """
+    global AUDIT
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, OW, OH)
+    beat_edges = []
+    for i, (name, _, _) in enumerate(SCENES):
+        for key, _, _ in BEATS.get(name, []):
+            beat_edges.append(float(STARTS[i]) + beat_at(name, key))
+    hits: list[tuple[float, str, str, float]] = []
+    AUDIT = True
+    try:
+        t = 0.0
+        while t < TOTAL:
+            near_scene = any(abs(t - float(x)) < TRANS_DUR + 0.1 for x in STARTS)
+            near_beat = any(abs(t - e) < 0.62 for e in beat_edges)
+            if near_scene or near_beat:
+                t += step
+                continue
+            TEXT_BOXES.clear()
+            render(t, surf)
+            boxes = list(TEXT_BOXES)
+            for i in range(len(boxes)):
+                for j in range(i + 1, len(boxes)):
+                    ax0, ay0, ax1, ay1, as_ = boxes[i]
+                    bx0, by0, bx1, by1, bs = boxes[j]
+                    ow = min(ax1, bx1) - max(ax0, bx0)
+                    oh = min(ay1, by1) - max(ay0, by0)
+                    if ow <= 0 or oh <= 0:
+                        continue
+                    small = min((ax1 - ax0) * (ay1 - ay0), (bx1 - bx0) * (by1 - by0))
+                    frac = (ow * oh) / max(small, 1.0)
+                    if frac >= min_frac:
+                        hits.append((round(t, 2), as_, bs, round(frac, 2)))
+            t += step
+    finally:
+        AUDIT = False
+        TEXT_BOXES.clear()
+    return hits
 
 
 def make_music() -> np.ndarray:

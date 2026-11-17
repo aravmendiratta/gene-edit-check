@@ -2,17 +2,20 @@
 
 ## Unreleased
 
-- `scripts/make_launch_video.py` draws and scores a 109-second launch film. A Bauhaus vocabulary (circle,
+- `scripts/make_launch_video.py` draws and scores a 116-second launch film. A Bauhaus vocabulary (circle,
   square, rule; primary red, blue and yellow) is used to draw real biology: a turning double helix, strands
   that unwind, a base editor clamping onto one base, cells with membranes and nuclei whose chromatin marks
-  stand for gene activity. The flow is title, why single-letter edits need checking at all, the problem, how
-  gene-edit-check works, what you get, and how to get it; a faint scrolling strand runs under the middle
-  chapters as connective tissue, arrows and leader lines name every mark, and headlines name their subject.
-  The industry attrition figure cited is Wong, Siah & Lo, Biostatistics 2019, labelled as not this project's
-  data. The soundtrack is synthesised (108 BPM bed plus 261 sound effects); `build_events()` and the draw
-  calls both read `TIMING` and `BEATS`, so picture and sound cannot drift. Rendered at 720p, H.264 Main with
-  the index first so it streams without stalling. Needs `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`,
-  which are not project dependencies; `assets/*.mp4` is gitignored.
+  stand for gene activity. The chapters run title, why single-letter edits need checking, the problem, using
+  it (what data you need, the one command, what lands on disk), what happens inside, why to trust it, and who
+  it is for. A faint scrolling strand ties the middle chapters together, arrows and leader lines name every
+  mark, and headlines name their subject. The attrition figure cited is Wong, Siah & Lo, Biostatistics 2019,
+  labelled on screen as industry-wide rather than this project's data. `audit_overlaps()` renders the whole
+  timeline with text-box recording switched on and reports any two text runs that collide, so layout is
+  checked by measurement; it currently reports none. The soundtrack is synthesised (108 BPM bed plus 289
+  sound effects); `build_events()` and the draw calls both read `TIMING` and `BEATS`, so picture and sound
+  cannot drift. Rendered at 720p, H.264 Main with the index first so it streams without stalling. Needs
+  `pycairo`, `imageio-ffmpeg`, `numpy` and `scipy`, which are not project dependencies; `assets/*.mp4` is
+  gitignored.
 - Removed the repeated "research use only" mentions (badge, banner card, terminal output, video). The
   non-commercial AlphaGenome terms stay in the README's Limits section.
 
